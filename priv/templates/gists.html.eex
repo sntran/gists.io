@@ -1,0 +1,8 @@
+<ul><%= lc entry inlist entries do %>
+	<li>
+		<h2><%= entry["title"] %></h2>
+		<p><%= entry["description"] %></p>
+		<p><a href="/<%= entry["user"]["login"] %>/<%= entry["id"] %>">
+		Read more</a></p>
+	</li>
+<% end %></ul>

@@ -10,8 +10,9 @@ defmodule GistsIO do
         static_dir = Path.join [Path.dirname(:code.which(__MODULE__)), "..", "priv", "static"]
         dispatch = [
             {:_, [
-                {"/:username/:gist", [{:gist, :int}], GistsIO.GistsListHandler, []},
-                {"/:gist", [{:gist, :int}], GistsIO.GistsListHandler, []},
+                {"/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
+                {"/:username", GistsIO.GistsHandler, []},
+                {"/:username/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/s/[:...]", :cowboy_static, [
                     directory: static_dir, mimetypes: {
                         &:mimetypes.path_to_mimes/2, :default
