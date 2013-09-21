@@ -1,7 +1,8 @@
 defmodule GistsIO.GistsListHandler do
 	alias :cowboy_req, as: Req
+	require EEx
 
-	def init(_transport, req, []) do
+	def init(_transport, _req, []) do
 		{:upgrade, :protocol, :cowboy_rest}
 	end
 
@@ -11,7 +12,7 @@ defmodule GistsIO.GistsListHandler do
 
 	def content_types_provided(req, state) do
 		{[
-			{"application/json", :page_json}
+			{"text/html", :gist_html}
 		], req, state}
 	end
 
@@ -21,11 +22,7 @@ defmodule GistsIO.GistsListHandler do
 			{gistId, req} -> 
 				gist = GistFetcher.parse_gist gistId
 				files = gist["files"]
-				isMarkdown = fn({name, attrs}) -> 
-					attrs["language"] === "Markdown" 
-				end
-				
-				if Files !== nil and Enum.any?(files, isMarkdown) do
+				if files !== nil and Enum.any?(files, &is_markdown/1) do
 					{:true, req, gist}
 				else
 					{:false, req, gist}
@@ -33,7 +30,21 @@ defmodule GistsIO.GistsListHandler do
 		end
 	end
 
-	def page_json(req, gist) do
-		{Jsonex.encode(gist), req, gist}
+	def gist_html(req, gist) do
+		files = gist["files"]
+		{_name, attrs} = Enum.filter(files, &is_markdown/1) |> Enum.at 0
+		content_html = attrs["content"] |> Kernel.bitstring_to_list 
+						|> :erlmarkdown.conv 
+						|> Kernel.list_to_bitstring
+
+		html = [:code.priv_dir(:gistsio), "templates", "base.html.eex"]
+				|> Path.join
+				|> EEx.eval_file [content: content_html]
+
+		{html, req, gist}
+	end
+
+	defp is_markdown({_name, attrs}) do
+		attrs["language"] === "Markdown"
 	end
 end

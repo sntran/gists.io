@@ -21,8 +21,10 @@ defmodule GistsIO do
         ] |> :cowboy_router.compile
 
         {:ok, _} = :cowboy.start_http(:http, 100,
-                                    [port: port],
-                                    [env: [dispatch: dispatch]])
+            [port: port],
+            [env: [dispatch: dispatch]]
+            # [middlewares: [:cowboy_router, :markdown_converter, :cowboy_handler]]
+        )
 
         GistsIO.Supervisor.start_link
     end

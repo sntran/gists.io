@@ -23,7 +23,8 @@ defmodule GistsIO.Mixfile do
             {:cowboy, github: "extend/cowboy"},
             {:httpotion, "0.2.2",[github: "myfreeweb/httpotion"]},
             {:jsonex,"2.0",[github: "marcelog/jsonex", tag: "2.0"]},
-            { :mimetypes, github: "spawngrid/mimetypes", override: true }
+            {:mimetypes, github: "spawngrid/mimetypes", override: true },
+            {:erlmarkdown, [github: "ericbmerritt/erlmarkdown", branch: "rv", compile: "rebar compile"]}
         ]
     end
 end
