@@ -4,13 +4,12 @@ defmodule GistFetcher do
   def parse_gist(id) do
     case fetch_gist(id) do
       { :ok, body } -> 
-        # Jsonex.decode(body)
-        body
+        Jsonex.decode(body)
       { :error, message } -> IO.puts message
     end
   end
   
-  def fetch_gist(id) when is_binary(id) do
+  def fetch_gist(id) when is_integer(id) do
     HTTPotion.start
     case HTTPotion.get(gist_url(id)) do
       Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->

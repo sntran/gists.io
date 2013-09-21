@@ -12,7 +12,7 @@ defmodule GistsIO.Mixfile do
     def application do
         [ 
             mod: { GistsIO, [] },
-            applications: [:cowboy] 
+            applications: [:crypto, :mimetypes, :cowboy]
         ]
     end
 
@@ -22,7 +22,8 @@ defmodule GistsIO.Mixfile do
         [ 
             {:cowboy, github: "extend/cowboy"},
             {:httpotion, "0.2.2",[github: "myfreeweb/httpotion"]},
-            {:jsonex,"2.0",[github: "marcelog/jsonex", tag: "2.0"]}
+            {:jsonex,"2.0",[github: "marcelog/jsonex", tag: "2.0"]},
+            { :mimetypes, github: "spawngrid/mimetypes", override: true }
         ]
     end
 end

@@ -1,4 +1,6 @@
 defmodule GistsIO.GistsListHandler do
+	alias :cowboy_req, as: Req
+
 	def init(_transport, req, []) do
 		{:upgrade, :protocol, :cowboy_rest}
 	end
@@ -14,15 +16,24 @@ defmodule GistsIO.GistsListHandler do
 	end
 
 	def resource_exists(req, state) do
-		case :cowboy_req.binding :gist, req do
+		case Req.binding :gist, req do
 			{:undefined, req} -> {:false, req, :index}
-			{gist, req} -> 
-				{:true, req, gist}
+			{gistId, req} -> 
+				gist = GistFetcher.parse_gist gistId
+				files = gist["files"]
+				isMarkdown = fn({name, attrs}) -> 
+					attrs["language"] === "Markdown" 
+				end
+				
+				if Files !== nil and Enum.any?(files, isMarkdown) do
+					{:true, req, gist}
+				else
+					{:false, req, gist}
+				end
 		end
 	end
 
-	def page_json(req, gistId) do
-		gist = GistFetcher.parse_gist gistId
-		{gist, req, gist}
+	def page_json(req, gist) do
+		{Jsonex.encode(gist), req, gist}
 	end
 end
