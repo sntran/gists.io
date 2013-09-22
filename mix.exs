@@ -3,7 +3,7 @@ defmodule GistsIO.Mixfile do
 
     def project do
         [ app: :gistsio,
-            version: "0.0.1",
+            version: "0.0.2",
             elixir: "~> 0.10.2",
             deps: deps ]
     end
@@ -23,8 +23,7 @@ defmodule GistsIO.Mixfile do
             {:cowboy, github: "extend/cowboy"},
             {:httpotion, "0.2.2",[github: "myfreeweb/httpotion"]},
             {:jsonex,"2.0",[github: "marcelog/jsonex", tag: "2.0"]},
-            {:mimetypes, github: "spawngrid/mimetypes", override: true },
-            {:erlmarkdown, [github: "ericbmerritt/erlmarkdown", branch: "rv", compile: "rebar compile"]}
+            {:mimetypes, github: "spawngrid/mimetypes", override: true }
         ]
     end
 end

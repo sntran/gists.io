@@ -13,6 +13,19 @@ defmodule GistsIO.GistClient do
     { :error, "invalid gist id" }
   end
 
+  def render(markdown) do
+    body = Jsonex.encode([{"text", markdown}, {"mode", "gfm"}])
+    url = "https://api.github.com/markdown"
+
+    HTTPotion.start
+    case HTTPotion.post(url, body) do
+      Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
+        { :ok, body }
+      Response[body: _body, status_code: status, headers: _headers] ->
+        { :error, "cannot render" }
+    end
+  end
+
   defp fetch(url) do
     HTTPotion.start
     case HTTPotion.get(url) do
@@ -34,4 +47,5 @@ defmodule GistsIO.GistClient do
   defp append_query(params) do
     Enum.map_join(params, "&", fn({k,v}) -> "#{k}=#{v}" end)
   end
+
 end

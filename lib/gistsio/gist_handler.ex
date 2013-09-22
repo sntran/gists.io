@@ -44,15 +44,14 @@ defmodule GistsIO.GistHandler do
 		# Parse the Markdown into HTML, then evaluate any <%= files[filename] %> tag
 		# and replace with the corresponding embed code.
 		# This way the author can embed any file in his/her gist any where in the article.
-		content_html = attrs["content"] 
-						|> Kernel.bitstring_to_list 
-						|> :erlmarkdown.conv 
-						|> Kernel.list_to_bitstring
-						|> EEx.eval_string [files: attachments] # allow inline embed
+		{:ok, markdown_html} = Gist.render attrs["content"]
+		markdown_html = Regex.replace(%r/&lt;/, markdown_html, "<")
+		markdown_html = Regex.replace(%r/&gt;/, markdown_html, ">")
+					|> EEx.eval_string [files: attachments] # allow inline embed
 
 		# Then set up article's title using either the description or filename
 		gist = gist |> Utils.prep_gist 
-					|> ListDict.put("html", content_html)
+					|> ListDict.put("html", markdown_html)
 					|> ListDict.put("attachments", attachments)
 		# Render the gist's partial
 		gist_html = [:code.priv_dir(:gistsio), "templates", "gist.html.eex"]
