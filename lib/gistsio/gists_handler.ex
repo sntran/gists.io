@@ -34,7 +34,14 @@ defmodule GistsIO.GistsHandler do
 	def gists_html(req, gists) do
 		entries = Enum.filter_map(gists, &is_markdown/1, fn(gist) ->
 			{_name, entry} = Enum.at gist["files"], 0
-			gist = ListDict.put(gist, "title", entry["filename"])
+			description = gist["description"]
+			# Get the title from the first line of description
+			[title] = Regex.run %r/.*$/m, description
+			size = Kernel.byte_size(title)
+			# Pattern match the rest for teaser
+			<<title :: [size(size), binary], teaser :: binary>> = description
+			gist = ListDict.put(gist, "title", title)
+					|> ListDict.put("teaser", teaser)
 		end)
 
 		{username, req} = Req.binding :username, req
