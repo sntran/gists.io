@@ -2,20 +2,25 @@ defmodule GistsIO.GistClient do
   alias HTTPotion.Response
 
   def fetch_gists(user, params // []) when is_binary(user) do
-    user_gists_url(user, params) |> fetch
+    url("users/#{user}/gists", params) |> fetch
   end
   
   def fetch_gist(id) when is_integer(id) do
-    gist_url(id) |> fetch
+    url("gists/#{id}", []) |> fetch
   end
 
   def fetch_gist(id) do
     { :error, "invalid gist id" }
   end
 
+  def fetch_comments(id) do
+    url = url("gists/#{id}/comments", [])
+    fetch(url)
+  end
+  
   def render(markdown) do
     body = Jsonex.encode([{"text", markdown}, {"mode", "gfm"}])
-    url = "https://api.github.com/markdown"
+    url = url("markdown", [])
 
     HTTPotion.start
     case HTTPotion.post(url, body) do
@@ -36,12 +41,11 @@ defmodule GistsIO.GistClient do
     end
   end
 
-  defp gist_url(id) do
-    "https://api.github.com/gists/#{id}"
-  end
-
-  defp user_gists_url(user, params) do
-    "https://api.github.com/users/#{user}/gists?" <> append_query(params)
+  defp url(endpoint, params) do
+    clientid = "xxx"
+    clientsecret = "xxx"
+    url = "https://api.github.com/#{endpoint}?client_id=#{clientid}&client_secret=#{clientsecret}&"
+    url <> append_query(params)
   end
 
   defp append_query(params) do
