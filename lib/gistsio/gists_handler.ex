@@ -32,15 +32,15 @@ defmodule GistsIO.GistsHandler do
 	end
 
 	def gists_html(req, gists) do
-		entries = Enum.filter_map(gists, &is_markdown/1, fn(gist) ->
-			{_name, entry} = Enum.at gist["files"], 0
-			description = gist["description"] || ""
-			{title, teaser} = maybe_get_title_and_teaser(description, entry["filename"])
-			gist = ListDict.put(gist, "title", title)
-					|> ListDict.put("teaser", teaser)
+		{user, entries} = Enum.reduce(gists, {nil, []}, fn(gist, {user, acc}) ->
+			cond do
+				!is_markdown(gist) -> {user, acc}
+			  	user === nil ->
+					{gist["user"], [prep_data(gist) | acc]}
+			  	true ->
+			  		{user, [prep_data(gist) | acc]}
+			end
 		end)
-
-		{username, req} = Req.binding :username, req
 
 		gists_html = [:code.priv_dir(:gistsio), "templates", "gists.html.eex"]
 				|> Path.join
@@ -48,7 +48,7 @@ defmodule GistsIO.GistsHandler do
 
 		html = [:code.priv_dir(:gistsio), "templates", "base.html.eex"]
 				|> Path.join
-				|> EEx.eval_file [content: gists_html, title: "#{username}'s gists"]
+				|> EEx.eval_file [content: gists_html, title: "#{user["login"]}'s gists"]
 
 		{html, req, gists}
 	end
@@ -57,15 +57,19 @@ defmodule GistsIO.GistsHandler do
 		Enum.any? gist["files"], &Utils.is_markdown/1
 	end
 
-	defp maybe_get_title_and_teaser("", ifempty // "") do
-		{ifempty, ""}
-	end
-	defp maybe_get_title_and_teaser(description, ifempty) do
-		# Get the title from the first line of description
-		[title] = Regex.run %r/.*$/m, description
-		size = Kernel.byte_size(title)
-		# Pattern match the rest for teaser
-		<<title :: [size(size), binary], teaser :: binary>> = description
-		{title, teaser}
+	defp prep_data(gist) do
+		{_name, entry} = Enum.at gist["files"], 0
+		description = gist["description"]
+		{title, teaser} = if description !== "" do
+			[title] = Regex.run %r/.*$/m, description
+			size = Kernel.byte_size(title)
+			<<title :: [size(size), binary], teaser :: binary>> = description
+			{title, teaser}
+		else
+			{entry["filename"], ""}
+		end
+		gist = ListDict.put(gist, "title", title)
+				|> ListDict.put("teaser", teaser)
+		
 	end
 end

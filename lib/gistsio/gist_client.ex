@@ -31,11 +31,7 @@ defmodule GistsIO.GistClient do
     "https://api.github.com/users/#{user}/gists?" <> append_query(params)
   end
 
-  defp append_query([]) do
-    ""
-  end
-
-  defp append_query([{key, value} | rest]) do
-    "#{key}=#{value}&" <> append_query(rest)
+  defp append_query(params) do
+    Enum.map_join(params, "&", fn({k,v}) -> "#{k}=#{v}" end)
   end
 end
