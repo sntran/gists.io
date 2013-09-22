@@ -36,9 +36,9 @@ defmodule GistsIO.GistsHandler do
 			cond do
 				!is_markdown(gist) -> {user, acc}
 			  	user === nil ->
-					{gist["user"], [prep_data(gist) | acc]}
+					{gist["user"], [Utils.prep_gist(gist) | acc]}
 			  	true ->
-			  		{user, [prep_data(gist) | acc]}
+			  		{user, [Utils.prep_gist(gist) | acc]}
 			end
 		end)
 
@@ -55,21 +55,5 @@ defmodule GistsIO.GistsHandler do
 
 	defp is_markdown(gist) do
 		Enum.any? gist["files"], &Utils.is_markdown/1
-	end
-
-	defp prep_data(gist) do
-		{_name, entry} = Enum.at gist["files"], 0
-		description = gist["description"]
-		{title, teaser} = if description !== "" do
-			[title] = Regex.run %r/.*$/m, description
-			size = Kernel.byte_size(title)
-			<<title :: [size(size), binary], teaser :: binary>> = description
-			{title, teaser}
-		else
-			{entry["filename"], ""}
-		end
-		gist = ListDict.put(gist, "title", title)
-				|> ListDict.put("teaser", teaser)
-		
 	end
 end

@@ -38,14 +38,19 @@ defmodule GistsIO.GistHandler do
 
 	def gist_html(req, gist) do
 		files = gist["files"]
-		{_name, attrs} = Enum.filter(files, &Utils.is_markdown/1) |> Enum.at 0
+		{name, attrs} = Enum.filter(files, &Utils.is_markdown/1) |> Enum.at 0
 		content_html = attrs["content"] |> Kernel.bitstring_to_list 
 						|> :erlmarkdown.conv 
 						|> Kernel.list_to_bitstring
+		gist = gist |> Utils.prep_gist |> ListDict.put("html", content_html)
+
+		gist_html = [:code.priv_dir(:gistsio), "templates", "gist.html.eex"]
+				|> Path.join
+				|> EEx.eval_file [entry: gist, main_file: name]
 
 		html = [:code.priv_dir(:gistsio), "templates", "base.html.eex"]
 				|> Path.join
-				|> EEx.eval_file [content: content_html, title: attrs["filename"]]
+				|> EEx.eval_file [content: gist_html, title: gist["title"]]
 
 		{html, req, gist}
 	end

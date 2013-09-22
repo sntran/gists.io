@@ -1,0 +1,16 @@
+<article>
+	<%= entry["html"] %>
+</article>
+<h2>Attachments</h2>
+<ul class="attachments">
+<%= lc {name,attrs} inlist entry["files"], name !== main_file do %>
+	<li class="attachment">
+		<script src="https://gist.github.com/<%= entry["id"] %>.js?file=<%= name %>">
+</script>
+	</li>
+<% end %>
+</ul>
+<hr>
+<p>Last updated: <%= entry["updated_at"] %> | <%= entry["comments"] %> comments</p>
+<ul class="comments">
+</ul>
