@@ -3,14 +3,17 @@
 </article>
 <h2>Attachments</h2>
 <ul class="attachments">
-<%= lc {name,attrs} inlist entry["files"], name !== main_file do %>
+<%= lc {name,embed} inlist entry["attachments"] do %>
 	<li class="attachment">
-		<script src="https://gist.github.com/<%= entry["id"] %>.js?file=<%= name %>">
-</script>
+		<%= name %>
 	</li>
 <% end %>
 </ul>
 <hr>
-<p>Last updated: <%= entry["updated_at"] %> | <%= entry["comments"] %> comments</p>
+<p>
+Last updated: <span><%= entry["updated_at"] %></span> | 
+<span><%= entry["comments"] %> comments</span>
+<span><a href="/<%= entry["user"]["login"] %>">All entries</a></span>
+</p>
 <ul class="comments">
 </ul>

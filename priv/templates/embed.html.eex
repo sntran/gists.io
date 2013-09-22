@@ -1,0 +1,5 @@
+<script src="https://gist.github.com/<%= gist["id"] %>.js?file=<%= name %>"></script>
+<noscript>
+	<p><%= name %>
+	<pre><%= gist["files"][name]["content"] %></pre>
+</noscript>
