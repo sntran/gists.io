@@ -4,9 +4,21 @@
 	<title><%= title %></title>
 </head>
 <body>
+	<a class="login" href="https://github.com/login/oauth/authorize">Log in</a>
 	<section>
 		<h1><%= title %></h1> 
 		<%= content %>
 	</section>
+
+	<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+	<script>
+		jQuery(function() {
+			jQuery(".login").click(function() {
+				var $this = jQuery(this), href = $this.attr("href"),
+					url = window.location.href;
+				$this.attr("href", href + "?client_id=0ac0ff06ec95f164be73&scope=gist,public_repo&state=123&redirect_uri=" + url);
+			});
+		});
+	</script>
 </body>
 </html>

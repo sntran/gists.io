@@ -24,14 +24,14 @@ defmodule GistsIO.GistHandler do
 			{:undefined, req} -> {:false, req, :index}
 			{gistId, req} -> 
 				case Gist.fetch_gist gistId do
-					{:ok, gist} ->
+					{:error, _} -> {:false, req, gistId}
+					gist ->
 						files = gist["files"]
 						if files !== nil and Enum.any?(files, &Utils.is_markdown/1) do
 							{:true, req, gist}
 						else
 							{:false, req, gist}
 						end
-					{:error, _} -> {:false, req, gistId}
 				end	
 		end
 	end
@@ -39,8 +39,8 @@ defmodule GistsIO.GistHandler do
 	def gist_html(req, gist) do
 		files = gist["files"]
 		{name, attrs} = Enum.filter(files, &Utils.is_markdown/1) |> Enum.at 0
-		
-		{:ok, comments} = Gist.fetch_comments gist["id"]
+
+		comments = Gist.fetch_comments gist["id"]
 		# Append comments' Markdown with gist's content and send to render
 		# in one go. Separated by some indicators so we can tell.
 		entry = Enum.reduce(comments, attrs["content"] <> "\n- - -\n", fn(comment, acc) ->
@@ -56,7 +56,7 @@ defmodule GistsIO.GistHandler do
 		# Parse the Markdown into HTML, then evaluate any <%= files[filename] %> tag
 		# and replace with the corresponding embed code.
 		# This way the author can embed any file in his/her gist any where in the article.
-		{:ok, markdown_html} = Gist.render entry
+		markdown_html = Gist.render entry
 		markdown_html = Regex.replace(%r/&lt;/, markdown_html, "<")
 		markdown_html = Regex.replace(%r/&gt;/, markdown_html, ">")
 					|> EEx.eval_string [files: attachments] # allow inline embed

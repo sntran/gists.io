@@ -23,10 +23,10 @@ defmodule GistsIO.GistsHandler do
 			{:undefined, req} -> {:false, req, :index}
 			{username, req} -> 
 				case Gist.fetch_gists username do
-					{:ok, gists} ->
-						{:true, req, gists}
 					{:error, _} ->
 						{:false, req, username}
+					gists ->
+						{:true, req, gists}
 				end
 		end
 	end
