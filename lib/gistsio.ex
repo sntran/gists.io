@@ -45,10 +45,21 @@ defmodule GistsIO do
         end
         req = Req.set_resp_cookie("session_id", new, [], req)
 
+        # Acquire a gist client if not yet
+        {existing, req} = Req.meta("gist_client", req)
+        {:ok, client} = case existing do
+            :undefined -> 
+                client_id = :application.get_env(:gistsio, :client_id, "")
+                client_secret = :application.get_env(:gistsio, :client_secret, "")
+                GistsIO.GistClient.start_link(client_id, client_secret)
+            {_} -> {:ok, existing}
+        end
+        req = Req.set_meta("gist_client", client, req)
+
         case Req.qs_val("code", req) do
             {:undefined, req} -> req
             {code, req} ->
-                GistsIO.GistClient.authorize(code)
+                GistsIO.GistClient.authorize(client, code)
                 req
         end
     end

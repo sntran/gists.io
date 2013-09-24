@@ -3,28 +3,28 @@ defmodule GistsIO.GistClient do
   use GenServer.Behaviour
 
   def start_link(client_id, client_secret) do
-    :gen_server.start_link({:local, GistsIO.GistClient}, GistsIO.GistClient, [client_id, client_secret], [])
+    :gen_server.start_link(GistsIO.GistClient, [client_id, client_secret], [])
   end
 
   # APIs
-  def fetch_gists(user, params // []) when is_binary(user) do
-    :gen_server.call(GistsIO.GistClient, ["gists", user | params])
+  def fetch_gists(client, user, params // []) when is_binary(user) do
+    :gen_server.call(client, ["gists", user | params])
   end
   
-  def fetch_gist(id) when is_integer(id) do
-    :gen_server.call(GistsIO.GistClient, ["gist", id])
+  def fetch_gist(client, id) when is_integer(id) do
+    :gen_server.call(client, ["gist", id])
   end
 
-  def fetch_comments(id) do
-    :gen_server.call(GistsIO.GistClient, ["comments", id])
+  def fetch_comments(client, id) do
+    :gen_server.call(client, ["comments", id])
   end
 
-  def render(markdown) do
-    :gen_server.call(GistsIO.GistClient, ["render", markdown])
+  def render(client, markdown) do
+    :gen_server.call(client, ["render", markdown])
   end
 
-  def authorize(code) do
-    :gen_server.cast(GistsIO.GistClient, ["authorize", code])
+  def authorize(client, code) do
+    :gen_server.cast(client, ["authorize", code])
   end
 
   # Callbacks
@@ -58,7 +58,7 @@ defmodule GistsIO.GistClient do
     url = "https://github.com/login/oauth/access_token?" <> append_query(body)
     state = case fetch(url, [{:Accept, "application/json"}]) do
       {:error, _error} -> state
-      body -> Jsonex.decode(body) ++ state
+      body -> ListDict.merge(state, Jsonex.decode(body))
     end
     {:noreply, state}
   end
