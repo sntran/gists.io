@@ -1,8 +1,16 @@
-<ul><%= lc entry inlist entries do %>
-	<li>
-		<h2><%= entry["title"] %></h2>
-		<p><%= entry["teaser"] %></p>
-		<p><a href="/<%= entry["user"]["login"] %>/<%= entry["id"] %>">
-		Read more</a></p>
-	</li>
-<% end %></ul>
+<div class="gists-list">
+	<%= lc entry inlist entries do %>
+	<div class="gist-item">
+		<h3><a href="/<%= entry["user"]["login"] %>/<%= entry["id"] %>"><%= entry["title"] %></a></h3>
+		<div><%= entry["teaser"] %></div>
+		<p class="published"><%= entry["created_at"] %></p>
+		<!-- <p><a href="/<%= entry["user"]["login"] %>/<%= entry["id"] %>">
+		Read more</a></p> -->
+	</div>
+	<% end %>
+</div>
+
+<ul class="gists-pager">
+	<li><i class="icon-caret-left"></i> Previous</li>
+	<li><a href="#">Next <i class="icon-caret-right"></i></a></li>
+</ul>

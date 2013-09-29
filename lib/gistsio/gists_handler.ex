@@ -34,8 +34,8 @@ defmodule GistsIO.GistsHandler do
 
 	def gists_html(req, gists) do
 		{user, entries} = Enum.reduce(gists, {nil, []}, fn(gist, {user, acc}) ->
-			cond do
-				!is_markdown(gist) -> {user, acc}
+			cond do # `cond` allows any expression, not just guards
+				!is_public_markdown(gist) -> {user, acc}
 			  	user === nil ->
 					{gist["user"], [Utils.prep_gist(gist) | acc]}
 			  	true ->
@@ -54,7 +54,7 @@ defmodule GistsIO.GistsHandler do
 		{html, req, gists}
 	end
 
-	defp is_markdown(gist) do
-		Enum.any? gist["files"], &Utils.is_markdown/1
+	defp is_public_markdown(gist) do
+		gist["public"] === :true and Enum.any? gist["files"], &Utils.is_markdown/1
 	end
 end

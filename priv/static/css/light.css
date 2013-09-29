@@ -1,0 +1,280 @@
+body {
+	background-color: #efefef;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: "Roboto Slab", serif;
+	font-weight: 300;
+}
+
+a, a:hover {
+	color: #333;
+	text-decoration: underline;
+}
+
+.main {
+	margin: 60px 0;
+	position: relative;
+}
+
+.container {
+	font-family: 'Roboto', sans-serif;
+	font-size: 16px;
+}
+
+.content {
+	color: #444;
+	
+}
+
+.content p {
+	line-height: 35px;
+}
+
+.sidebar {
+	text-align: center;
+}
+
+.author {
+	color: #999;
+}
+
+.author-name {
+	text-transform: uppercase;
+}
+
+.author-links {
+	list-style-type: none;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+}
+
+.author-links > li {
+	display: inline-block;
+}
+.author-links > li > a {
+	display: block;
+	margin-left: 5px;
+	color: #888;
+	text-decoration: none;
+}
+
+.author-links > li > a:hover {
+	color: #bbb;
+}
+
+.sidebar-divider {
+	border: none;
+	border-bottom: 2px solid #bbb;
+	width: 50%;
+}
+
+.published-time {
+	color: #999;
+	font-size: 13px;
+}
+
+.go-to-home a {
+	background-color: #ddd;
+	border-radius: 25px;
+	width: 50px;
+	height: 50px;
+	color: #999;
+	display: inline-block;
+	padding-top: 8px;
+	text-decoration: none;
+}
+
+.go-to-home a:hover {
+	color: #555;
+	text-decoration: none;
+}
+
+.meta {
+	float: left;
+}
+
+.tags {
+	font-size: 12px;
+	text-transform: uppercase;
+	margin: 20px 0;
+	text-align: right;
+}
+
+.post-tags {
+	list-style-type: none;
+}
+
+.post-tags li {
+	display: inline-block;
+	margin-left: 5px;
+}
+
+.post-divider {
+	width: 30%;
+	border: none;
+	border-bottom: 2px solid #bbb;
+}
+
+/*******************************************************/
+/* NAVIGATION LINKS                                    */
+/*******************************************************/
+.nav-links {
+	margin-top: 30px;
+}
+
+.nav-link {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 50%;
+	white-space: nowrap;
+	display: inline-block;
+}
+
+/*******************************************************/
+/* COMMENTS                                            */
+/*******************************************************/
+.comments {
+	margin-top: 30px;
+}
+.comment-heading {
+	margin-top: 50px;
+}
+.comments p {
+	line-height: 25px;
+}
+
+.comment-author {
+	font-size: 13px;
+}
+
+.comment-author-name {
+	font-weight: 700;
+	color: #555;
+	background-color: #fefefe;
+	padding: 3px 15px;
+	z-index: 1;
+	border-top-right-radius: 15px;
+	border-bottom-right-radius: 15px;
+	margin-left: -10px;
+	position: relative;
+}
+
+.comment-author-avatar {
+	border: 5px solid #ddd;
+	z-index: 2;
+	position: relative;
+}
+
+.comment-time {
+	color: #999;
+	text-align: right;
+}
+
+.comment-content {
+	font-size: 14px;
+	color: #444;
+}
+
+.comment-single {
+	padding: 20px;
+	z-index: 1;
+}
+
+.comment-single:nth-child(2n) {
+	background-color: #e7e7e7;
+}
+
+/*******************************************************/
+/* GISTS LIST                                          */
+/*******************************************************/
+.gist-item a, .gist-item a:hover {
+	text-decoration: none;
+}
+.published {
+	color: #999;
+	font-size: 14px;
+}
+
+/*******************************************************/
+/* PAGER                                               */
+/*******************************************************/
+.gists-pager {
+	display: block;
+	list-style-type: none;
+	text-align: center;
+}
+
+.gists-pager li {
+	display: inline-block;
+	color: #999;
+	margin-right: 30px;
+}
+
+.gists-pager li a {
+	text-decoration: none;
+}
+
+/*******************************************************/
+/* STYLE SWITCHER                                      */
+/*******************************************************/
+.style-option {
+	width: 10px;
+	height: 10px;
+	display: inline-block;
+}
+
+.dark {
+	background-color: #57534a;
+	border: 1px solid #aaa;
+}
+
+.light {
+	background-color: #efefef;
+	border: 1px solid #aaa;
+}
+
+@media (min-width: 992px) {
+	.sidebar {
+		position: fixed;
+		top: 60px;
+	}
+
+	.comment-author {
+		position: absolute;
+		bottom: 10px;
+		right: 10px;
+	}
+
+
+	.comment-author-name {
+		position: absolute;
+		bottom: 20px;
+		right: 40px;
+		border-radius: 0;
+		border-top-left-radius: 15px;
+		border-bottom-left-radius: 15px;
+		padding: 3px 40px 3px 10px;
+	}
+
+	.comment-author-avatar {
+		position: absolute;
+		bottom: 20px;
+		right: 0;
+	}
+
+	.comment-time {
+		position: absolute;
+		bottom: 0;
+		width: 150px;
+		right: 0;
+	}
+
+	.comment-single {
+		padding: 20px;
+		padding-right: 110px;
+		position: relative;
+		z-index: 1;
+	}
+}

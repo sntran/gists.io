@@ -34,3 +34,13 @@ Gist-based blogging platform in Elixir
 * First line of description is entry's title
 * The rest of description is entry's teaser
 * Embed inline other files using `<%= files[filename] %>`
+
+### v0.0.2
+
+* Login using GitHub.
+* Only display public gists.
+
+### v0.0.3
+
+* Layout using Bootstrap 
+* Styles by @kcjpop

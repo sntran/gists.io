@@ -1,24 +1,77 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title><%= title %></title>
+	<title><%= title %> | Gists.io</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- Bootstrap -->
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" media="screen">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/s/css/light.css" id="main-style">
+	<link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,300|Roboto+Slab:400,300&amp;subset=latin" rel="stylesheet" type="text/css">
+	<style type="text/css"></style>
 </head>
-<body>
-	<a class="login" href="https://github.com/login/oauth/authorize">Log in</a>
-	<section>
-		<h1><%= title %></h1> 
-		<%= content %>
-	</section>
+<div class="container">
+	<div class="main">
+		<div class="row">
+			<div class="col-md-9 col-lg-9">
+				<div class="content">
+					<a class="login" href="/login?redirect=">Log in</a>
+					<h1><%= title %></h1> 
+					<%= content %>
 
-	<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
-	<script>
-		jQuery(function() {
-			jQuery(".login").click(function() {
-				var $this = jQuery(this), href = $this.attr("href"),
-					url = window.location.href;
-				$this.attr("href", href + "?client_id=0ac0ff06ec95f164be73&scope=gist,public_repo&state=123&redirect_uri=" + url);
-			});
-		});
-	</script>
+				</div>
+			</div>
+			<div class="col-md-3 col-lg-3">
+				<div class="sidebar">
+					<div class="author">
+						<img src="//gravatar.com/avatar/b8b6c1b032eb47f65ea006fdb86f0044?d=https%3A%2F%2Fidenticons.github.com%2Fd84b7d26819836f382773899990d32e6.png&s=140" class="img-circle">
+						<h5 class="author-name">Son Tran-Nguyen</h5>
+						<ul class="author-links">
+							<li><a href=""><i class="icon-facebook icon-large"></i></a></li>
+							<li><a href=""><i class="icon-github icon-large"></i></a></li>
+							<li><a href=""><i class="icon-bitbucket icon-large"></i></a></li>
+							<li><a href=""><i class="icon-twitter icon-large"></i></a></li>
+							<li><a href=""><i class="icon-tumblr icon-large"></i></a></li>
+						</ul>
+					</div>
+
+					<hr class="sidebar-divider">
+
+					<p class="published-time">
+						Published on <span>24 August, 2006</span>
+					</p>
+
+					<p class="go-to-home">
+						<a href="/" title="Come back home"><i class="icon-home icon-2x"></i></a>
+					</p>
+
+					<p class="style-switcher">
+						<a href="#" data-style="dark" class="style-option dark"></a>
+						<a href="#" data-style="light" class="style-option light"></a>
+					</p>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="//code.jquery.com/jquery.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<script>
+$(function() {
+	$('a.style-option').click(function(e) {
+		e.preventDefault();
+		var _this = $(this),
+			_link = $('#main-style'),
+			_href = _link.prop('href'),
+			_url = _href.substring(0, _href.lastIndexOf('/'));
+		
+		_link.prop('href', _url + '/' + _this.data('style') + '.css');
+	});
+});
+</script>
+
 </body>
 </html>

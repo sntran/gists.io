@@ -1,8 +1,19 @@
-<p>
-Last updated: <span><%= entry["updated_at"] %></span> | 
-<span><%= entry["comments"] %> comments</span>
-<span><a href="/<%= entry["user"]["login"] %>">All entries</a></span>
-</p>
+<div class="meta">
+	<p>
+	Last updated: <span><%= entry["updated_at"] %></span> | 
+	<span><%= entry["comments"] %> comments</span>
+	<span><a href="/<%= entry["user"]["login"] %>">All entries</a></span>
+	</p>
+</div>
+
+<div class="tags">
+	Posted in
+	<ul class="post-tags">
+		<%= lc {name, attrs} inlist entry["files"], attrs["language"] !== "Markdown" do %>
+		<li><%= attrs["language"] %></li>
+		<% end %>
+	</ul>
+</div>
 
 <h2>Attachments</h2>
 <ul class="attachments">
@@ -16,3 +27,31 @@ Last updated: <span><%= entry["updated_at"] %></span> |
 <article>
 	<%= entry["html"] %>
 </article>
+
+<h3 class="comment-heading text-center">ℵ</h3>
+<h3 class="text-center">Your thoughts?</h3>
+<form action="">
+	<div class="form-group">
+		<textarea class="form-control" rows="10"></textarea>
+	</div>
+	<button type="submit" class="btn btn-default pull-right">Submit</button>
+</form>
+
+<h3 class="comment-heading text-center">ℵ</h3>
+<h3 class="text-center">Other folks mumblings</h3>
+
+<div class="comments">
+	<div class="row comment-single">
+		<div class="comment-author">
+			<a href="#"><img src="//gravatar.com/avatar/08fd5ac094ff113c5374363caf8c4c58?s=60" alt="" class="img-circle comment-author-avatar"></a>
+			<a href="#"><span class="comment-author-name">johndoe</span></a>
+			<span class="comment-time">3 hours ago</span>
+		</div>
+
+		<div class="comment-content">
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Maxime, perspiciatis explicabo ipsum voluptatum porro sunt praesentium totam reprehenderit quae dolorum rerum quisquam deleniti at ullam officiis. Animi, dolorem maiores corporis!</p>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Maxime, perspiciatis explicabo ipsum voluptatum porro sunt praesentium totam reprehenderit quae dolorum rerum quisquam deleniti at ullam officiis. Animi, dolorem maiores corporis!</p>
+			<p>Lorem ipsum dolor sit amet, consectetur adipisicing elit. Maxime, perspiciatis explicabo ipsum voluptatum porro sunt praesentium totam reprehenderit quae dolorum rerum quisquam deleniti at ullam officiis. Animi, dolorem maiores corporis!</p>
+		</div>
+	</div>
+</div>
