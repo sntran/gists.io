@@ -24,11 +24,13 @@ defmodule GistsIO do
             [port: port],
             [   
                 env: [dispatch: dispatch],
-                onrequest: &GistsIO.session/1
+                onrequest: &GistsIO.onrequest/1
                 # onresponse: &GistsIO.page_data/4
             ]
             # [middlewares: [:cowboy_router, :auth_handler, :cowboy_handler]]
         )
+
+        Session.start_link()
 
         client_id = :application.get_env(:gistsio, :client_id, "")
         client_secret = :application.get_env(:gistsio, :client_secret, "")
@@ -37,24 +39,17 @@ defmodule GistsIO do
         GistsIO.Supervisor.start_link
     end
 
-    def session(req) do
-        {existing, req} = Req.cookie("session_id", req)
-        new = case existing do
-            :undefined -> generate_hash()
-            _ -> existing
-        end
-        req = Req.set_resp_cookie("session_id", new, [], req)
-
-        # Acquire a gist client if not yet
-        {existing, req} = Req.meta("gist_client", req)
+    def onrequest(req) do
+        req = Session.new(req)
+        existing = Session.get("gist_client", req)
         {:ok, client} = case existing do
-            :undefined -> 
+            :undefined ->
                 client_id = :application.get_env(:gistsio, :client_id, "")
                 client_secret = :application.get_env(:gistsio, :client_secret, "")
                 GistsIO.GistClient.start_link(client_id, client_secret)
-            {_} -> {:ok, existing}
+            _ -> {:ok, existing}
         end
-        req = Req.set_meta("gist_client", client, req)
+        Session.set("gist_client", client, req)
 
         case Req.qs_val("code", req) do
             {:undefined, req} -> req

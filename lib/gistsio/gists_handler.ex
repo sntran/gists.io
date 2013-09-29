@@ -22,7 +22,7 @@ defmodule GistsIO.GistsHandler do
 		case Req.binding :username, req do
 			{:undefined, req} -> {:false, req, :index}
 			{username, req} -> 
-				{client, req} = Req.meta("gist_client", req)
+				client = Session.get("gist_client", req)
 				case Gist.fetch_gists client, username do
 					{:error, _} ->
 						{:false, req, username}

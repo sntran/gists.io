@@ -44,3 +44,9 @@ Gist-based blogging platform in Elixir
 
 * Layout using Bootstrap 
 * Styles by @kcjpop
+
+### v0.0.4
+
+ * Added session support
+ * ETS-based session is default.
+ * Each user keeps the GIST client instane in session.

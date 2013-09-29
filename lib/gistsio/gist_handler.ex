@@ -23,7 +23,7 @@ defmodule GistsIO.GistHandler do
 		case Req.binding :gist, req do
 			{:undefined, req} -> {:false, req, :index}
 			{gistId, req} -> 
-				{client, req} = Req.meta("gist_client", req)
+				client = Session.get("gist_client", req)
 				case Gist.fetch_gist client, gistId do
 					{:error, _} -> {:false, req, gistId}
 					gist ->
@@ -38,7 +38,7 @@ defmodule GistsIO.GistHandler do
 	end
 
 	def gist_html(req, gist) do
-		{client, req} = Req.meta("gist_client", req)
+		client = Session.get("gist_client", req)
 		files = gist["files"]
 		{name, attrs} = Enum.filter(files, &Utils.is_markdown/1) |> Enum.at 0
 

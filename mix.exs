@@ -12,7 +12,11 @@ defmodule GistsIO.Mixfile do
     def application do
         [ 
             mod: { GistsIO, [] },
-            applications: [:crypto, :mimetypes, :cowboy]
+            applications: [:crypto, :mimetypes, :cowboy],
+            env: [
+                port: 8080, 
+                sessions: [store: {Session.ETS, []}]
+            ]
         ]
     end
 
