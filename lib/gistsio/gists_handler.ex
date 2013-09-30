@@ -33,6 +33,8 @@ defmodule GistsIO.GistsHandler do
 	end
 
 	def gists_html(req, gists) do
+		client = Session.get("gist_client", req)
+
 		{user, entries} = Enum.reduce(gists, {nil, []}, fn(gist, {user, acc}) ->
 			cond do # `cond` allows any expression, not just guards
 				!is_public_markdown(gist) -> {user, acc}
@@ -43,13 +45,21 @@ defmodule GistsIO.GistsHandler do
 			end
 		end)
 
+		# Render author's info on the sidebar
+		user = Gist.fetch_user client, user["login"]
+		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
+				|> Path.join
+				|> EEx.eval_file [user: user]
+
 		gists_html = [:code.priv_dir(:gistsio), "templates", "gists.html.eex"]
 				|> Path.join
 				|> EEx.eval_file [entries: entries]
 
 		html = [:code.priv_dir(:gistsio), "templates", "base.html.eex"]
 				|> Path.join
-				|> EEx.eval_file [content: gists_html, title: "#{user["login"]}'s gists"]
+				|> EEx.eval_file [content: gists_html, 
+									title: "#{user["login"]}'s gists",
+									sidebar: sidebar_html]
 
 		{html, req, gists}
 	end

@@ -71,10 +71,19 @@ defmodule GistsIO.GistHandler do
 		gist_html = [:code.priv_dir(:gistsio), "templates", "gist.html.eex"]
 				|> Path.join
 				|> EEx.eval_file [entry: gist]
+
+		# Render author's info on the sidebar
+		user = Gist.fetch_user client, gist["user"]["login"]
+		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
+				|> Path.join
+				|> EEx.eval_file [user: user]
+
 		# Put it into the base layout
 		html = [:code.priv_dir(:gistsio), "templates", "base.html.eex"]
 				|> Path.join
-				|> EEx.eval_file [content: gist_html, title: gist["title"]]
+				|> EEx.eval_file [content: gist_html, 
+									title: gist["title"],
+									sidebar: sidebar_html]
 
 		{html, req, gist}
 	end

@@ -1,0 +1,30 @@
+<div class="col-md-3 col-lg-3">
+	<div class="sidebar">
+		<div class="author">
+			<img src="<%= user["avatar_url"] %>&s=140" class="img-circle">
+			<h5 class="author-name"><%= user["name"] %></h5>
+			<ul class="author-links">
+				<li><a href=""><i class="icon-facebook icon-large"></i></a></li>
+				<li><a href="<%= user["html_url"] %>"><i class="icon-github icon-large"></i></a></li>
+				<li><a href=""><i class="icon-bitbucket icon-large"></i></a></li>
+				<li><a href=""><i class="icon-twitter icon-large"></i></a></li>
+				<li><a href=""><i class="icon-tumblr icon-large"></i></a></li>
+			</ul>
+		</div>
+
+		<hr class="sidebar-divider">
+
+		<p class="published-time">
+			Published on <span>24 August, 2006</span>
+		</p>
+
+		<p class="go-to-home">
+			<a href="/" title="Come back home"><i class="icon-home icon-2x"></i></a>
+		</p>
+
+		<p class="style-switcher">
+			<a href="#" data-style="dark" class="style-option dark"></a>
+			<a href="#" data-style="light" class="style-option light"></a>
+		</p>
+	</div>
+</div>

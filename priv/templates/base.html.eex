@@ -21,36 +21,7 @@
 
 				</div>
 			</div>
-			<div class="col-md-3 col-lg-3">
-				<div class="sidebar">
-					<div class="author">
-						<img src="//gravatar.com/avatar/b8b6c1b032eb47f65ea006fdb86f0044?d=https%3A%2F%2Fidenticons.github.com%2Fd84b7d26819836f382773899990d32e6.png&s=140" class="img-circle">
-						<h5 class="author-name">Son Tran-Nguyen</h5>
-						<ul class="author-links">
-							<li><a href=""><i class="icon-facebook icon-large"></i></a></li>
-							<li><a href=""><i class="icon-github icon-large"></i></a></li>
-							<li><a href=""><i class="icon-bitbucket icon-large"></i></a></li>
-							<li><a href=""><i class="icon-twitter icon-large"></i></a></li>
-							<li><a href=""><i class="icon-tumblr icon-large"></i></a></li>
-						</ul>
-					</div>
-
-					<hr class="sidebar-divider">
-
-					<p class="published-time">
-						Published on <span>24 August, 2006</span>
-					</p>
-
-					<p class="go-to-home">
-						<a href="/" title="Come back home"><i class="icon-home icon-2x"></i></a>
-					</p>
-
-					<p class="style-switcher">
-						<a href="#" data-style="dark" class="style-option dark"></a>
-						<a href="#" data-style="light" class="style-option light"></a>
-					</p>
-				</div>
-			</div>
+			<%= sidebar %>
 		</div>
 	</div>
 </div>
