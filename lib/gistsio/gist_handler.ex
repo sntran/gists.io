@@ -22,11 +22,11 @@ defmodule GistsIO.GistHandler do
 		# @TODO: Check if binding has username, and redirect if not the right one
 		case Req.binding :gist, req do
 			{:undefined, req} -> {:false, req, :index}
-			{gistId, req} -> 
+			{gist_id, req} -> 
 				client = Session.get("gist_client", req)
-				case Gist.fetch_gist client, gistId do
-					{:error, _} -> {:false, req, gistId}
-					gist ->
+				case Gist.fetch_gist client, gist_id do
+					{:error, _} -> {:false, req, gist_id}
+					{:ok, gist} ->
 						files = gist["files"]
 						if files !== nil and Enum.any?(files, &Utils.is_markdown/1) do
 							{:true, req, gist}
@@ -42,7 +42,7 @@ defmodule GistsIO.GistHandler do
 		files = gist["files"]
 		{name, attrs} = Enum.filter(files, &Utils.is_markdown/1) |> Enum.at 0
 
-		comments = Gist.fetch_comments client, gist["id"]
+		{:ok, comments} = Gist.fetch_comments client, gist["id"]
 		# Append comments' Markdown with gist's content and send to render
 		# in one go. Separated by some indicators so we can tell.
 		entry = Enum.reduce(comments, attrs["content"] <> "\n- - -\n", fn(comment, acc) ->
@@ -58,7 +58,7 @@ defmodule GistsIO.GistHandler do
 		# Parse the Markdown into HTML, then evaluate any <%= files[filename] %> tag
 		# and replace with the corresponding embed code.
 		# This way the author can embed any file in his/her gist any where in the article.
-		markdown_html = Gist.render client, entry
+		{:ok, markdown_html} = Gist.render client, entry
 		markdown_html = Regex.replace(%r/&lt;/, markdown_html, "<")
 		markdown_html = Regex.replace(%r/&gt;/, markdown_html, ">")
 					|> EEx.eval_string [files: attachments] # allow inline embed
@@ -73,7 +73,7 @@ defmodule GistsIO.GistHandler do
 				|> EEx.eval_file [entry: gist]
 
 		# Render author's info on the sidebar
-		user = Gist.fetch_user client, gist["user"]["login"]
+		{:ok, user} = Gist.fetch_user client, gist["user"]["login"]
 		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
 				|> Path.join
 				|> EEx.eval_file [user: user]

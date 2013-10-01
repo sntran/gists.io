@@ -38,22 +38,26 @@ defmodule GistsIO.GistClient do
 
   def handle_call(["gists", user | params], _from, state) do
     url = url("users/#{user}/gists", params ++ state)
-    {:reply, Jsonex.decode(fetch(url)), state}
+    {stat, data} = fetch(url)
+    {:reply, {stat, Jsonex.decode(data)}, state}
   end
 
   def handle_call(["gist", id], _from, state) do
     url = url("gists/#{id}", state)
-    {:reply, Jsonex.decode(fetch(url)), state}
+    {stat, data} = fetch(url)
+    {:reply, {stat, Jsonex.decode(data)}, state}
   end
 
   def handle_call(["comments", id], _from, state) do
     url = url("gists/#{id}/comments", state)
-    {:reply, Jsonex.decode(fetch(url)), state}
+    {stat, data} = fetch(url)
+    {:reply, {stat, Jsonex.decode(data)}, state}
   end
 
   def handle_call(["user", id], _from, state) do
     url = url("users/#{id}", state)
-    {:reply, Jsonex.decode(fetch(url)), state}
+    {stat, data} = fetch(url)
+    {:reply, {stat, Jsonex.decode(data)}, state}
   end
   
   def handle_call(["render", markdown], _from, state) do
@@ -76,19 +80,19 @@ defmodule GistsIO.GistClient do
     HTTPotion.start
     case HTTPotion.get(url, headers) do
       Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
-        body
-      Response[body: _body, status_code: status, headers: _headers] ->
-        { :error, _body }
+        {:ok, body}
+      Response[body: body, status_code: status, headers: _headers] ->
+        {:error, body}
     end
   end
 
   defp post(url, body) do
     HTTPotion.start
-    case HTTPotion.post(url, body) do
+    case HTTPotion.post(url, body, [is_ssl: true]) do
       Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
-        body
-      Response[body: _body, status_code: status, headers: _headers] ->
-        { :error, _body}
+        {:ok, body}
+      Response[body: body, status_code: status, headers: _headers] ->
+        {:error, body}
     end
   end
 

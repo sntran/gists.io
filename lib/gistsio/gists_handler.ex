@@ -26,7 +26,7 @@ defmodule GistsIO.GistsHandler do
 				case Gist.fetch_gists client, username do
 					{:error, _} ->
 						{:false, req, username}
-					gists ->
+					{:ok, gists} ->
 						{:true, req, gists}
 				end
 		end
@@ -34,6 +34,7 @@ defmodule GistsIO.GistsHandler do
 
 	def gists_html(req, gists) do
 		client = Session.get("gist_client", req)
+		{username, req} = Req.binding(:username, req)
 
 		{user, entries} = Enum.reduce(gists, {nil, []}, fn(gist, {user, acc}) ->
 			cond do # `cond` allows any expression, not just guards
@@ -46,7 +47,7 @@ defmodule GistsIO.GistsHandler do
 		end)
 
 		# Render author's info on the sidebar
-		user = Gist.fetch_user client, user["login"]
+		{:ok, user} = Gist.fetch_user client, username
 		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
 				|> Path.join
 				|> EEx.eval_file [user: user]
