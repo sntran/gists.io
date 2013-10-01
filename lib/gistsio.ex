@@ -30,12 +30,6 @@ defmodule GistsIO do
             # [middlewares: [:cowboy_router, :auth_handler, :cowboy_handler]]
         )
 
-        Session.start_link()
-
-        client_id = :application.get_env(:gistsio, :client_id, "")
-        client_secret = :application.get_env(:gistsio, :client_secret, "")
-        {:ok, _} = GistsIO.GistClient.start_link(client_id, client_secret)
-
         GistsIO.Supervisor.start_link
     end
 
@@ -44,9 +38,7 @@ defmodule GistsIO do
         existing = Session.get("gist_client", req)
         {:ok, client} = case existing do
             :undefined ->
-                client_id = :application.get_env(:gistsio, :client_id, "")
-                client_secret = :application.get_env(:gistsio, :client_secret, "")
-                GistsIO.GistClient.start_link(client_id, client_secret)
+                GistsIO.GistClientManager.start_client()
             _ -> {:ok, existing}
         end
         Session.set("gist_client", client, req)

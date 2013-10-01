@@ -49,4 +49,9 @@ Gist-based blogging platform in Elixir
 
  * Added session support
  * ETS-based session is default.
- * Each user keeps the GIST client instane in session.
+ * Each user keeps the GIST client instance in session.
+
+### v0.0.5
+ * Fixed a bug when user does not have blog-like gist.
+ * Added a supervisor for all gist clients.
+ * Root sup to manage the `Session` and the new sup.
