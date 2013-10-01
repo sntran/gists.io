@@ -33,6 +33,7 @@ defmodule GistsIO.GistClient do
 
   # Callbacks
   def init([client_id, client_secret]) do
+    HTTPotion.start
     {:ok, [{"client_id", client_id}, {"client_secret", client_secret}]}
   end
 
@@ -77,7 +78,6 @@ defmodule GistsIO.GistClient do
   end
 
   defp fetch(url, headers // []) do
-    HTTPotion.start
     case HTTPotion.get(url, headers) do
       Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
         {:ok, body}
@@ -87,7 +87,6 @@ defmodule GistsIO.GistClient do
   end
 
   defp post(url, body) do
-    HTTPotion.start
     case HTTPotion.post(url, body, [is_ssl: true]) do
       Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
         {:ok, body}
