@@ -82,6 +82,7 @@ defmodule GistsIO.GistsHandler do
     #  <h.../?page=2; rel=\"prev\""
     # split it by the comma, and try to get the page query string and the
     # rel to indicate the type.
+    defp map_pager(nil, _) do [] end
 	defp map_pager(binary_pager, prefix) when is_binary(binary_pager) do
 		map_pager(:binary.split(binary_pager, ", "), prefix)
 	end

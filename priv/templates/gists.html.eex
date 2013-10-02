@@ -12,6 +12,15 @@
 
 <ul class="gists-pager">
 	<%= lc {type, link} inlist pager do %>
-	<li class="<%= type %>"><a href="<%= link %>"><i class="icon-caret-left"></i> <%= type %></li>
+	<li class="<%= type %>">
+		<a href="<%= link %>">
+		<%= case type do %>
+			<% "firs" -> %> <i class="icon-double-angle-left"></i> First
+			<% "prev" -> %> <i class="icon-angle-left"></i> Prev
+			<% "next" -> %> Next <i class="icon-angle-right"></i>
+			<% "last" -> %> Last <i class="icon-double-angle-right"></i>
+		<% end %>
+		</a>
+	</li>
 	<% end %>
 </ul>
