@@ -39,25 +39,33 @@ defmodule GistsIO.GistClient do
 
     def handle_call(["gists", user | params], _from, state) do
         url = url("users/#{user}/gists", params ++ state)
-        {stat, data} = fetch(url)
-        {:reply, {stat, Jsonex.decode(data)}, state}
+        {stat, data, headers} = fetch(url)
+        # When there are more pages, the headers contain Link with format
+        # "<h../gists?page=3>; rel=\"next\", 
+        #  <h.../gists?page=6>; rel=\"last\"; 
+        #  <h.../?page=1; rel=\"first\";
+        #  <h.../?page=2; rel=\"prev\""
+        link = Keyword.get(headers, :"Link")
+        data = Jsonex.decode(data)
+        ret = [{"gists", data}, {"pager", link}]
+        {:reply, {stat, ret}, state}
     end
 
     def handle_call(["gist", id], _from, state) do
         url = url("gists/#{id}", state)
-        {stat, data} = fetch(url)
+        {stat, data, _} = fetch(url)
         {:reply, {stat, Jsonex.decode(data)}, state}
     end
 
     def handle_call(["comments", id], _from, state) do
         url = url("gists/#{id}/comments", state)
-        {stat, data} = fetch(url)
+        {stat, data, _} = fetch(url)
         {:reply, {stat, Jsonex.decode(data)}, state}
     end
 
     def handle_call(["user", id], _from, state) do
         url = url("users/#{id}", state)
-        {stat, data} = fetch(url)
+        {stat, data, _} = fetch(url)
         {:reply, {stat, Jsonex.decode(data)}, state}
     end
     
@@ -71,18 +79,18 @@ defmodule GistsIO.GistClient do
         body = [{"code", code} | state]
         url = "https://github.com/login/oauth/access_token?" <> append_query(body)
         state = case fetch(url, [{:Accept, "application/json"}]) do
-            {:error, _error} -> state
-            body -> ListDict.merge(state, Jsonex.decode(body))
+            {:error, _error,} -> state
+            {:ok, body} -> ListDict.merge(state, Jsonex.decode(body))
         end
         {:noreply, state}
     end
 
-    defp fetch(url, headers // []) do
-        case HTTPotion.get(url, headers) do
-            Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
-                {:ok, body}
-            Response[body: body, status_code: status, headers: _headers] ->
-                {:error, body}
+    defp fetch(url, req_headers // []) do
+        case HTTPotion.get(url, req_headers) do
+            Response[body: body, status_code: status, headers: headers] when status in 200..299 ->
+                {:ok, body, headers}
+            Response[body: body, status_code: status, headers: headers] ->
+                {:error, body, headers}
         end
     end
 

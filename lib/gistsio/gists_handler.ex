@@ -35,6 +35,11 @@ defmodule GistsIO.GistsHandler do
 	def gists_html(req, gists) do
 		client = Session.get("gist_client", req)
 		{username, req} = Req.binding(:username, req)
+		{path, req} = Req.path(req)
+
+		pager = gists["pager"]
+		gists = gists["gists"]
+		pager = map_pager(pager, path)
 
 		{user, entries} = Enum.reduce(gists, {nil, []}, fn(gist, {user, acc}) ->
 			cond do # `cond` allows any expression, not just guards
@@ -54,7 +59,7 @@ defmodule GistsIO.GistsHandler do
 
 		gists_html = [:code.priv_dir(:gistsio), "templates", "gists.html.eex"]
 				|> Path.join
-				|> EEx.eval_file [entries: entries]
+				|> EEx.eval_file [entries: entries, pager: pager]
 
 		html = [:code.priv_dir(:gistsio), "templates", "base.html.eex"]
 				|> Path.join
@@ -67,5 +72,26 @@ defmodule GistsIO.GistsHandler do
 
 	defp is_public_markdown(gist) do
 		gist["public"] === :true and Enum.any? gist["files"], &Utils.is_markdown/1
+	end
+
+	# Convert the pager header from GitHub to a format suitable to display.
+	# It takes a binary string of format
+	# "<h../gists?page=3>; rel=\"next\", 
+    #  <h.../gists?page=6>; rel=\"last\"; 
+    #  <h.../?page=1; rel=\"first\";
+    #  <h.../?page=2; rel=\"prev\""
+    # split it by the comma, and try to get the page query string and the
+    # rel to indicate the type.
+	defp map_pager(binary_pager, prefix) when is_binary(binary_pager) do
+		map_pager(:binary.split(binary_pager, ", "), prefix)
+	end
+	defp map_pager([], _) do [] end
+	defp map_pager([page | rest], prefix) do
+		{pos, len} = :binary.match(page, "page=")
+		page_number = :binary.part(page, pos + len, 1)
+		{pos, len} = :binary.match(page, "rel=\"")
+		type = :binary.part(page, pos+len, 4)
+		pager = {type, "#{prefix}?page=#{page_number}"}
+		[pager | map_pager(rest, prefix)]
 	end
 end
