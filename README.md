@@ -55,3 +55,6 @@ Gist-based blogging platform in Elixir
  * Fixed a bug when user does not have blog-like gist.
  * Added a supervisor for all gist clients.
  * Root sup to manage the `Session` and the new sup.
+
+### v0.0.6
+ * Pagination support (30 per page, but not filter for blog-like gists)

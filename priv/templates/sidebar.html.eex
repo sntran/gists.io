@@ -1,7 +1,7 @@
 <div class="col-md-3 col-lg-3">
 	<div class="sidebar">
 		<div class="author">
-			<img src="<%= user["avatar_url"] %>&s=140" class="img-circle">
+			<img src="<%= user["avatar_url"] %>&s=140" class="img-circle" width="140">
 			<h5 class="author-name"><%= user["name"] %></h5>
 			<ul class="author-links">
 				<li><a href=""><i class="icon-facebook icon-large"></i></a></li>

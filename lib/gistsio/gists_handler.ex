@@ -23,7 +23,8 @@ defmodule GistsIO.GistsHandler do
 			{:undefined, req} -> {:false, req, :index}
 			{username, req} -> 
 				client = Session.get("gist_client", req)
-				case Gist.fetch_gists client, username do
+				{page, req} = Req.qs_val("page", req, "1")
+				case Gist.fetch_gists client, username, [{"page", page}] do
 					{:error, _} ->
 						{:false, req, username}
 					{:ok, gists} ->
