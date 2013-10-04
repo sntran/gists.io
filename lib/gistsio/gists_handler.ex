@@ -24,7 +24,7 @@ defmodule GistsIO.GistsHandler do
 			{username, req} -> 
 				client = Session.get("gist_client", req)
 				{page, req} = Req.qs_val("page", req, "1")
-				case Gist.fetch_gists client, username, [{"page", page}] do
+				case get_gists(client, username, page) do
 					{:error, _} ->
 						{:false, req, username}
 					{:ok, gists} ->
@@ -60,9 +60,10 @@ defmodule GistsIO.GistsHandler do
 		{username, req} = Req.binding(:username, req)
 		{path, req} = Req.path(req)
 
-		pager = gists["pager"]
-		gists = gists["gists"]
-		pager = map_pager(pager, path)
+		# pager = gists["pager"]
+		# gists = gists["entries"]
+		# pager = map_pager(pager, path)
+		pager = []
 
 		{user, entries} = Enum.reduce(gists, {nil, []}, fn(gist, {user, acc}) ->
 			cond do # `cond` allows any expression, not just guards
@@ -97,6 +98,29 @@ defmodule GistsIO.GistsHandler do
 									is_loggedin: loggedin]
 
 		{html, req, gists}
+	end
+
+	defp get_gists(gister, username, page) do
+		cache = Cacherl.range_lookup({username, :'$1'}, fn([id]) -> 
+			{username, id} 
+		end)
+
+		case cache do
+			[] ->
+				# No gists cache for this user
+				fetch = Gist.fetch_gists(gister, username, [{"page", page}])
+				case fetch do
+					{:ok, gists} ->
+						# Able to fetch from GitHub, cache them
+						Enum.each(gists, fn(gist) ->
+							key = {username, gist["id"]}
+							Cacherl.insert(key, gist)
+						end)
+						{:ok, gists}
+					{:error, Error} -> {:error, Error}
+				end
+			gists -> {:ok, gists}
+		end
 	end
 
 	defp is_public_markdown(gist) do

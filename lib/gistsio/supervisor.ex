@@ -11,7 +11,8 @@ defmodule GistsIO.Supervisor do
 
         children = [
             worker(Session, []),
-            supervisor(GistsIO.GistClientManager, [client_id, client_secret])
+            supervisor(GistsIO.GistClientManager, [client_id, client_secret]),
+            supervisor(Cacherl.Manager, [])
         ]
 
         supervise(children, strategy: :one_for_one)

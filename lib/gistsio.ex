@@ -5,6 +5,8 @@ defmodule GistsIO do
     # See http://elixir-lang.org/docs/stable/Application.Behaviour.html
     # for more information on OTP Applications
     def start(_type, _args) do
+        Cacherl.Store.init() # Start the store first before any incoming request.
+        
         port = :application.get_env(:gistsio, :port, 8080)
         static_dir = Path.join [Path.dirname(:code.which(__MODULE__)), "..", "priv", "static"]
         dispatch = [
