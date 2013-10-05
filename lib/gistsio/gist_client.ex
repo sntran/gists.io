@@ -11,7 +11,7 @@ defmodule GistsIO.GistClient do
         :gen_server.call(client, ["gists", user | params])
     end
     
-    def fetch_gist(client, id) when is_integer(id) do
+    def fetch_gist(client, id) do
         :gen_server.call(client, ["gist", id])
     end
 

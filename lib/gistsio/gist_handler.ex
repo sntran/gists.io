@@ -23,7 +23,8 @@ defmodule GistsIO.GistHandler do
 		# @TODO: Check if binding has username, and redirect if not the right one
 		case Req.binding :gist, req do
 			{:undefined, req} -> {:false, req, :index}
-			{gist_id, req} -> 
+			{gist_id, req} ->
+				gist_id = :erlang.integer_to_binary(gist_id) 
 				client = Session.get("gist_client", req)
 				case Cache.get_gist client, gist_id do
 					{:error, _} -> {:false, req, gist_id}
