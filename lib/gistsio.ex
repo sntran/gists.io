@@ -9,6 +9,7 @@ defmodule GistsIO do
         static_dir = Path.join [Path.dirname(:code.which(__MODULE__)), "..", "priv", "static"]
         dispatch = [
             {:_, [
+                {"/login", GistsIO.AuthHandler, []},
                 {"/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:username", GistsIO.GistsHandler, []},
                 {"/:username/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
@@ -42,13 +43,7 @@ defmodule GistsIO do
             _ -> {:ok, existing}
         end
         Session.set("gist_client", client, req)
-
-        case Req.qs_val("code", req) do
-            {:undefined, req} -> req
-            {code, req} ->
-                GistsIO.GistClient.authorize(client, code)
-                req
-        end
+        req
     end
 
     def page_data(200, _headers, body, req) do

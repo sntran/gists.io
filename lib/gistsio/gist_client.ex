@@ -79,8 +79,8 @@ defmodule GistsIO.GistClient do
         body = [{"code", code} | state]
         url = "https://github.com/login/oauth/access_token?" <> append_query(body)
         state = case fetch(url, [{:Accept, "application/json"}]) do
-            {:error, _error,} -> state
-            {:ok, body} -> ListDict.merge(state, Jsonex.decode(body))
+            {:error, _error, _} -> state
+            {:ok, body, _} -> ListDict.merge(state, Jsonex.decode(body))
         end
         {:noreply, state}
     end
