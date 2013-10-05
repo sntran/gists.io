@@ -4,7 +4,7 @@ defmodule GistsIO.Mixfile do
     def project do
         [ 
             app: :gistsio,
-            version: "0.3.1",
+            version: "0.3.0",
             elixir: "~> 0.10.2",
             deps: deps,
             elixirc_options: options(Mix.env)
@@ -36,7 +36,7 @@ defmodule GistsIO.Mixfile do
             {:exlager, github: "khia/exlager"}
         ]
     end
-
+    
     defp options(:dev) do
         [ exlager_level: :debug, exlager_truncation_size: 8096 ]
     end
