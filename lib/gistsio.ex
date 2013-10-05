@@ -6,7 +6,7 @@ defmodule GistsIO do
     # for more information on OTP Applications
     def start(_type, _args) do
         Cacherl.Store.init() # Start the store first before any incoming request.
-        
+
         port = :application.get_env(:gistsio, :port, 8080)
         static_dir = Path.join [Path.dirname(:code.which(__MODULE__)), "..", "priv", "static"]
         dispatch = [
@@ -48,10 +48,10 @@ defmodule GistsIO do
             Session.set("previous_path", previous_path, req)
         end
         existing = Session.get("gist_client", req)
-        {:ok, client} = case existing do
-            :undefined ->
+        {:ok, client} = if existing !== :undefined and :erlang.is_process_alive(existing) do
+                {:ok, existing}
+            else 
                 GistsIO.GistClientManager.start_client()
-            _ -> {:ok, existing}
         end
         Session.set("gist_client", client, req)
         req
