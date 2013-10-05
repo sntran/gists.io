@@ -65,8 +65,8 @@ defmodule Cacherl do
 		end)
 
 	"""
-	def range_lookup(key_matcher, key_generator) do
-		case Store.match({key_matcher, :'_'}) do
+	def match(key_pattern, key_generator) do
+		case Store.match({key_pattern, :'_'}) do
 			[] -> []
 			result -> 
 				Enum.reduce(result, [], fn(match, acc) ->

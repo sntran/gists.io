@@ -81,7 +81,7 @@ defmodule GistsIO.GistsHandler do
 		end
 
 		# Render author's info on the sidebar
-		{:ok, user} = Gist.fetch_user client, username
+		{:ok, user} = get_user client, username
 		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
 				|> Path.join
 				|> EEx.eval_file [user: user]
@@ -101,8 +101,8 @@ defmodule GistsIO.GistsHandler do
 	end
 
 	defp get_gists(gister, username, page) do
-		cache = Cacherl.range_lookup({username, :'$1'}, fn([id]) -> 
-			{username, id} 
+		cache = Cacherl.match({:gist, :'$1', username}, fn([id]) -> 
+			{:gist, id, username} 
 		end)
 
 		case cache do
@@ -113,13 +113,24 @@ defmodule GistsIO.GistsHandler do
 					{:ok, gists} ->
 						# Able to fetch from GitHub, cache them
 						Enum.each(gists, fn(gist) ->
-							key = {username, gist["id"]}
+							key = {:gist, gist["id"], username}
 							Cacherl.insert(key, gist)
 						end)
 						{:ok, gists}
 					{:error, Error} -> {:error, Error}
 				end
 			gists -> {:ok, gists}
+		end
+	end
+
+	defp get_user(gister, username) do
+		cache = Cacherl.lookup({:user, username})
+		case cache do
+			{:error, :not_found} ->
+				{:ok, user} = Gist.fetch_user gister, username
+			{:ok, user} -> 
+				Cacherl.insert({:user, username}, user)
+				{:ok, user}
 		end
 	end
 
