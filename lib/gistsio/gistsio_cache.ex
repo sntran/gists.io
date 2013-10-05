@@ -29,8 +29,12 @@ defmodule GistsIO.Cache do
 			{:gist, gist_id, username}
 		end)
 
-		case cache do
-			[] ->
+		gist = Enum.at(cache, 0)
+		if gist !== nil and gist["history"] do {:ok, gist}
+		else
+				# Either no gist found, or the gist is not full - no history data,
+				# in which case, it was cached by gists_handler, then we fetch
+				# the full gist and cache again.
 				fetch = Gist.fetch_gist(gister, gist_id)
 				case fetch do
 					{:ok, gist} ->
@@ -40,7 +44,6 @@ defmodule GistsIO.Cache do
 						{:ok, gist}
 					{:error, error} -> {:error, error}
 				end
-			[gist] -> {:ok, gist}
 		end
 	end
 

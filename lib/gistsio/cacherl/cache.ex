@@ -44,7 +44,7 @@ defmodule Cacherl.Cache do
 	def handle_cast({:replace, value}, cache = Cache[lease_time: lease_time, 
 											start_time: start_time]) do
 		time_left = time_left(start_time, lease_time)
-		{:no_reply, cache.value(value), time_left}
+		{:noreply, cache.value(value), time_left}
 		
 	end
 
