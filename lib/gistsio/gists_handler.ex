@@ -1,7 +1,8 @@
 defmodule GistsIO.GistsHandler do
 	alias :cowboy_req, as: Req
 	alias GistsIO.GistClient, as: Gist
-	alias GistsIO.Utils, as: Utils
+	alias GistsIO.Utils
+	alias GistsIO.Cache
 	require EEx
 
 	def init(_transport, _req, []) do
@@ -24,7 +25,7 @@ defmodule GistsIO.GistsHandler do
 			{username, req} -> 
 				client = Session.get("gist_client", req)
 				{page, req} = Req.qs_val("page", req, "1")
-				case get_gists(client, username, page) do
+				case Cache.get_gists(client, username, page) do
 					{:error, _} ->
 						{:false, req, username}
 					{:ok, gists} ->
@@ -81,7 +82,7 @@ defmodule GistsIO.GistsHandler do
 		end
 
 		# Render author's info on the sidebar
-		{:ok, user} = get_user client, username
+		{:ok, user} = Cache.get_user client, username
 		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
 				|> Path.join
 				|> EEx.eval_file [user: user]
@@ -98,40 +99,6 @@ defmodule GistsIO.GistsHandler do
 									is_loggedin: loggedin]
 
 		{html, req, gists}
-	end
-
-	defp get_gists(gister, username, page) do
-		cache = Cacherl.match({:gist, :'$1', username}, fn([id]) -> 
-			{:gist, id, username} 
-		end)
-
-		case cache do
-			[] ->
-				# No gists cache for this user
-				fetch = Gist.fetch_gists(gister, username, [{"page", page}])
-				case fetch do
-					{:ok, gists} ->
-						# Able to fetch from GitHub, cache them
-						Enum.each(gists, fn(gist) ->
-							key = {:gist, gist["id"], username}
-							Cacherl.insert(key, gist)
-						end)
-						{:ok, gists}
-					{:error, Error} -> {:error, Error}
-				end
-			gists -> {:ok, gists}
-		end
-	end
-
-	defp get_user(gister, username) do
-		cache = Cacherl.lookup({:user, username})
-		case cache do
-			{:error, :not_found} ->
-				{:ok, user} = Gist.fetch_user gister, username
-			{:ok, user} -> 
-				Cacherl.insert({:user, username}, user)
-				{:ok, user}
-		end
 	end
 
 	defp is_public_markdown(gist) do

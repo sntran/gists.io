@@ -1,7 +1,8 @@
 defmodule GistsIO.GistHandler do
 	alias :cowboy_req, as: Req
 	alias GistsIO.GistClient, as: Gist
-	alias GistsIO.Utils, as: Utils
+	alias GistsIO.Utils
+	alias GistsIO.Cache
 	require EEx
 
 	def init(_transport, _req, []) do
@@ -24,7 +25,7 @@ defmodule GistsIO.GistHandler do
 			{:undefined, req} -> {:false, req, :index}
 			{gist_id, req} -> 
 				client = Session.get("gist_client", req)
-				case Gist.fetch_gist client, gist_id do
+				case Cache.get_gist client, gist_id do
 					{:error, _} -> {:false, req, gist_id}
 					{:ok, gist} ->
 						files = gist["files"]
@@ -117,7 +118,7 @@ defmodule GistsIO.GistHandler do
 									is_loggedin: loggedin]
 
 		# Render author's info on the sidebar
-		{:ok, user} = Gist.fetch_user client, gist["user"]["login"]
+		{:ok, user} = Cache.get_user client, gist["user"]["login"]
 		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
 				|> Path.join
 				|> EEx.eval_file [user: user]
