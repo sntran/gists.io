@@ -3,7 +3,7 @@ defmodule GistsIO.Mixfile do
 
     def project do
         [ app: :gistsio,
-            version: "0.0.2",
+            version: "0.1.0",
             elixir: "~> 0.10.2",
             deps: deps ]
     end
