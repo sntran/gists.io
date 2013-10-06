@@ -56,14 +56,14 @@ defmodule GistsIO.Cache do
 	end
 
 	def get_comments(gist_id, gister) do
-		cache = Cacherl.lookup({:gist, gist_id, "comments"})
+		cache = Cacherl.lookup({:comments, gist_id})
 		case cache do
 			{:error, :not_found} ->
 				Lager.debug "No cached comments for gist #{gist_id}. Fetching from service."
 				fetch = Gist.fetch_comments(gister, gist_id)
 				case fetch do
 					{:ok, comments} ->
-						Cacherl.insert({:gist, gist_id, "comments"}, comments)
+						Cacherl.insert({:comments, gist_id}, comments)
 						{:ok, comments}
 					{:error, error} ->
 						Lager.error "Failed to fetch comments for gist #{gist_id} from service with error #{error}."
