@@ -2,7 +2,7 @@ defmodule GistsIO.Cache do
 	alias GistsIO.GistClient, as: Gist
 	require Lager
 
-	def get_gists(gister, username, page) do
+	def get_gists(username, page, gister) do
 		cache = Cacherl.match({:gist, :'$1', username}, fn([id]) -> 
 			{:gist, id, username} 
 		end)
@@ -27,7 +27,7 @@ defmodule GistsIO.Cache do
 		end
 	end
 
-	def get_gist(gister, gist_id) do
+	def get_gist(gist_id, gister) do
 		cache = Cacherl.match({:gist, gist_id, :'$1'}, fn([username]) ->
 			{:gist, gist_id, username}
 		end)
@@ -55,7 +55,7 @@ defmodule GistsIO.Cache do
 		end
 	end
 
-	def get_comments(gister, gist_id) do
+	def get_comments(gist_id, gister) do
 		cache = Cacherl.lookup({:gist, gist_id, "comments"})
 		case cache do
 			{:error, :not_found} ->
@@ -75,7 +75,7 @@ defmodule GistsIO.Cache do
 		end
 	end
 	
-	def get_user(gister, username) do
+	def get_user(username, gister) do
 		cache = Cacherl.lookup({:user, username})
 		case cache do
 			{:error, :not_found} ->
@@ -94,4 +94,25 @@ defmodule GistsIO.Cache do
 				{:ok, user}
 		end
 	end
+
+	def get_html(markdown, gister) do
+		cache = Cacherl.lookup({:html, markdown})
+		case cache do
+			{:error, :not_found} ->
+				Lager.debug "No cached html for markdown: `#{markdown}`. Calling service to render."
+				fetch = Gist.render gister, markdown
+				case fetch do
+					{:ok, html} ->
+						Cacherl.insert({:html, markdown}, html)
+						{:ok, html}
+					{:error, error} ->
+						Lager.error "Failed to render html for markdown: `#{markdown}` from service with error #{error}."
+						{:error, error}
+				end
+			{:ok, html} ->
+				Lager.debug "Fetching rendered html for markdown: `#{markdown} from cache."
+				{:ok, html}
+		end
+	end
+	
 end

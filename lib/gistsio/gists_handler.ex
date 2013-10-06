@@ -25,7 +25,7 @@ defmodule GistsIO.GistsHandler do
 			{username, req} -> 
 				client = Session.get("gist_client", req)
 				{page, req} = Req.qs_val("page", req, "1")
-				case Cache.get_gists(client, username, page) do
+				case Cache.get_gists(username, page, client) do
 					{:error, _} ->
 						{:false, req, username}
 					{:ok, gists} ->
@@ -82,7 +82,7 @@ defmodule GistsIO.GistsHandler do
 		end
 
 		# Render author's info on the sidebar
-		{:ok, user} = Cache.get_user client, username
+		{:ok, user} = Cache.get_user username, client
 		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
 				|> Path.join
 				|> EEx.eval_file [user: user]

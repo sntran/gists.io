@@ -145,11 +145,11 @@ a, a:hover {
 	line-height: 25px;
 }
 
-.comment-author {
+.comment-author, .comments > div {
 	font-size: 13px;
 }
 
-.comment-author-name {
+.comment-author-name, .comments > div > a {
 	font-weight: 700;
 	color: #555;
 	background-color: #fefefe;
@@ -161,18 +161,19 @@ a, a:hover {
 	position: relative;
 }
 
-.comment-author-avatar {
+.comment-author-avatar, .comments > div a img {
 	border: 5px solid #ddd;
 	z-index: 2;
 	position: relative;
+	border-radius: 50%;
 }
 
-.comment-time {
+.comment-time, .comments > div > span {
 	color: #999;
 	text-align: right;
 }
 
-.comment-content {
+.comment-content, .comments > blockquote {
 	font-size: 14px;
 	color: #444;
 }
@@ -182,7 +183,8 @@ a, a:hover {
 	z-index: 1;
 }
 
-.comment-single:nth-child(2n) {
+.comment-single:nth-child(2n),
+.comments > :nth-child(2n) {
 	background-color: #e7e7e7;
 }
 
