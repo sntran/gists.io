@@ -35,6 +35,7 @@ defmodule Session.ETS do
 	def delete(state, req) do
 		{session_id, _} = Req.meta(:session_id, req)
 		:true = :ets.delete(state.tid, session_id)
+		{:ok, state}
 	end
 	
 end

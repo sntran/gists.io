@@ -52,6 +52,11 @@ defmodule GistsIO.GistsHandler do
 			end
 		end)
 
+		loggedin = case Session.get("is_loggedin", req) do
+			:undefined -> false
+			result -> result
+		end
+
 		# Render author's info on the sidebar
 		{:ok, user} = Gist.fetch_user client, username
 		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
@@ -66,7 +71,8 @@ defmodule GistsIO.GistsHandler do
 				|> Path.join
 				|> EEx.eval_file [content: gists_html, 
 									title: "#{user["login"]}'s gists",
-									sidebar: sidebar_html]
+									sidebar: sidebar_html,
+									is_loggedin: loggedin]
 
 		{html, req, gists}
 	end

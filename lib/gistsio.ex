@@ -10,6 +10,7 @@ defmodule GistsIO do
         dispatch = [
             {:_, [
                 {"/login", GistsIO.AuthHandler, []},
+                {"/logout", GistsIO.AuthHandler, []},
                 {"/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:username", GistsIO.GistsHandler, []},
                 {"/:username/:gist", [{:gist, :int}], GistsIO.GistHandler, []},

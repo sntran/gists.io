@@ -53,6 +53,11 @@ defmodule GistsIO.GistHandler do
 				<> ":\n" <> comment["body"]
 		end)
 
+		loggedin = case Session.get("is_loggedin", req) do
+			:undefined -> false
+			result -> result
+		end
+
 		# Acquire embed code for each file other than the main file
 		attachments = lc {n, _} inlist files, n !== name, do: {n, embed(gist, n)}
 		# Parse the Markdown into HTML, then evaluate any <%= files[filename] %> tag
@@ -83,7 +88,8 @@ defmodule GistsIO.GistHandler do
 				|> Path.join
 				|> EEx.eval_file [content: gist_html, 
 									title: gist["title"],
-									sidebar: sidebar_html]
+									sidebar: sidebar_html,
+									is_loggedin: loggedin]
 
 		{html, req, gist}
 	end
