@@ -67,7 +67,7 @@ defmodule GistsIO.GistClient do
         #  <h.../?page=2; rel=\"prev\""
         link = Keyword.get(headers, :"Link")
         data = Jsonex.decode(data)
-        ret = [{"entries", data}, {"pager", link}]
+        _ret = [{"entries", data}, {"pager", link}]
         {:reply, {stat, data}, state}
     end
 
@@ -128,7 +128,7 @@ defmodule GistsIO.GistClient do
         {:reply, post(url, body), state}
     end
     
-    def handle_cast(["authorize", code | params], state) do
+    def handle_cast(["authorize", code | _params], state) do
         body = [{"code", code} | state]
         url = "https://github.com/login/oauth/access_token?" <> append_query(body)
         state = case fetch(url, [{:Accept, "application/json"}]) do
@@ -142,7 +142,7 @@ defmodule GistsIO.GistClient do
         case HTTPotion.get(url, req_headers) do
             Response[body: body, status_code: status, headers: headers] when status in 200..299 ->
                 {:ok, body, headers}
-            Response[body: body, status_code: status, headers: headers] ->
+            Response[body: body, status_code: _status, headers: headers] ->
                 {:error, body, headers}
         end
     end
@@ -151,7 +151,7 @@ defmodule GistsIO.GistClient do
         case HTTPotion.post(url, body, [is_ssl: true]) do
             Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
                 {:ok, body}
-            Response[body: body, status_code: status, headers: _headers] ->
+            Response[body: body, status_code: _status, headers: _headers] ->
                 {:error, body}
         end
     end

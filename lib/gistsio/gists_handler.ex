@@ -19,7 +19,7 @@ defmodule GistsIO.GistsHandler do
 		], req, state}
 	end
 
-	def resource_exists(req, state) do
+	def resource_exists(req, _state) do
 		case Req.binding :username, req do
 			{:undefined, req} -> {:false, req, :index}
 			{username, req} -> 
@@ -59,7 +59,7 @@ defmodule GistsIO.GistsHandler do
 	def gists_html(req, gists) do
 		client = Session.get("gist_client", req)
 		{username, req} = Req.binding(:username, req)
-		{path, req} = Req.path(req)
+		{_path, req} = Req.path(req)
 
 		# pager = gists["pager"]
 		# gists = gists["entries"]

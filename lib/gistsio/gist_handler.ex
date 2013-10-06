@@ -82,7 +82,7 @@ defmodule GistsIO.GistHandler do
 		files = gist["files"]
 		{name, attrs} = Enum.filter(files, &Utils.is_markdown/1) |> Enum.at 0
 
-		{:ok, comments} = Gist.fetch_comments client, gist["id"]
+		{:ok, comments} = Cache.get_comments client, gist["id"]
 		# Append comments' Markdown with gist's content and send to render
 		# in one go. Separated by some indicators so we can tell.
 		entry = Enum.reduce(comments, attrs["content"] <> "\n- - -\n", fn(comment, acc) ->

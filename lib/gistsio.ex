@@ -1,11 +1,13 @@
 defmodule GistsIO do
     use Application.Behaviour
     alias :cowboy_req, as: Req
+    require Lager
 
     # See http://elixir-lang.org/docs/stable/Application.Behaviour.html
     # for more information on OTP Applications
     def start(_type, _args) do
         Cacherl.Store.init() # Start the store first before any incoming request.
+        Lager.info("Cache storage started.")
 
         port = :application.get_env(:gistsio, :port, 8080)
         static_dir = Path.join [Path.dirname(:code.which(__MODULE__)), "..", "priv", "static"]
@@ -36,6 +38,8 @@ defmodule GistsIO do
             # [middlewares: [:cowboy_router, :auth_handler, :cowboy_handler]]
         )
 
+        Lager.info "Gists.IO is running on port #{port}"
+
         GistsIO.Supervisor.start_link
     end
 
@@ -57,7 +61,7 @@ defmodule GistsIO do
         req
     end
 
-    def page_data(200, _headers, body, req) do
+    def page_data(200, _headers, _body, req) do
         # {session, req} = Req.cookie("session_id", req)
         # {host, req} = Req.host(req)
         # {path, req} = Req.path(req) 
@@ -66,22 +70,5 @@ defmodule GistsIO do
         req
     end
     def page_data(_, _, _, req) do req end
-
-    defp generate_hash() do
-        :crypto.hash(:sha, generate_string(16))
-        |> bin_to_hexstr
-    end
-
-    defp generate_string(size) do
-        {a, b, c} = :erlang.now()
-        :random.seed(a, b, c)
-        Enum.sort(1..size) 
-          |> List.foldl([], fn(_x, accin) -> [:random.uniform(90) + 32 | accin] end)
-          |> List.flatten
-    end
-
-    defp bin_to_hexstr(bin) do
-        List.flatten(lc x inlist :erlang.binary_to_list(bin), do: :io_lib.format("~2.16.0B", [x]))
-    end
     
 end
