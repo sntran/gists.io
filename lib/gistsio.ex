@@ -36,6 +36,12 @@ defmodule GistsIO do
 
     def onrequest(req) do
         req = Session.new(req)
+        previous_path = Session.get("current_path", req)
+        {current, req} = Req.path(req)
+        unless previous_path == current do
+            Session.set("current_path", current, req)
+            Session.set("previous_path", previous_path, req)
+        end
         existing = Session.get("gist_client", req)
         {:ok, client} = case existing do
             :undefined ->

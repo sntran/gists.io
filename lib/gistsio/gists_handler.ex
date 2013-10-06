@@ -5,7 +5,6 @@ defmodule GistsIO.GistsHandler do
 	require EEx
 
 	def init(_transport, _req, []) do
-
 		{:upgrade, :protocol, :cowboy_rest}
 	end
 
@@ -19,7 +18,7 @@ defmodule GistsIO.GistsHandler do
 		], req, state}
 	end
 
-	def resource_exists(req, state) do	
+	def resource_exists(req, state) do
 		case Req.binding :username, req do
 			{:undefined, req} -> {:false, req, :index}
 			{username, req} -> 
@@ -35,7 +34,6 @@ defmodule GistsIO.GistsHandler do
 	end
 
 	def gists_html(req, gists) do
-
 		client = Session.get("gist_client", req)
 		{username, req} = Req.binding(:username, req)
 		{path, req} = Req.path(req)

@@ -18,7 +18,7 @@ defmodule Session.ETS do
 			[{^session_id, existing}] -> existing
 			[] -> []
 		end
-		new_session = List.keystore(session, key, 1, {key, value})
+		new_session = List.keystore(session, key, 0, {key, value})
 		:true = :ets.insert(state.tid, {session_id, new_session})
 		{:ok, state}
 	end

@@ -9,10 +9,8 @@ defmodule GistsIO.AuthHandler do
         {session, req} = Req.cookie("session_id", req)
         client = Session.get("gist_client", req)
         client_id = :application.get_env(:gistsio, :client_id, "")
-        {previous, req} = Req.meta("previous_url", req)
         {host, req} = Req.host(req)
         {port, req} = Req.port(req)
-
 
         case Req.qs_val("code", req) do
             {:undefined, req} -> 
@@ -23,7 +21,12 @@ defmodule GistsIO.AuthHandler do
                 {:ok, req, state}
             {code, req} ->
                 GistsIO.GistClient.authorize(client, code)
-                url = "http://#{host}:#{port}/steven"
+                previous_path = Session.get("previous_path", req)
+                if previous_path == :undefined do
+                    url = "http://#{host}:#{port}"
+                else
+                    url = "http://#{host}:#{port}#{previous_path}"
+                end
                 req = Req.set_resp_header("Location", url, req)
                 {:ok, req} = Req.reply(302, [], "", req)
                 {:ok, req, state}
