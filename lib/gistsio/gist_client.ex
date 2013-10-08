@@ -67,8 +67,8 @@ defmodule GistsIO.GistClient do
         #  <h.../?page=2; rel=\"prev\""
         link = Keyword.get(headers, :"Link")
         data = Jsonex.decode(data)
-        _ret = [{"entries", data}, {"pager", link}]
-        {:reply, {stat, data}, state}
+        ret = [{"entries", data}, {"pager", link}]
+        {:reply, {stat, ret}, state}
     end
 
     def handle_call(["gist", id], _from, state) do

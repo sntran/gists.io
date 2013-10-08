@@ -25,6 +25,7 @@ defmodule GistsIO.GistsHandler do
 			{username, req} -> 
 				client = Session.get("gist_client", req)
 				{page, req} = Req.qs_val("page", req, "1")
+				page = :erlang.binary_to_integer(page)
 				case Cache.get_gists(username, page, client) do
 					{:error, _} ->
 						{:false, req, username}
@@ -66,15 +67,7 @@ defmodule GistsIO.GistsHandler do
 		# pager = map_pager(pager, path)
 		pager = []
 
-		{user, entries} = Enum.reduce(gists, {nil, []}, fn(gist, {user, acc}) ->
-			cond do # `cond` allows any expression, not just guards
-				!is_public_markdown(gist) -> {user, acc}
-			  	user === nil ->
-					{gist["user"], [Utils.prep_gist(gist) | acc]}
-			  	true ->
-			  		{user, [Utils.prep_gist(gist) | acc]}
-			end
-		end)
+		entries = Enum.filter_map(gists, &is_public_markdown/1, &Utils.prep_gist/1)
 
 		loggedin = case Session.get("is_loggedin", req) do
 			:undefined -> false
@@ -132,27 +125,5 @@ defmodule GistsIO.GistsHandler do
 			{_,_} ->
 				extract_files(data, files, contents)
 		end
-	end
-
-	# Convert the pager header from GitHub to a format suitable to display.
-	# It takes a binary string of format
-	# "<h../gists?page=3>; rel=\"next\", 
-    #  <h.../gists?page=6>; rel=\"last\"; 
-    #  <h.../?page=1; rel=\"first\";
-    #  <h.../?page=2; rel=\"prev\""
-    # split it by the comma, and try to get the page query string and the
-    # rel to indicate the type.
-    defp map_pager(nil, _) do [] end
-	defp map_pager(binary_pager, prefix) when is_binary(binary_pager) do
-		map_pager(:binary.split(binary_pager, ", "), prefix)
-	end
-	defp map_pager([], _) do [] end
-	defp map_pager([page | rest], prefix) do
-		{pos, len} = :binary.match(page, "page=")
-		page_number = :binary.part(page, pos + len, 1)
-		{pos, len} = :binary.match(page, "rel=\"")
-		type = :binary.part(page, pos+len, 4)
-		pager = {type, "#{prefix}?page=#{page_number}"}
-		[pager | map_pager(rest, prefix)]
 	end
 end
