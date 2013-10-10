@@ -9,7 +9,7 @@ defmodule GistsIO.GistHandler do
 	end
 
 	def allowed_methods(req, state) do
-		{["GET"], req, state}
+		{["GET","POST"], req, state}
 	end
 
 	def content_types_provided(req, state) do
@@ -36,6 +36,22 @@ defmodule GistsIO.GistHandler do
 				end	
 		end
 	end
+
+	def content_types_accepted(req, state) do
+  		{[
+  			{{"application", "x-www-form-urlencoded", []}, :gist_post}
+  		], req, state}
+  	end
+
+  	def gist_post(req, gist) do
+  		client = Session.get("gist_client", req)
+  		{:ok, body, req} = Req.body_qs(req)
+  		Gist.create_comment client, gist["id"], body["comment"]
+  		{host, req} = Req.host(req)
+        {port, req} = Req.port(req)
+        prev_path = Session.get("previous_path", req)
+  		{{true,prev_path}, req, gist}
+  	end
 
 	def gist_html(req, gist) do
 		client = Session.get("gist_client", req)
@@ -75,7 +91,8 @@ defmodule GistsIO.GistHandler do
 		# Render the gist's partial
 		gist_html = [:code.priv_dir(:gistsio), "templates", "gist.html.eex"]
 				|> Path.join
-				|> EEx.eval_file [entry: gist]
+				|> EEx.eval_file [entry: gist,
+									is_loggedin: loggedin]
 
 		# Render author's info on the sidebar
 		{:ok, user} = Gist.fetch_user client, gist["user"]["login"]

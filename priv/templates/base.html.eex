@@ -8,6 +8,7 @@
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" media="screen">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css">
 	<link rel="stylesheet" href="/s/css/light.css" id="main-style">
+	<link rel="stylesheet" href="/s/css/monokai_sublime.css">
 	<link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,300|Roboto+Slab:400,300&amp;subset=latin" rel="stylesheet" type="text/css">
 	<style type="text/css"></style>
 </head>
@@ -35,8 +36,18 @@
 <script src="//code.jquery.com/jquery.js"></script>
 <!-- Include all compiled plugins (below), or include individual files as needed -->
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+<script src="/s/js/marked.js"></script>
+<script src="/s/js/highlight.pack.js"></script>
+
 <script>
 $(function() {
+	marked.setOptions({
+    	highlight: function(code, lang){
+        	// More info at http://softwaremaniacs.org/soft/highlight/en/download/
+        	return hljs.LANGUAGES[lang] ? hljs.highlight(lang, code).value : code;
+    	}
+	});
+
 	$('a.style-option').click(function(e) {
 		e.preventDefault();
 		var _this = $(this),
@@ -46,6 +57,19 @@ $(function() {
 		
 		_link.prop('href', _url + '/' + _this.data('style') + '.css');
 	});
+
+	var previousMd = ""
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+  		var $editor = $("#editor textarea")
+  		var $preview = $("#preview")
+  		if ($(e.target).attr("href") === "#preview") {
+  			var markdown = $editor.val()
+  			if(markdown == previousMd) return;
+  			previousMd = markdown
+  			html = marked(markdown)
+  			$preview.html(html)
+  		}
+	})
 });
 </script>
 

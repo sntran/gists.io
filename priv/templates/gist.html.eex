@@ -30,13 +30,27 @@
 
 <h3 class="comment-heading text-center">ℵ</h3>
 <h3 class="text-center">Your thoughts?</h3>
-<form action="">
-	<div class="form-group">
-		<textarea class="form-control" rows="10"></textarea>
-	</div>
-	<button type="submit" class="btn btn-default pull-right">Submit</button>
-</form>
 
+<%= if is_loggedin == true do %>
+	<ul class="nav nav-tabs">
+		<li class="active"><a href="#editor" data-toggle="tab">Editor</a></li>
+		<li><a href="#preview" data-toggle="tab">Preview</a></li>
+	</ul>
+
+	<div class="tab-content">
+		<div class="tab-pane active" id="editor">
+			<form action=<%= "/comment/#{entry["id"]}" %> method="post">
+				<div class="form-group">
+					<textarea name="comment" class="form-control" rows="10"></textarea>
+				</div>
+				<button type="submit" class="btn btn-default pull-right">Submit</button>
+			</form>
+		</div>
+  		<div class="tab-pane" id="preview"></div>
+	</div>
+<%= else %>
+	<button type="button" onclick="location.href='/login'" class="btn btn-primary btn-lg btn-block">Login to comment</button>
+<%= end %>
 <h3 class="comment-heading text-center">ℵ</h3>
 <h3 class="text-center">Other folks mumblings</h3>
 
