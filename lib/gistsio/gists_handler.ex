@@ -26,7 +26,7 @@ defmodule GistsIO.GistsHandler do
 				client = Session.get("gist_client", req)
 				{page, req} = Req.qs_val("page", req, "1")
 				page = :erlang.binary_to_integer(page)
-				case Cache.get_gists(username, page, client) do
+				case Cache.get_gists(username, page, client, &is_public_markdown/1) do
 					{:error, _} ->
 						{:false, req, username}
 					{:ok, gists} ->
@@ -66,8 +66,7 @@ defmodule GistsIO.GistsHandler do
 		# gists = gists["entries"]
 		# pager = map_pager(pager, path)
 		pager = []
-
-		entries = Enum.filter_map(gists, &is_public_markdown/1, &Utils.prep_gist/1)
+		entries = Enum.map(gists, &Utils.prep_gist/1)
 
 		loggedin = case Session.get("is_loggedin", req) do
 			:undefined -> false

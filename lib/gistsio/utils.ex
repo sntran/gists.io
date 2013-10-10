@@ -14,7 +14,7 @@ defmodule GistsIO.Utils do
 	def parse_description(gist) do
 		{_name, entry} = Enum.at gist["files"], 0
 		description = gist["description"]
-		{title, teaser} = if description !== "" do
+		{title, teaser} = if description !== :null do
 			[title] = Regex.run %r/.*$/m, description
 			size = Kernel.byte_size(title)
 			<<title :: [size(size), binary], teaser :: binary>> = description

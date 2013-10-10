@@ -3,25 +3,42 @@ defmodule GistsIO.Cache do
 	require Lager
 	@per_page :application.get_env(:gistsio, :gists_per_page, 30)
 
-	def get_gists(username, page, gister) do
-		cache = Cacherl.match({:gist, :'$1', username}, fn([id]) -> 
-			{:gist, id, username} 
-		end)
+	def get_gists(username, page, gister, filter // fn(_) -> true end) do
+		key = {:user, username, "gists"}
+		cache = Cacherl.lookup(key)
+		paged_gists = (case cache do
+			{:error, :not_found} ->
+				gists = do_fetch_gists(username, gister)
+				Cacherl.insert(key, gists)
+				gists
+			{:ok, gists} -> gists
+		end |> Enum.filter(filter)
+			|> Enum.slice((page-1) * @per_page, @per_page)) || []
+		
+		{:ok, paged_gists}
+	end
 
-		gists = case cache do
-			[] ->
-				Lager.debug "No cached data for user #{username}'s gists. Fetching from service."
-				gists = do_fetch_gists(username, gister, page*@per_page)
-				Enum.each(gists, fn(gist) ->
-					key = {:gist, gist["id"], username}
-					Cacherl.insert(key, gist)
-				end)
-				gists
-			gists -> 
-				gists
+	defp do_fetch_gists(username, gister) do
+		do_fetch_gists(username, gister, 1, [])
+	end
+	defp do_fetch_gists(_username, _gister, nil, acc) do acc end
+	defp do_fetch_gists(username, gister, page, acc) do
+		case Gist.fetch_gists(gister, username, [{"page", page}]) do 
+			{:ok, [{"entries", gists}, {"pager", nil}]} ->
+				# Only one page on GitHub
+				do_fetch_gists(username, gister, nil, acc++gists)
+			{:ok, [{"entries", gists}, {"pager", pager}]} ->
+				pager = map_pager(pager)
+				cond do
+				pager["last"] === nil ->
+					# We are at the last page
+					do_fetch_gists(username, gister, nil, acc++gists)
+				true ->
+					do_fetch_gists(username, gister, page+1, acc ++ gists)
+				end
+			{:error, _} ->
+				do_fetch_gists(username, gister, page+1, acc)
 		end
-		gists = Enum.slice(gists, (page-1) * @per_page, @per_page)
-		{:ok, gists}
 	end
 
 	def get_gist(gist_id, gister) do
@@ -112,29 +129,6 @@ defmodule GistsIO.Cache do
 		end
 	end
 
-	defp do_fetch_gists(username, gister, total) do
-		do_fetch_gists(username, gister, total, 1)
-	end
-	defp do_fetch_gists(_username, _gister, left, _page) when left <= 0 do [] end
-	defp do_fetch_gists(username, gister, left, page) do
-		case Gist.fetch_gists(gister, username, [{"page", page}]) do 
-			{:ok, [{"entries", gists}, {"pager", nil}]} ->
-				# Only one page on GitHub
-				gists
-			{:ok, [{"entries", gists}, {"pager", pager}]} ->
-				pager = map_pager(pager)
-				cond do
-				pager["last"] === nil ->
-					# We are at the last page
-					gists
-				true ->
-					left = left - Enum.count(gists)
-					gists ++ do_fetch_gists(username, gister, left,  page+1)
-				end
-			{:error, _} -> []
-		end
-	end
-
 	# Convert the pager header from GitHub to a format suitable to display.
 	# It takes a binary string of format
 	# "<h../gists?page=3>; rel=\"next\", 
@@ -143,10 +137,10 @@ defmodule GistsIO.Cache do
     #  <h.../?page=2; rel=\"prev\""
     # split it by the comma, and try to get the page query string and the
     # rel to indicate the type.
-    defp map_pager(nil, _) do [] end
 	defp map_pager(binary_pager, prefix // "") when is_binary(binary_pager) do
 		map_pager(:binary.split(binary_pager, ", "), prefix)
 	end
+    defp map_pager(nil, _) do [] end
 	defp map_pager([], _) do [] end
 	defp map_pager([page | rest], prefix) do
 		{pos, len} = :binary.match(page, "page=")

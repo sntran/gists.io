@@ -1,6 +1,7 @@
 defmodule GistsIO.GistClient do
     alias HTTPotion.Response
     use GenServer.Behaviour
+    @max_count 100
 
     def start_link(client_id, client_secret) do
         :gen_server.start_link(GistsIO.GistClient, [client_id, client_secret], [])
@@ -58,6 +59,7 @@ defmodule GistsIO.GistClient do
     end
 
     def handle_call(["gists", user | params], _from, state) do
+        params = params ++ [{"per_page", @max_count}]
         url = url("users/#{user}/gists", params ++ state)
         {stat, data, headers} = fetch(url)
         # When there are more pages, the headers contain Link with format
