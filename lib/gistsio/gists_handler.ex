@@ -60,12 +60,10 @@ defmodule GistsIO.GistsHandler do
 	def gists_html(req, gists) do
 		client = Session.get("gist_client", req)
 		{username, req} = Req.binding(:username, req)
-		{_path, req} = Req.path(req)
+		{path, req} = Req.path(req)
 
-		# pager = gists["pager"]
-		# gists = gists["entries"]
-		# pager = map_pager(pager, path)
-		pager = []
+		pager = lc {type, page} inlist gists["pager"], do: {type, "#{path}?page=#{page}"}
+		gists = gists["entries"]
 		entries = Enum.map(gists, &Utils.prep_gist/1)
 
 		loggedin = case Session.get("is_loggedin", req) do

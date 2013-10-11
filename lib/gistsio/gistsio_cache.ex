@@ -1,21 +1,25 @@
 defmodule GistsIO.Cache do
 	alias GistsIO.GistClient, as: Gist
 	require Lager
-	@per_page :application.get_env(:gistsio, :gists_per_page, 30)
 
 	def get_gists(username, page, gister, filter // fn(_) -> true end) do
 		key = {:user, username, "gists"}
+		per_page = :application.get_env(:gistsio, :gists_per_page, 5)
 		cache = Cacherl.lookup(key)
-		paged_gists = (case cache do
+		filtered_gists = case cache do
 			{:error, :not_found} ->
 				gists = do_fetch_gists(username, gister)
 				Cacherl.insert(key, gists)
 				gists
 			{:ok, gists} -> gists
 		end |> Enum.filter(filter)
-			|> Enum.slice((page-1) * @per_page, @per_page)) || []
+
+		paged_gists = Enum.slice(filtered_gists, (page-1) * per_page, per_page) || []
 		
-		{:ok, paged_gists}
+		total_page = div(Enum.count(filtered_gists), per_page+1) + 1
+		pager = make_pager(page, total_page)
+		return = [{"entries", paged_gists}, {"pager", pager}]
+		{:ok, return}
 	end
 
 	defp do_fetch_gists(username, gister) do
@@ -39,6 +43,21 @@ defmodule GistsIO.Cache do
 			{:error, _} ->
 				do_fetch_gists(username, gister, page+1, acc)
 		end
+	end
+
+	defp make_pager(1, 1) do [] end # single page
+	defp make_pager(1, last) do
+		# first page of more than one page
+		[{"next", 2}, {"last", last}]
+	end
+	defp make_pager(current, current) do
+		# last page
+		[{"previous", current-1}, {"first", 1}]
+	end
+	defp make_pager(current, total) when current > total do [] end # out of range
+	defp make_pager(current, total) do
+		# any page in between
+		[{"previous", current-1}, {"first", 1}, {"next", current+1}, {"last", total}]
 	end
 
 	def get_gist(gist_id, gister) do
