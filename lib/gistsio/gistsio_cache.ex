@@ -22,6 +22,17 @@ defmodule GistsIO.Cache do
 		{:ok, return}
 	end
 
+	@doc """
+	Sequentially fetch all the gists of a user.
+
+	GitHub allows maximum 100 gists per page, and provides pagination details
+	in the response header. @see `GistsIO.GistClient.fetch_gists/3.
+
+	This function recursively fetches each page, looking into the pagination
+	details, and if there is next page, perform fetch again.
+
+	This is the api. It calls do_fetch_gists/4.
+	"""
 	defp do_fetch_gists(username, gister) do
 		do_fetch_gists(username, gister, 1, [])
 	end
@@ -45,6 +56,9 @@ defmodule GistsIO.Cache do
 		end
 	end
 
+	@doc """
+	Build the suitable pager based on filtered and paged gists.
+	"""
 	defp make_pager(1, 1) do [] end # single page
 	defp make_pager(1, last) do
 		# first page of more than one page
@@ -58,6 +72,11 @@ defmodule GistsIO.Cache do
 	defp make_pager(current, total) do
 		# any page in between
 		[{"previous", current-1}, {"first", 1}, {"next", current+1}, {"last", total}]
+	end
+
+	def last_gists_updated(username, gister) do
+		key = {:user, username, "gists"}
+		Cacherl.last_updated(key)
 	end
 
 	def get_gist(gist_id, gister) do

@@ -22,6 +22,14 @@ defmodule Cacherl.Cache do
 	def delete(pid) do
 		:gen_server.cast(pid, :delete)
 	end
+
+	def time_left(pid) do
+		:gen_server.call(pid, :time_left)
+	end
+
+	def last_updated(pid) do
+		:gen_server.call(pid, :last_updated)
+	end
 	
 	def init([value, lease_time]) do
 		start_time = get_current_time()
@@ -41,6 +49,18 @@ defmodule Cacherl.Cache do
 		{:reply, {:ok, value}, cache, time_left}
 	end
 
+	def handle_call(:time_left, _, cache = Cache[lease_time: lease_time, 
+													start_time: start_time]) do
+		time_left = time_left(start_time, lease_time)
+		{:reply, {:ok, time_left}, cache, time_left}
+	end
+
+	def handle_call(:last_updated, _, cache = Cache[start_time: start_time,
+													lease_time: lease_time]) do
+		time_left = time_left(start_time, lease_time)
+		{:reply, {:ok, start_time}, cache, time_left}
+	end
+	
 	def handle_cast({:replace, value}, cache = Cache[lease_time: lease_time, 
 											start_time: start_time]) do
 		time_left = time_left(start_time, lease_time)

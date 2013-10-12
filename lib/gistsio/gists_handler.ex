@@ -4,6 +4,7 @@ defmodule GistsIO.GistsHandler do
 	alias GistsIO.Utils
 	alias GistsIO.Cache
 	require EEx
+	require Lager
 
 	def init(_transport, _req, []) do
 		{:upgrade, :protocol, :cowboy_rest}
@@ -61,34 +62,60 @@ defmodule GistsIO.GistsHandler do
 		client = Session.get("gist_client", req)
 		{username, req} = Req.binding(:username, req)
 		{path, req} = Req.path(req)
-
-		pager = lc {type, page} inlist gists["pager"], do: {type, "#{path}?page=#{page}"}
-		gists = gists["entries"]
-		entries = Enum.map(gists, &Utils.prep_gist/1)
+		{page, req} = Req.qs_val("page", req, "1")
 
 		loggedin = case Session.get("is_loggedin", req) do
 			:undefined -> false
 			result -> result
 		end
 
-		# Render author's info on the sidebar
-		{:ok, user} = Cache.get_user username, client
-		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
-				|> Path.join
-				|> EEx.eval_file [user: user]
-
-		gists_html = [:code.priv_dir(:gistsio), "templates", "gists.html.eex"]
-				|> Path.join
-				|> EEx.eval_file [entries: entries, pager: pager]
-
-		html = [:code.priv_dir(:gistsio), "templates", "base.html.eex"]
-				|> Path.join
-				|> EEx.eval_file [content: gists_html, 
-									title: "#{user["login"]}'s gists",
-									sidebar: sidebar_html,
-									is_loggedin: loggedin]
-
+		{:ok, html} = maybe_render_template(username, gists, path, page, loggedin, client)
 		{html, req, gists}
+	end
+	
+	defp maybe_render_template(username, gists, path, current_page, loggedin? client) do
+		{dir, html_path} = html_path(path, current_page)
+		# Check the time the cache is created
+		modified_at = Cache.last_gists_updated(username, client)
+						|> :calendar.gregorian_seconds_to_datetime()
+		generated_at = :filelib.last_modified(html_path)
+		case modified_at > generated_at do
+			true ->
+				# The cache is newer than the static file, we render it again.
+				Lager.debug "Rendering HTML for #{username}'s gists on page #{current_page}"
+				pager = lc {type, page} inlist gists["pager"], do: {type, "#{path}?page=#{page}"}
+				gists = gists["entries"]
+				entries = Enum.map(gists, &Utils.prep_gist/1)
+				{:ok, user} = Cache.get_user username, client
+				sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
+						|> Path.join
+						|> EEx.eval_file [user: user]
+
+				gists_html = [:code.priv_dir(:gistsio), "templates", "gists.html.eex"]
+						|> Path.join
+						|> EEx.eval_file [entries: entries, pager: pager]
+
+				html = [:code.priv_dir(:gistsio), "templates", "base.html.eex"]
+						|> Path.join
+						|> EEx.eval_file [content: gists_html, 
+											title: "#{user["login"]}'s gists",
+											sidebar: sidebar_html,
+											is_loggedin: loggedin?]
+
+				File.mkdir_p(dir) # Ensure the directory is created
+				File.write(html_path, html)
+				{:ok, html}
+			false ->
+				# Cache is older, just serve the static file.
+				Lager.debug "Serving static HTML for #{username}'s gists on page #{current_page}"
+				File.read(html_path)
+		end
+	end
+
+	defp html_path(path, page) do
+		{:ok, cwd} = File.cwd()
+		dir = :filename.join([cwd, "priv", "static#{path}"])
+		{dir, :filename.join([dir, "gists_#{page}.html"])}
 	end
 
 	defp is_public_markdown(gist) do

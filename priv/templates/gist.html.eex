@@ -59,14 +59,14 @@
 	</ul>
 </div>
 
-<h2>Attachments</h2>
+<!-- <h2>Attachments</h2>
 <ul class="attachments">
 <%= lc {name,embed} inlist entry["attachments"] do %>
 	<li class="attachment">
 		<%= name %>
 	</li>
 <% end %>
-</ul>
+</ul> -->
 
 <article>
 	<%= entry["html"] %>

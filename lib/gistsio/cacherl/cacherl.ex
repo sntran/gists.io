@@ -83,7 +83,15 @@ defmodule Cacherl do
 		Store.match({:'$1', :'_'})
 		|> Enum.map(fn([key]) -> key end)
 	end
-	
+
+	def last_updated(key) do
+		case Store.lookup(key) do
+			{:ok, pid} ->
+				{:ok, last_updated} = Cache.last_updated(pid)
+				last_updated
+			{:error, _} -> 0
+		end
+	end
 	
 	@doc """
 	Delete the cache associated with the provided key.
