@@ -74,7 +74,7 @@ defmodule GistsIO.Cache do
 		[{"previous", current-1}, {"first", 1}, {"next", current+1}, {"last", total}]
 	end
 
-	def last_gists_updated(username, gister) do
+	def gists_last_updated(username) do
 		key = {:user, username, "gists"}
 		Cacherl.last_updated(key)
 	end
@@ -105,6 +105,11 @@ defmodule GistsIO.Cache do
 						{:error, error}
 				end
 		end
+	end
+
+	def gist_last_updated(username, gist_id) do
+		key = {:gist, gist_id, username}
+		Cacherl.last_updated(key)
 	end
 
 	def get_comments(gist_id, gister) do

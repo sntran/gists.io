@@ -4,6 +4,7 @@ defmodule GistsIO.GistHandler do
 	alias GistsIO.Utils
 	alias GistsIO.Cache
 	require EEx
+	require Lager
 
 	def init(_transport, _req, []) do
 		{:upgrade, :protocol, :cowboy_rest}
@@ -79,69 +80,94 @@ defmodule GistsIO.GistHandler do
 
 	def gist_html(req, {path_parts,gist}) do
 		client = Session.get("gist_client", req)
-		files = gist["files"]
-		{name, attrs} = Enum.filter(files, &Utils.is_markdown/1) |> Enum.at 0
-
-		{:ok, comments} = Cache.get_comments gist["id"], client
-
-		{:ok, comments_html} = Enum.reduce(comments, "", fn(comment, acc) ->
-			username = comment["user"]["login"]
-			acc <> "<div class=\"comment-author\">\n"
-			<> "<a href=\"/" <> username <> "\" target=\"_blank\">"
-			<> "<img src=\"" <> comment["user"]["avatar_url"] <> "\" alt=\"" <> username <>"\" class=\"img-circle comment-author-avatar\" />"
-			<> "</a>\n"
-			<> "<a href=\"/" <> username <> "\" target=\"_blank\"><span class=\"comment-author-name\">" <> username <> "</span></a>\n"
-			<> "<span class=\"comment-time\">" <> comment["updated_at"] <> "</span>"
-			<> "</div>\n\n" 
-			<> to_blockquote(comment["body"]) <> "\n"
-		end) |> Cache.get_html(client)
-
 		loggedin = case Session.get("is_loggedin", req) do
 			:undefined -> false
 			result -> result
 		end
-
-		# Acquire embed code for each file other than the main file
-		attachments = lc {n, _} inlist files, n !== name, do: {n, embed(gist, n)}
-		# Parse the Markdown into HTML, then evaluate any <%= files[filename] %> tag
-		# and replace with the corresponding embed code.
-		# This way the author can embed any file in his/her gist any where in the article.
-		{:ok, entry_html} = Cache.get_html(attrs["content"], client)
-		entry_html = Regex.replace(%r/&lt;/, entry_html, "<")
-		entry_html = Regex.replace(%r/&gt;/, entry_html, ">")
-					|> EEx.eval_string [files: attachments] # allow inline embed
-
-		# Then set up article's title using either the description or filename
-		gist = gist |> Utils.prep_gist 
-					|> ListDict.put("html", entry_html)
-					|> ListDict.put("attachments", attachments)
-
-		comments_html = [:code.priv_dir(:gistsio), "templates", "comments.html.eex"]
-				|> Path.join
-				|> EEx.eval_file [html: comments_html]
-
-		# Render the gist's partial
-		gist_html = [:code.priv_dir(:gistsio), "templates", "gist.html.eex"]
-				|> Path.join
-				|> EEx.eval_file [entry: gist, 
-									comments: comments_html, 
-									is_loggedin: loggedin]
-
-		# Render author's info on the sidebar
-		{:ok, user} = Cache.get_user gist["user"]["login"], client
-		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
-				|> Path.join
-				|> EEx.eval_file [user: user]
-
-		# Put it into the base layout
-		html = [:code.priv_dir(:gistsio), "templates", "base.html.eex"]
-				|> Path.join
-				|> EEx.eval_file [content: gist_html, 
-									title: gist["title"],
-									sidebar: sidebar_html,
-									is_loggedin: loggedin]
-
+		{:ok, html} = maybe_render_template(gist, loggedin, client)
 		{html, req, gist}
+	end
+
+	defp maybe_render_template(gist, loggedin?, client) do
+		username = gist["user"]["login"]
+		gist_id = gist["id"]
+		{dir, html_path} = html_path(username, gist_id)
+		# Check the time the cache is created
+		modified_at = Cache.gist_last_updated(username, gist_id)
+						|> :calendar.gregorian_seconds_to_datetime()
+		generated_at = :filelib.last_modified(html_path)
+
+		case modified_at > generated_at do
+			true ->
+				# The cache is newer than the static file, we render it again.
+				Lager.debug "Rendering HTML for gist #{gist_id} of user #{username}"
+				files = gist["files"]
+				{name, attrs} = Enum.filter(files, &Utils.is_markdown/1) |> Enum.at 0
+				{:ok, comments} = Cache.get_comments gist_id, client
+				{:ok, comments_html} = Enum.reduce(comments, "", fn(comment, acc) ->
+					username = comment["user"]["login"]
+					acc <> "<div class=\"comment-author\">\n"
+					<> "<a href=\"/" <> username <> "\" target=\"_blank\">"
+					<> "<img src=\"" <> comment["user"]["avatar_url"] <> "\" alt=\"" <> username <>"\" class=\"img-circle comment-author-avatar\" />"
+					<> "</a>\n"
+					<> "<a href=\"/" <> username <> "\" target=\"_blank\"><span class=\"comment-author-name\">" <> username <> "</span></a>\n"
+					<> "<span class=\"comment-time\">" <> comment["updated_at"] <> "</span>"
+					<> "</div>\n\n" 
+					<> to_blockquote(comment["body"]) <> "\n"
+				end) |> Cache.get_html(client)
+
+				# Acquire embed code for each file other than the main file
+				attachments = lc {n, _} inlist files, n !== name, do: {n, embed(gist, n)}
+				# Parse the Markdown into HTML, then evaluate any <%= files[filename] %> tag
+				# and replace with the corresponding embed code.
+				# This way the author can embed any file in his/her gist any where in the article.
+				{:ok, entry_html} = Cache.get_html(attrs["content"], client)
+				entry_html = Regex.replace(%r/&lt;/, entry_html, "<")
+				entry_html = Regex.replace(%r/&gt;/, entry_html, ">")
+							|> EEx.eval_string [files: attachments] # allow inline embed
+
+				# Then set up article's title using either the description or filename
+				gist = gist |> Utils.prep_gist 
+							|> ListDict.put("html", entry_html)
+							|> ListDict.put("attachments", attachments)
+
+				comments_html = [:code.priv_dir(:gistsio), "templates", "comments.html.eex"]
+						|> Path.join
+						|> EEx.eval_file [html: comments_html]
+
+				# Render the gist's partial
+				gist_html = [:code.priv_dir(:gistsio), "templates", "gist.html.eex"]
+						|> Path.join
+						|> EEx.eval_file [entry: gist, comments: comments_html]
+
+				# Render author's info on the sidebar
+				{:ok, user} = Cache.get_user gist["user"]["login"], client
+				sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
+						|> Path.join
+						|> EEx.eval_file [user: user]
+
+				# Put it into the base layout
+				html = [:code.priv_dir(:gistsio), "templates", "base.html.eex"]
+						|> Path.join
+						|> EEx.eval_file [content: gist_html, 
+											title: gist["title"],
+											sidebar: sidebar_html,
+											is_loggedin: loggedin?]
+
+				File.mkdir_p(dir) # Ensure the directory is created
+				File.write(html_path, html)
+				{:ok, html}
+			false ->
+				# Cache is older, just serve the static file.
+				Lager.debug "Serving static HTML for gist #{gist_id} of user #{username}"
+				File.read(html_path)
+		end
+	end
+
+	defp html_path(username, gist_id) do
+		{:ok, cwd} = File.cwd()
+		dir = :filename.join([cwd, "priv", "static", username])
+		{dir, :filename.join([dir, "gist_#{gist_id}.html"])}
 	end
 
 	defp to_blockquote(markdown) when is_binary(markdown) do
