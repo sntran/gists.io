@@ -15,12 +15,16 @@ defmodule GistsIO.GistClient do
         :gen_server.call(client, ["gist", id])
     end
 
+    def create_gist(client, description, files, contents) do
+        :gen_server.call(client, ["gist", description, files, contents])
+    end
+
     def fetch_comments(client, id) do
         :gen_server.call(client, ["comments", id])
     end
 
-    def create_comment(client, id, comment) do
-        :gen_server.call(client, ["comments", id, comment])
+    def create_comment(client, gist_id, comment) do
+        :gen_server.call(client, ["comments", gist_id, comment])
     end
 
     def fetch_user(client, id) do
@@ -61,14 +65,24 @@ defmodule GistsIO.GistClient do
         {:reply, {stat, Jsonex.decode(data)}, state}
     end
 
+    def handle_call(["gist", description, files, contents], _from, state) do
+        url = url("gists", state)
+        fileList = lc x inlist files, y inlist contents do
+            {x, [{"content", y}]}
+        end 
+        body = Jsonex.encode([{"description", description}, {"public", true}, 
+            {"files", fileList}])
+        {:reply, post(url, body), state}
+    end
+
     def handle_call(["comments", id], _from, state) do
         url = url("gists/#{id}/comments", state)
         {stat, data, _} = fetch(url)
         {:reply, {stat, Jsonex.decode(data)}, state}
     end
 
-    def handle_call(["comments", id, comment], _from, state) do
-        url = url("gists/#{id}/comments", state)
+    def handle_call(["comments", gist_id, comment], _from, state) do
+        url = url("gists/#{gist_id}/comments", state)
         body = Jsonex.encode([{"body", comment}])
         {:reply, post(url, body), state}
     end
@@ -110,6 +124,15 @@ defmodule GistsIO.GistClient do
                 {:ok, body}
             Response[body: body, status_code: status, headers: _headers] ->
                 {:error, body}
+        end
+    end
+
+    defp delete(url, headers // []) do
+        case HTTPotion.post(url, headers) do
+            Response[body: body, status_code: status, headers: headers] when status in 200..299 ->
+                {:ok, body, headers}
+            Response[body: body, status_code: status, headers: headers] ->
+                {:error, body, headers} 
         end
     end
 

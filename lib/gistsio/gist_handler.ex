@@ -47,8 +47,6 @@ defmodule GistsIO.GistHandler do
   		client = Session.get("gist_client", req)
   		{:ok, body, req} = Req.body_qs(req)
   		Gist.create_comment client, gist["id"], body["comment"]
-  		{host, req} = Req.host(req)
-        {port, req} = Req.port(req)
         prev_path = Session.get("previous_path", req)
   		{{true,prev_path}, req, gist}
   	end

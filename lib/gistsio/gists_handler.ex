@@ -9,7 +9,7 @@ defmodule GistsIO.GistsHandler do
 	end
 
 	def allowed_methods(req, state) do
-		{["GET"], req, state}
+		{["GET", "POST"], req, state}
 	end
 
 	def content_types_provided(req, state) do
@@ -32,6 +32,28 @@ defmodule GistsIO.GistsHandler do
 				end
 		end
 	end
+
+	def content_types_accepted(req, state) do
+  		{[
+  			{{"application", "x-www-form-urlencoded", []}, :gists_post}
+  		], req, state}
+  	end
+
+  	def gists_post(req, gist) do
+  		client = Session.get("gist_client", req)
+  		{:ok, body, req} = Req.body_qs(req)
+  		teaser = body["teaser"]
+  		title = body["title"]
+  		description = "#{title}\n#{teaser}"
+  		{files, contents} = extract_files(body)
+  		response = Gist.create_gist client, description, files, contents
+        prev_path = Session.get("previous_path", req)
+        # Cowboy set status code to be 201 instead of 3xx
+        # Browser does not redirect, so we have to set the
+        # Refresh header
+        req = Req.set_resp_header("Refresh", "0; url=#{prev_path}", req)
+  		{{true,prev_path}, req, gist}
+  	end
 
 	def gists_html(req, gists) do
 		client = Session.get("gist_client", req)
@@ -79,6 +101,34 @@ defmodule GistsIO.GistsHandler do
 
 	defp is_public_markdown(gist) do
 		gist["public"] === :true and Enum.any? gist["files"], &Utils.is_markdown/1
+	end
+
+	# Takes form data from gist form and extracts
+	# lists for the file names and contents
+	defp extract_files(data) do
+		files = ["blog.md"]
+		contents = []
+		extract_files(data,files,contents)
+	end
+	defp extract_files([field|[]], files, contents) do
+		case field do
+			{"file", file} ->
+				{files ++ [file], contents}
+			{"content", content} ->
+				{files, contents ++ [content]}
+			{_,_} ->
+				{files,contents}
+		end
+	end
+	defp extract_files([field|data], files, contents) do
+		case field do
+			{"file", file} ->
+				extract_files(data, files ++ [file], contents)
+			{"content", content} ->
+				extract_files(data, files, contents ++ [content])
+			{_,_} ->
+				extract_files(data, files, contents)
+		end
 	end
 
 	# Convert the pager header from GitHub to a format suitable to display.

@@ -12,7 +12,7 @@ defmodule GistsIO do
                 {"/login", GistsIO.AuthHandler, []},
                 {"/logout", GistsIO.AuthHandler, []},
                 {"/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
-                {"/comment/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
+                {"/:gist/comments", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:username", GistsIO.GistsHandler, []},
                 {"/:username/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/s/[:...]", :cowboy_static, [
