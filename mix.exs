@@ -17,9 +17,10 @@ defmodule GistsIO.Mixfile do
             mod: { GistsIO, [] },
             applications: [:crypto, :mimetypes, :cowboy, :exlager],
             env: [
-                port: 8080, 
+                port: 8080,
                 sessions: [store: {Session.ETS, []}],
-                lease_time: 60*60*24
+                lease_time: 60*60*24,
+                gists_per_page: 5
             ]
         ]
     end
