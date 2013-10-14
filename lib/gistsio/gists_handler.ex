@@ -46,7 +46,7 @@ defmodule GistsIO.GistsHandler do
   		title = body["title"]
   		description = "#{title}\n#{teaser}"
   		{files, contents} = extract_files(body)
-  		response = Gist.create_gist client, description, files, contents
+  		Gist.create_gist client, description, files, contents
         prev_path = Session.get("previous_path", req)
         # Cowboy set status code to be 201 instead of 3xx
         # Browser does not redirect, so we have to set the
@@ -106,26 +106,27 @@ defmodule GistsIO.GistsHandler do
 	# Takes form data from gist form and extracts
 	# lists for the file names and contents
 	defp extract_files(data) do
-		files = ["blog.md"]
-		contents = []
+		title = data["title"]
+		files = ["#{Regex.replace(%r/ /, title, "_")}.md"]
+		contents = [[{"content",data["content"]}]]
 		extract_files(data,files,contents)
 	end
 	defp extract_files([field|[]], files, contents) do
 		case field do
-			{"file", file} ->
+			{"filename", file} ->
 				{files ++ [file], contents}
-			{"content", content} ->
-				{files, contents ++ [content]}
+			{"file", content} ->
+				{files, contents ++ [[{"content",content}]]}
 			{_,_} ->
 				{files,contents}
 		end
 	end
 	defp extract_files([field|data], files, contents) do
 		case field do
-			{"file", file} ->
+			{"filename", file} ->
 				extract_files(data, files ++ [file], contents)
-			{"content", content} ->
-				extract_files(data, files, contents ++ [content])
+			{"file", content} ->
+				extract_files(data, files, contents ++ [[{"content",content}]])
 			{_,_} ->
 				extract_files(data, files, contents)
 		end

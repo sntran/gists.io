@@ -67,9 +67,7 @@ defmodule GistsIO.GistClient do
 
     def handle_call(["gist", description, files, contents], _from, state) do
         url = url("gists", state)
-        fileList = lc x inlist files, y inlist contents do
-            {x, [{"content", y}]}
-        end 
+        fileList = List.zip([files,contents])
         body = Jsonex.encode([{"description", description}, {"public", true}, 
             {"files", fileList}])
         {:reply, post(url, body), state}

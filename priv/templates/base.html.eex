@@ -9,6 +9,8 @@
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css">
 	<link rel="stylesheet" href="/s/css/light.css" id="main-style">
 	<link rel="stylesheet" href="/s/css/monokai_sublime.css">
+	<link rel="stylesheet" href="/s/css/codemirror.css">
+	<link rel="stylesheet" href="/s/css/monokai.css">
 	<link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,300|Roboto+Slab:400,300&amp;subset=latin" rel="stylesheet" type="text/css">
 	<style type="text/css"></style>
 </head>
@@ -40,7 +42,16 @@
 							        	<label for="teaser">Teaser:</label>
 							        	<textarea name="teaser" class="form-control" rows="5"></textarea>
 							        	<label for="content">Blog Content:</label>
-							          	<textarea name="content" class="form-control" rows="10"></textarea>
+							        	<ul class="nav nav-tabs">
+											<li class="active"><a href="#editor" data-toggle="tab">Editor</a></li>
+											<li><a href="#preview" data-toggle="tab">Preview</a></li>
+										</ul>
+										<div class="tab-content">
+								        	<div class="tab-pane active" id="editor">
+								          		<textarea name="content" id="test" class="form-control" rows="10"></textarea>
+								          	</div>
+	  										<div class="tab-pane" id="preview"></div>
+	  									</div>
 							        </div>
 							        <div class="modal-footer">
 							        	<button type="button" id="newFile" class="btn btn-primary pull-left">New File</button> 
@@ -67,15 +78,31 @@
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
 <script src="/s/js/marked.js"></script>
 <script src="/s/js/highlight.pack.js"></script>
+<script src="/s/js/codemirror-compressed.js"></script>
 
 <script>
 $(function() {
+	var options = {
+		theme: "monokai",
+		lineNumbers: true,
+		mode: "javascript"
+	};
+	var textAreas = [];
+	var files = 0;
+
 	$('#newFile').click(function(e) {
-		var html = "<label for='file'>File Name:</label>";
-		html += "<input type='text' name='file' class='form-control'>";
-		html += "<label for='content'>File Content:</label>";
-		html += "<textarea name='content' class='form-control' rows='10'></textarea>";
+		file = "file" + files;
+		var html = "<div id='"+file+"'>";
+		html += "<label for='filename'>File Name:</label>";
+		html += "<input type='text' name='filename' id='filename' class='form-control'>";
+		html += "<label for='file'>File Content:</label>";
+		html += "<textarea name='file' id='file' class='form-control' rows='10'></textarea>";
+		html += "</div>";
 		$(html).appendTo('.modal-body');
+		var textArea = $("#"+file+" #file")[0];
+		textAreas[file] = CodeMirror.fromTextArea(textArea,options);
+		textAreas[file].setSize(540,150);
+		files += 1;
 	});
 
 	marked.setOptions({
@@ -97,6 +124,7 @@ $(function() {
 
 	var previousMd = ""
     $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+    	console.log(e);
   		var $editor = $("#editor textarea")
   		var $preview = $("#preview")
   		if ($(e.target).attr("href") === "#preview") {
