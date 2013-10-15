@@ -19,6 +19,10 @@ defmodule GistsIO.GistClient do
         :gen_server.call(client, ["gist", description, files, contents])
     end
 
+    def edit_gist(client, gist_id, description, files) do
+        :gen_server.call(client, ["gist", "edit", gist_id, description, files])
+    end
+
     def fetch_comments(client, id) do
         :gen_server.call(client, ["comments", id])
     end
@@ -73,6 +77,13 @@ defmodule GistsIO.GistClient do
         {:reply, post(url, body), state}
     end
 
+    def handle_call(["gist", "edit", gist_id, description, files], _from, state) do
+        url = url("gists/#{gist_id}", state)
+        body = Jsonex.encode([{"description", description}, {"public", true},
+            {"files", files}])
+        {:reply, patch(url,body), state}
+    end
+
     def handle_call(["comments", id], _from, state) do
         url = url("gists/#{id}/comments", state)
         {stat, data, _} = fetch(url)
@@ -118,6 +129,15 @@ defmodule GistsIO.GistClient do
 
     defp post(url, body) do
         case HTTPotion.post(url, body, [is_ssl: true]) do
+            Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
+                {:ok, body}
+            Response[body: body, status_code: status, headers: _headers] ->
+                {:error, body}
+        end
+    end
+
+    defp patch(url, body) do
+        case HTTPotion.patch(url, body, [is_ssl: true]) do
             Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
                 {:ok, body}
             Response[body: body, status_code: status, headers: _headers] ->

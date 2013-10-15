@@ -29,7 +29,9 @@ defmodule GistsIO.GistHandler do
 					{:ok, gist} ->
 						files = gist["files"]
 						if files !== nil and Enum.any?(files, &Utils.is_markdown/1) do
-							{:true, req, gist}
+							{path,req} = Req.path(req)
+							[""|path_parts] = Regex.split(%r/\//, path)
+							{:true, req, {path_parts,gist}}
 						else
 							{:false, req, gist}
 						end
@@ -43,7 +45,7 @@ defmodule GistsIO.GistHandler do
   		], req, state}
   	end
 
-  	def gist_post(req, gist) do
+  	def gist_post(req, {[_,"comments"],gist}) do
   		client = Session.get("gist_client", req)
   		{:ok, body, req} = Req.body_qs(req)
   		Gist.create_comment client, gist["id"], body["comment"]
@@ -51,7 +53,23 @@ defmodule GistsIO.GistHandler do
   		{{true,prev_path}, req, gist}
   	end
 
-	def gist_html(req, gist) do
+  	def gist_post(req, {path_parts,gist}) do
+  		client = Session.get("gist_client", req)
+  		{:ok, body, req} = Req.body_qs(req)
+  		teaser = body["teaser"]
+  		title = body["title"]
+  		{old_title,_} = Utils.parse_description(gist)
+  		description = "#{title}\n#{teaser}"
+  		new_filename = "#{Regex.replace(%r/ /, title, "_")}.md"
+  		old_filename = "#{Regex.replace(%r/ /, old_title, "_")}.md"
+
+		files = [{old_filename, [{"filename", new_filename},{"content",body["content"]}]}]
+  		Gist.edit_gist client, gist["id"], description, files
+  		prev_path = Session.get("previous_path", req)
+  		{{true,prev_path}, req, gist}
+  	end
+
+	def gist_html(req, {path_parts,gist}) do
 		client = Session.get("gist_client", req)
 		files = gist["files"]
 		{name, attrs} = Enum.filter(files, &Utils.is_markdown/1) |> Enum.at 0

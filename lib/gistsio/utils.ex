@@ -5,6 +5,14 @@ defmodule GistsIO.Utils do
 
 	def prep_gist(gist) do
 		{_name, entry} = Enum.at gist["files"], 0
+		{title, teaser} = parse_description(gist)
+		gist = ListDict.put(gist, "title", title)
+				|> ListDict.put("teaser", teaser)
+		
+	end
+
+	def parse_description(gist) do
+		{_name, entry} = Enum.at gist["files"], 0
 		description = gist["description"]
 		{title, teaser} = if description !== "" do
 			[title] = Regex.run %r/.*$/m, description
@@ -14,9 +22,5 @@ defmodule GistsIO.Utils do
 		else
 			{entry["filename"], ""}
 		end
-		gist = ListDict.put(gist, "title", title)
-				|> ListDict.put("teaser", teaser)
-		
 	end
-	
 end
