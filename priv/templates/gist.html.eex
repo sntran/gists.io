@@ -40,7 +40,7 @@
 	Last updated: <span><%= entry["updated_at"] %></span> | 
 	<span><%= entry["comments"] %> comments</span>
 	<span><a href="/<%= entry["user"]["login"] %>">All entries</a></span>
-	<%= if is_loggedin do %>
+	<%= if is_loggedin == entry["user"]["login"] do %>
 		<span><a data-toggle="modal" href="#editGist">Edit Entry</a><span>
 	<%= end %>
 	</p>
@@ -71,7 +71,7 @@
 <h3 class="comment-heading text-center">ℵ</h3>
 <h3 class="text-center">Your thoughts?</h3>
 
-<%= if is_loggedin do %>
+<%= if is_loggedin != false do %>
 	<ul class="nav nav-tabs">
 		<li class="active"><a href="#editor" data-toggle="tab">Editor</a></li>
 		<li><a href="#preview" data-toggle="tab">Preview</a></li>

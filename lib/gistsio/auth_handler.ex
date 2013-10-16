@@ -22,7 +22,8 @@ defmodule GistsIO.AuthHandler do
                 {:ok, req, "/login"}
             {code, req} ->
                 GistsIO.GistClient.authorize(client, code)
-                Session.set("is_loggedin", true, req)
+                {:ok, user_info} = GistsIO.GistClient.fetch_user(client)
+                Session.set("is_loggedin", user_info["login"], req)
                 previous_path = Session.get("previous_path", req)
                 if previous_path == :undefined do
                     url = "http://#{host}:#{port}"

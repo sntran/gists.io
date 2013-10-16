@@ -34,6 +34,10 @@ defmodule GistsIO.GistClient do
     def fetch_user(client, id) do
         :gen_server.call(client, ["user", id])
     end
+
+    def fetch_user(client) do
+        :gen_server.call(client, ["user"])
+    end
     
     def render(client, markdown) do
         :gen_server.call(client, ["render", markdown])
@@ -98,6 +102,12 @@ defmodule GistsIO.GistClient do
 
     def handle_call(["user", id], _from, state) do
         url = url("users/#{id}", state)
+        {stat, data, _} = fetch(url)
+        {:reply, {stat, Jsonex.decode(data)}, state}
+    end
+
+    def handle_call(["user"], _from, state) do
+        url = url("user", state)
         {stat, data, _} = fetch(url)
         {:reply, {stat, Jsonex.decode(data)}, state}
     end

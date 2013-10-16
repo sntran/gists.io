@@ -19,7 +19,7 @@
 		<div class="row">
 			<div class="col-md-9 col-lg-9">
 				<div class="content">
-					<%= if is_loggedin do %>
+					<%= if is_loggedin != false do %>
 						<a class="logout" href="/logout?redirect=">Log out</a>
 						<a data-toggle="modal" href="#createGist" class="btn btn-primary">Create a gist</a>
 					<%= else %>
