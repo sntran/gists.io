@@ -23,6 +23,10 @@ defmodule GistsIO.GistClient do
         :gen_server.call(client, ["gist", "edit", gist_id, description, files])
     end
 
+    def delete_gist(client, gist_id) do
+        :gen_server.call(client, ["gist", "delete", gist_id])
+    end
+
     def fetch_comments(client, id) do
         :gen_server.call(client, ["comments", id])
     end
@@ -86,6 +90,12 @@ defmodule GistsIO.GistClient do
         body = Jsonex.encode([{"description", description}, {"public", true},
             {"files", files}])
         {:reply, patch(url,body), state}
+    end
+
+    def handle_call(["gist", "delete", gist_id], _from, state) do
+        url = url("gists/#{gist_id}", state)
+        {stat, data, _} = delete(url)
+        {:reply, {stat, Jsonex.decode(data)}, state}
     end
 
     def handle_call(["comments", id], _from, state) do
@@ -156,11 +166,11 @@ defmodule GistsIO.GistClient do
     end
 
     defp delete(url, headers // []) do
-        case HTTPotion.post(url, headers) do
+        case HTTPotion.delete(url, headers) do
             Response[body: body, status_code: status, headers: headers] when status in 200..299 ->
                 {:ok, body, headers}
             Response[body: body, status_code: status, headers: headers] ->
-                {:error, body, headers} 
+                {:error, body, headers}
         end
     end
 

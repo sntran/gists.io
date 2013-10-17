@@ -45,6 +45,12 @@ defmodule GistsIO.GistHandler do
   		], req, state}
   	end
 
+  	def gist_post(req, {[_,"delete"], gist}) do
+  		client = Session.get("gist_client", req)
+  		Gist.delete_gist client, gist["id"]
+  		{{true, "/#{gist["user"]["login"]}"}, req, gist}
+  	end
+
   	def gist_post(req, {[_,"comments"],gist}) do
   		client = Session.get("gist_client", req)
   		{:ok, body, req} = Req.body_qs(req)
