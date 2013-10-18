@@ -41,7 +41,7 @@ defmodule GistsIO do
         req = Session.new(req)
         previous_path = Session.get("current_path", req)
         {current, req} = Req.path(req)
-        unless previous_path == current do
+        if previous_path != current and :binary.match(current,"/s/") == :nomatch do
             Session.set("current_path", current, req)
             Session.set("previous_path", previous_path, req)
         end
