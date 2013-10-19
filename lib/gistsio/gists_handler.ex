@@ -76,8 +76,8 @@ defmodule GistsIO.GistsHandler do
 		{html, req, gists}
 	end
 	
-	defp maybe_render_template(username, gists, path, current_page, loggedin?, client) do
-		{dir, html_path} = html_path(path, current_page)
+	defp maybe_render_template(username, gists, current_page, loggedin?, client) do
+		{dir, html_path} = html_path(username, current_page)
 		# Check the time the cache is created
 		modified_at = Cache.gists_last_updated(username)
 						|> :calendar.gregorian_seconds_to_datetime()
@@ -86,7 +86,7 @@ defmodule GistsIO.GistsHandler do
 			true ->
 				# The cache is newer than the static file, we render it again.
 				Lager.debug "Rendering HTML for #{username}'s gists on page #{current_page}"
-				{:ok, html} = render(username, gists, loggedin, client)
+				{:ok, html} = render(username, gists, loggedin?, client)
 				File.mkdir_p(dir) # Ensure the directory is created
 				File.write(html_path, html)
 				{:ok, html}

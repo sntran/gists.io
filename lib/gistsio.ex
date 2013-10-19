@@ -15,6 +15,7 @@ defmodule GistsIO do
             {:_, [
                 {"/login", GistsIO.AuthHandler, []},
                 {"/logout", GistsIO.AuthHandler, []},
+                {"/gists", GistsIO.GistsHandler, []},
                 {"/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:gist/comments", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:gist/delete", [{:gist, :int}], GistsIO.GistHandler, []},

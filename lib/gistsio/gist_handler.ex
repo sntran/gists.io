@@ -87,7 +87,7 @@ defmodule GistsIO.GistHandler do
 		{:ok, html} = if :application.get_env(:gistsio, :use_static_page, false) do
 			maybe_render_template(gist, loggedin, client)
 		else
-			render(gist, client)
+			render(gist, loggedin, client)
 		end
 		{html, req, gist}
 	end
@@ -150,12 +150,12 @@ defmodule GistsIO.GistHandler do
 
 		comments_html = [:code.priv_dir(:gistsio), "templates", "comments.html.eex"]
 				|> Path.join
-				|> EEx.eval_file [html: comments_html]
+				|> EEx.eval_file [gist_id: gist_id, html: comments_html, is_loggedin: loggedin?]
 
 		# Render the gist's partial
 		gist_html = [:code.priv_dir(:gistsio), "templates", "gist.html.eex"]
 				|> Path.join
-				|> EEx.eval_file [entry: gist, comments: comments_html]
+				|> EEx.eval_file [entry: gist, comments: comments_html, is_loggedin: loggedin?]
 
 		# Render author's info on the sidebar
 		{:ok, user} = Cache.get_user gist["user"]["login"], client
