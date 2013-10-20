@@ -21,7 +21,6 @@ defmodule GistsIO.GistHandler do
 	end
 
 	def resource_exists(req, _state) do
-		# @TODO: Check if binding has username, and redirect if not the right one
 		case Req.binding :gist, req do
 			{:undefined, req} -> {:false, req, :index}
 			{gist_id, req} ->
@@ -30,16 +29,30 @@ defmodule GistsIO.GistHandler do
 				case Cache.get_gist gist_id, client do
 					{:error, _} -> {:false, req, gist_id}
 					{:ok, gist} ->
-						files = gist["files"]
-						if files !== nil and Enum.any?(files, &Utils.is_markdown/1) do
-							{path,req} = Req.path(req)
-							[""|path_parts] = Regex.split(%r/\//, path)
-							{:true, req, {path_parts,gist}}
-						else
-							{:false, req, gist}
+						case Req.binding :username, req do
+							{:undefined, req} ->
+								username = gist["user"]["login"]
+								{:false, req, {:redirect, "/#{username}/#{gist_id}"}}
+							{username, req} ->
+								files = gist["files"]
+								if files !== nil and Enum.any?(files, &Utils.is_markdown/1) do
+									{path,req} = Req.path(req)
+									[""|path_parts] = Regex.split(%r/\//, path)
+									{:true, req, {path_parts,gist}}
+								else
+									{:false, req, gist}
+								end
 						end
 				end	
 		end
+	end
+
+	def previously_existed(req, {:redirect, path}) do
+		{:true, req, {:redirect, path}}
+	end
+
+	def moved_permanently(req, {:redirect, path}) do
+		{{:true, path}, req, path}
 	end
 
 	def content_types_accepted(req, state) do
