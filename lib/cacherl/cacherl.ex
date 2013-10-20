@@ -100,6 +100,7 @@ defmodule Cacherl do
 		case Store.lookup(key) do
 			{:ok, pid} ->
 				Cache.delete(pid)
+				Store.delete(pid)
 			{:error, _reason} ->
 				:ok
 		end

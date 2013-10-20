@@ -81,6 +81,8 @@ defmodule GistsIO.Cache do
 
 	def get_gist(gist_id, gister) do
 		cache = Cacherl.match({:gist, gist_id, :'$1'}, fn([username]) ->
+			# We need to perform a match because there is case where no 
+			# username is provided.
 			{:gist, gist_id, username}
 		end)
 
@@ -105,6 +107,58 @@ defmodule GistsIO.Cache do
 						{:error, error}
 				end
 		end
+	end
+
+	@doc """
+	Update a cached gist.
+
+	Always overwriting the description. For files, it takes a list
+	of file "diff"'s using the format of GitHub's PATCH file's body.
+	It will use this "diff" to filter out to-delete files and map
+	the changed data to each file.
+
+	It then deletes the old cache and create a new one with updated
+	data so that the html calls on the handlers can check for changes.
+	
+	@arguments:
+	description = binary()
+	files = [file]
+	file = [{oldname, [{"filename", newname},{"content", content}]}]
+	oldname = newname = content = binary()
+	"""
+	def update_gist(description, files // [], gist) do
+		gist_id = gist["id"]
+		username = gist["user"]["login"]
+		updated_gist = ListDict.put(gist, "description", description)
+		current_files = gist["files"]
+		updated_gist = if files !== [] do
+			new_files = Enum.filter_map(current_files, fn({name, attrs}) ->
+				# Keep the file not in the list of files to update
+				# or not indicated to be deleted - null value.
+				file_to_update = files[name]
+				file_to_update === nil or file_to_update !== "null"
+			end, fn({name, attrs}) ->
+				file_to_update = files[name]
+				if (file_to_update !== nil) do
+					# We want to update this file
+					newname = file_to_update["filename"]
+					content = file_to_update["content"]
+					new_attrs = ListDict.put(attrs, "filename", newname)
+					|> ListDict.put("content", content)
+					{newname, new_attrs}
+				else
+					# Just return the old file.
+					{name, attrs}
+				end
+			end)
+			ListDict.put(updated_gist, "files", new_files)
+		else
+			updated_gist
+		end
+
+		key = {:gist, gist_id, username}
+		Cacherl.delete(key) # Remove the cache so we can reset the start and lease time
+		Cacherl.insert(key, updated_gist)
 	end
 
 	def gist_last_updated(username, gist_id) do

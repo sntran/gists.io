@@ -74,6 +74,8 @@ defmodule GistsIO.GistHandler do
 
 		files = [{old_filename, [{"filename", new_filename},{"content",body["content"]}]}]
   		Gist.edit_gist client, gist["id"], description, files
+  		Cache.update_gist(description, files, gist)
+
   		prev_path = Session.get("previous_path", req)
   		{{true,prev_path}, req, gist}
   	end
