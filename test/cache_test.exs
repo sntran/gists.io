@@ -75,15 +75,78 @@ defmodule GistTest do
     test "update a cached gist should have start time reset", meta do
         gist = meta[:gist]
         start_time = Cacherl.last_updated(@key)
-        new_description = "New Description"
         :timer.sleep(1000)
+        new_description = "New Description"
         Cache.update_gist(new_description, gist)
         refute Cacherl.last_updated(@key) === start_time
     end
 
-    defp get_gist(description) do
+    test "adding a new gist should insert it into cache", meta do
+        Cacherl.delete(@key)
+        assert Cacherl.lookup(@key) === {:error, :not_found}
+
+        gist = meta[:gist]
+        Cache.update_gist(gist["description"], gist)
+        {:ok, cache} = Cacherl.lookup(@key)
+        assert cache["id"] === gist["id"]
+        assert cache["description"] === gist["description"]
+    end
+
+    test "adding a new gist also updates gists list's cache", meta do
+        existing_gist = meta[:gist]
+        key = {:user, @username, "gists"}
+        # This is not actually true, since the data structure from GitHub
+        # for gists listing is simpler, but for the sake of testing...
+        Cacherl.insert(key, [existing_gist])
+        {:ok, cache} = Cacherl.lookup(key)
+        assert Enum.count(cache) === 1
+
+        description = "Another gist's description"
+        new_gist = get_gist("#{@gist_id}_123", description)
+        Cache.update_gist(description, new_gist)
+        {:ok, cache} = Cacherl.lookup(key)
+        assert Enum.count(cache) === 2
+        cached_new_gist = Enum.at(cache, 0)
+        cached_old_gist = Enum.at(cache, 1)
+        assert cached_new_gist["id"] === new_gist["id"]
+        assert cached_new_gist["description"] === new_gist["description"]
+        assert cached_old_gist["id"] === existing_gist["id"]
+        assert cached_old_gist["description"] === existing_gist["description"]
+    end
+
+    test "updating a gist's description also updates gists list's cache", meta do
+        gist = meta[:gist]
+        key = {:user, @username, "gists"}
+        # This is not actually true, since the data structure from GitHub
+        # for gists listing is simpler, but for the sake of testing...
+        Cacherl.insert(key, [gist])
+        new_description = "New description"
+        Cache.update_gist(new_description, gist)
+        {:ok, cache} = Cacherl.lookup(key)
+        assert Enum.count(cache) === 1
+        updated_gist = Enum.at(cache, 0)
+        # The only thing we use for gists listing is the description.
+        refute updated_gist["description"] === gist["description"]
+        assert updated_gist["description"] === new_description
+    end
+
+    test "updating gists list's cache should reset its start time", meta do
+        gist = meta[:gist]
+        key = {:user, @username, "gists"}
+        # This is not actually true, since the data structure from GitHub
+        # for gists listing is simpler, but for the sake of testing...
+        Cacherl.insert(key, [gist])
+        start_time = Cacherl.last_updated(key)
+        :timer.sleep(1000)
+        new_description = "New description"
+        Cache.update_gist(new_description, gist)
+        {:ok, cache} = Cacherl.lookup(key)
+        refute Cacherl.last_updated(key) === start_time
+    end
+
+    defp get_gist(id // @gist_id, description) do
         [
-            {"id", @gist_id},
+            {"id", id},
             {"description", description},
             {"user", [
                 {"login", @username}
