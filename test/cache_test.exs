@@ -158,6 +158,32 @@ defmodule GistTest do
         assert Cacherl.lookup(comments_key) === {:error, :not_found}
     end
 
+    test "removing a gist should also update gists list's cache", meta do
+        gist = meta[:gist]
+        key = {:user, @username, "gists"}
+        # This is not actually true, since the data structure from GitHub
+        # for gists listing is simpler, but for the sake of testing...
+        Cacherl.insert(key, [gist])
+        # It is ensured that the cache has 1 item by previous tests.
+
+        Cache.remove_gist(@username, @gist_id)
+        {:ok, cache} = Cacherl.lookup(key)
+        assert Enum.count(cache) === 0
+    end
+
+    test "removing a gist should reset start time of gists list's cache", meta do
+        gist = meta[:gist]
+        key = {:user, @username, "gists"}
+        # This is not actually true, since the data structure from GitHub
+        # for gists listing is simpler, but for the sake of testing...
+        Cacherl.insert(key, [gist])
+        start_time = Cacherl.last_updated(key)
+        :timer.sleep(1000)
+        Cache.remove_gist(@username, @gist_id)
+        {:ok, cache} = Cacherl.lookup(key)
+        refute Cacherl.last_updated(key) === start_time
+    end
+
     defp get_gist(id // @gist_id, description) do
         [
             {"id", id},

@@ -162,7 +162,7 @@ defmodule GistsIO.Cache do
 
 		gists_key = {:user, username, "gists"}
 		{:ok, cache} = Cacherl.lookup(gists_key)
-		idx = Enum.find_index(cache, fn(gist) -> gist["id"] === updated_gist["id"] end)
+		idx = Enum.find_index(cache, &(&1["id"] === updated_gist["id"]))
 		new_cache = if (idx === nil) do
 			[updated_gist | cache]
 		else
@@ -176,10 +176,18 @@ defmodule GistsIO.Cache do
 	end
 
 	def remove_gist(username, gist_id) do
+		# Clear the gist's cache.
 		gist_key = {:gist, gist_id, username}
 		Cacherl.delete(gist_key)
+		# Clear associated comments' cache.
 		comments_key = {:comments, gist_id}
 		Cacherl.delete(comments_key)
+		# Remove it from gists list's cache.
+		gists_key = {:user, username, "gists"}
+		{:ok, cache} = Cacherl.lookup(gists_key)
+		new_cache = Enum.reject(cache, &(&1["id"] === gist_id))
+		Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
+		Cacherl.insert(gists_key, new_cache)
 	end
 
 	def gist_last_updated(username, gist_id) do
