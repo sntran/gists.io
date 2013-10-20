@@ -119,7 +119,7 @@ defmodule GistsIO.Cache do
 
 	It then deletes the old cache and create a new one with updated
 	data so that the html calls on the handlers can check for changes.
-	
+
 	@arguments:
 	description = binary()
 	files = [file]
@@ -184,6 +184,12 @@ defmodule GistsIO.Cache do
 				Lager.debug "Fetching comments for gist #{gist_id} from cache."
 				{:ok, comments}
 		end
+	end
+
+	def add_comment(comment, gist_id) do
+		key = {:comments, gist_id}
+		{:ok, cache} = Cacherl.lookup(key)
+		Cacherl.insert(key, cache ++ [comment])
 	end
 	
 	def get_user(username, gister) do

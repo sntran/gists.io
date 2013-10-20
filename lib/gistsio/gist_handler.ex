@@ -61,16 +61,20 @@ defmodule GistsIO.GistHandler do
   		], req, state}
   	end
 
-  	def gist_post(req, {[_,"delete"], gist}) do
+  	def gist_post(req, {[_, _,"delete"], gist}) do
   		client = Session.get("gist_client", req)
   		Gist.delete_gist client, gist["id"]
   		{{true, "/#{gist["user"]["login"]}"}, req, gist}
   	end
 
-  	def gist_post(req, {[_,"comments"],gist}) do
+  	def gist_post(req, {[_, _,"comments"],gist}) do
   		client = Session.get("gist_client", req)
   		{:ok, body, req} = Req.body_qs(req)
-  		Gist.create_comment client, gist["id"], body["comment"]
+  		{:ok, response} = Gist.create_comment client, gist["id"], body["comment"]
+
+  		new_comment = Jsonex.decode(response)
+  		Cache.add_comment(new_comment, gist["id"])
+
         prev_path = Session.get("previous_path", req)
   		{{true,prev_path}, req, gist}
   	end
