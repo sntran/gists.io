@@ -64,7 +64,9 @@ defmodule GistsIO.GistHandler do
   	def gist_post(req, {[_, _,"delete"], gist}) do
   		client = Session.get("gist_client", req)
   		Gist.delete_gist client, gist["id"]
-  		{{true, "/#{gist["user"]["login"]}"}, req, gist}
+  		username = gist["user"]["login"]
+  		Cache.remove_gist(username, gist["id"])
+  		{{true, "/#{username}"}, req, gist}
   	end
 
   	def gist_post(req, {[_, _,"comments"],gist}) do

@@ -175,6 +175,13 @@ defmodule GistsIO.Cache do
 		Cacherl.insert(gists_key, new_cache)
 	end
 
+	def remove_gist(username, gist_id) do
+		gist_key = {:gist, gist_id, username}
+		Cacherl.delete(gist_key)
+		comments_key = {:comments, gist_id}
+		Cacherl.delete(comments_key)
+	end
+
 	def gist_last_updated(username, gist_id) do
 		key = {:gist, gist_id, username}
 		Cacherl.last_updated(key)

@@ -144,6 +144,20 @@ defmodule GistTest do
         refute Cacherl.last_updated(key) === start_time
     end
 
+    test "removing a gist should clear its cache", meta do
+        gist = meta[:gist]
+        # `setup/0` ensures we have the gist in cache
+        Cache.remove_gist(@username, @gist_id)
+        assert Cacherl.lookup(@key) === {:error, :not_found}
+    end
+
+    test "removing a gist should also clear its comments' cache" do
+        comments_key = {:comments, @gist_id}
+        refute Cacherl.lookup(comments_key) === {:error, :not_found}
+        Cache.remove_gist(@username, @gist_id)
+        assert Cacherl.lookup(comments_key) === {:error, :not_found}
+    end
+
     defp get_gist(id // @gist_id, description) do
         [
             {"id", id},
