@@ -86,11 +86,10 @@ defmodule GistsIO.GistHandler do
   		{:ok, body, req} = Req.body_qs(req)
   		teaser = body["teaser"]
   		title = body["title"]
-  		{old_title,_} = Utils.parse_description(gist)
   		description = "#{title}\n#{teaser}"
   		new_filename = "#{Regex.replace(%r/ /, title, "_")}.md"
-  		old_filename = "#{Regex.replace(%r/ /, old_title, "_")}.md"
-
+  		{old_filename, old_file} = Enum.find(gist["files"], fn({filename,_}) -> 
+		          					:binary.match(filename,".md") != :nomatch end)
 		files = [{old_filename, [{"filename", new_filename},{"content",body["content"]}]}]
   		Gist.edit_gist client, gist["id"], description, files
   		Cache.update_gist(description, files, gist)
