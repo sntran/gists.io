@@ -21,7 +21,6 @@ defmodule GistsIO.GistHandler do
 	end
 
 	def resource_exists(req, _state) do
-		# @TODO: Check if binding has username, and redirect if not the right one
 		case Req.binding :gist, req do
 			{:undefined, req} -> {:false, req, :index}
 			{gist_id, req} ->
@@ -30,16 +29,30 @@ defmodule GistsIO.GistHandler do
 				case Cache.get_gist gist_id, client do
 					{:error, _} -> {:false, req, gist_id}
 					{:ok, gist} ->
-						files = gist["files"]
-						if files !== nil and Enum.any?(files, &Utils.is_markdown/1) do
-							{path,req} = Req.path(req)
-							[""|path_parts] = Regex.split(%r/\//, path)
-							{:true, req, {path_parts,gist}}
-						else
-							{:false, req, gist}
+						case Req.binding :username, req do
+							{:undefined, req} ->
+								username = gist["user"]["login"]
+								{:false, req, {:redirect, "/#{username}/#{gist_id}"}}
+							{username, req} ->
+								files = gist["files"]
+								if files !== nil and Enum.any?(files, &Utils.is_markdown/1) do
+									{path,req} = Req.path(req)
+									[""|path_parts] = Regex.split(%r/\//, path)
+									{:true, req, {path_parts,gist}}
+								else
+									{:false, req, gist}
+								end
 						end
 				end	
 		end
+	end
+
+	def previously_existed(req, {:redirect, path}) do
+		{:true, req, {:redirect, path}}
+	end
+
+	def moved_permanently(req, {:redirect, path}) do
+		{{:true, path}, req, path}
 	end
 
 	def content_types_accepted(req, state) do
@@ -48,16 +61,22 @@ defmodule GistsIO.GistHandler do
   		], req, state}
   	end
 
-  	def gist_post(req, {[_,"delete"], gist}) do
+  	def gist_post(req, {[_, _,"delete"], gist}) do
   		client = Session.get("gist_client", req)
   		Gist.delete_gist client, gist["id"]
-  		{{true, "/#{gist["user"]["login"]}"}, req, gist}
+  		username = gist["user"]["login"]
+  		Cache.remove_gist(username, gist["id"])
+  		{{true, "/#{username}"}, req, gist}
   	end
 
-  	def gist_post(req, {[_,"comments"],gist}) do
+  	def gist_post(req, {[_, _,"comments"],gist}) do
   		client = Session.get("gist_client", req)
   		{:ok, body, req} = Req.body_qs(req)
-  		Gist.create_comment client, gist["id"], body["comment"]
+  		{:ok, response} = Gist.create_comment client, gist["id"], body["comment"]
+
+  		new_comment = Jsonex.decode(response)
+  		Cache.add_comment(new_comment, gist["id"])
+
         prev_path = Session.get("previous_path", req)
   		{{true,prev_path}, req, gist}
   	end
@@ -67,13 +86,13 @@ defmodule GistsIO.GistHandler do
   		{:ok, body, req} = Req.body_qs(req)
   		teaser = body["teaser"]
   		title = body["title"]
-  		{old_title,_} = Utils.parse_description(gist)
   		description = "#{title}\n#{teaser}"
   		new_filename = "#{Regex.replace(%r/ /, title, "_")}.md"
-  		old_filename = "#{Regex.replace(%r/ /, old_title, "_")}.md"
-
+  		{old_filename, old_file} = Enum.find(gist["files"], &Utils.is_markdown/1)
 		files = [{old_filename, [{"filename", new_filename},{"content",body["content"]}]}]
   		Gist.edit_gist client, gist["id"], description, files
+  		Cache.update_gist(description, files, gist)
+
   		prev_path = Session.get("previous_path", req)
   		{{true,prev_path}, req, gist}
   	end
@@ -119,7 +138,7 @@ defmodule GistsIO.GistHandler do
 	defp render(gist, loggedin?, client) do
 		files = gist["files"]
 		gist_id = gist["id"]
-		{name, attrs} = Enum.filter(files, &Utils.is_markdown/1) |> Enum.at 0
+		{name, attrs} = Enum.find(files, &Utils.is_markdown/1)
 		{:ok, comments} = Cache.get_comments gist_id, client
 		{:ok, comments_html} = Enum.reduce(comments, "", fn(comment, acc) ->
 			username = comment["user"]["login"]

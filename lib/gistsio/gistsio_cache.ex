@@ -81,6 +81,8 @@ defmodule GistsIO.Cache do
 
 	def get_gist(gist_id, gister) do
 		cache = Cacherl.match({:gist, gist_id, :'$1'}, fn([username]) ->
+			# We need to perform a match because there is case where no 
+			# username is provided.
 			{:gist, gist_id, username}
 		end)
 
@@ -107,6 +109,87 @@ defmodule GistsIO.Cache do
 		end
 	end
 
+	@doc """
+	Update a cached gist.
+
+	Always overwriting the description. For files, it takes a list
+	of file "diff"'s using the format of GitHub's PATCH file's body.
+	It will use this "diff" to filter out to-delete files and map
+	the changed data to each file.
+
+	It then deletes the old cache and create a new one with updated
+	data so that the html calls on the handlers can check for changes.
+
+	@arguments:
+	description = binary()
+	files = [file]
+	file = [{oldname, [{"filename", newname},{"content", content}]}]
+	oldname = newname = content = binary()
+	"""
+	def update_gist(description, files // [], gist) do
+		gist_id = gist["id"]
+		username = gist["user"]["login"]
+		updated_gist = ListDict.put(gist, "description", description)
+		current_files = gist["files"]
+		updated_gist = if files !== [] do
+			new_files = Enum.filter_map(current_files, fn({name, attrs}) ->
+				# Keep the file not in the list of files to update
+				# or not indicated to be deleted - null value.
+				file_to_update = files[name]
+				file_to_update === nil or file_to_update !== "null"
+			end, fn({name, attrs}) ->
+				file_to_update = files[name]
+				if (file_to_update !== nil) do
+					# We want to update this file
+					newname = file_to_update["filename"]
+					content = file_to_update["content"]
+					new_attrs = ListDict.put(attrs, "filename", newname)
+					|> ListDict.put("content", content)
+					{newname, new_attrs}
+				else
+					# Just return the old file.
+					{name, attrs}
+				end
+			end)
+			ListDict.put(updated_gist, "files", new_files)
+		else
+			updated_gist
+		end
+
+		gist_key = {:gist, gist_id, username}
+		Cacherl.delete(gist_key) # Remove the cache so we can reset the start and lease time
+		Cacherl.insert(gist_key, updated_gist)
+
+		gists_key = {:user, username, "gists"}
+		{:ok, cache} = Cacherl.lookup(gists_key)
+		idx = Enum.find_index(cache, &(&1["id"] === updated_gist["id"]))
+		new_cache = if (idx === nil) do
+			[updated_gist | cache]
+		else
+			changed_gist = Enum.at(cache, idx)
+						|> ListDict.put("description", updated_gist["description"])
+			List.replace_at(cache, idx, changed_gist)
+		end
+
+		Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
+		Cacherl.insert(gists_key, new_cache)
+	end
+
+	def remove_gist(username, gist_id) do
+		# Clear the gist's cache.
+		gist_key = {:gist, gist_id, username}
+		Cacherl.delete(gist_key)
+		# Clear associated comments' cache.
+		comments_key = {:comments, gist_id}
+		Cacherl.delete(comments_key)
+		# Remove it from gists list's cache.
+		gists_key = {:user, username, "gists"}
+		{:ok, cache} = Cacherl.lookup(gists_key)
+		new_cache = Enum.reject(cache, &(&1["id"] === gist_id))
+		Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
+		Cacherl.insert(gists_key, new_cache)
+	end
+
 	def gist_last_updated(username, gist_id) do
 		key = {:gist, gist_id, username}
 		Cacherl.last_updated(key)
@@ -130,6 +213,12 @@ defmodule GistsIO.Cache do
 				Lager.debug "Fetching comments for gist #{gist_id} from cache."
 				{:ok, comments}
 		end
+	end
+
+	def add_comment(comment, gist_id) do
+		key = {:comments, gist_id}
+		{:ok, cache} = Cacherl.lookup(key)
+		Cacherl.insert(key, cache ++ [comment])
 	end
 	
 	def get_user(username, gister) do

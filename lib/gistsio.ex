@@ -17,8 +17,8 @@ defmodule GistsIO do
                 {"/logout", GistsIO.AuthHandler, []},
                 {"/gists", GistsIO.GistsHandler, []},
                 {"/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
-                {"/:gist/comments", [{:gist, :int}], GistsIO.GistHandler, []},
-                {"/:gist/delete", [{:gist, :int}], GistsIO.GistHandler, []},
+                {"/:username/:gist/comments", [{:gist, :int}], GistsIO.GistHandler, []},
+                {"/:username/:gist/delete", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:username", GistsIO.GistsHandler, []},
                 {"/:username/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/s/[:...]", :cowboy_static, [

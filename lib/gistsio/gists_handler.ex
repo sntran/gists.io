@@ -49,7 +49,9 @@ defmodule GistsIO.GistsHandler do
   		title = body["title"]
   		description = "#{title}\n#{teaser}"
   		{files, contents} = extract_files(body)
-  		Gist.create_gist client, description, files, contents
+  		{:ok, response} = Gist.create_gist client, description, files, contents
+  		gist = Jsonex.decode(response)
+  		Cache.update_gist(description, gist)
         prev_path = Session.get("previous_path", req)
         # Cowboy set status code to be 201 instead of 3xx
         # Browser does not redirect, so we have to set the
