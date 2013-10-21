@@ -29,6 +29,9 @@ Gist-based blogging platform in Elixir
 * Cache system
 * Pagination on the filtered blog-like gists.
 * Support saving rendered Markdown to static HTML.
+* Authoring actions will update cache accordingly.
+* Redirect `/:gistid` to `/:username/:gistid` for consistency.
+* Added some tests.
 
 ### v0.2.0
 
