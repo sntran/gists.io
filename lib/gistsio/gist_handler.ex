@@ -88,8 +88,7 @@ defmodule GistsIO.GistHandler do
   		title = body["title"]
   		description = "#{title}\n#{teaser}"
   		new_filename = "#{Regex.replace(%r/ /, title, "_")}.md"
-  		{old_filename, old_file} = Enum.find(gist["files"], fn({filename,_}) -> 
-		          					:binary.match(filename,".md") != :nomatch end)
+  		{old_filename, old_file} = Enum.find(gist["files"], &Utils.is_markdown/1)
 		files = [{old_filename, [{"filename", new_filename},{"content",body["content"]}]}]
   		Gist.edit_gist client, gist["id"], description, files
   		Cache.update_gist(description, files, gist)
@@ -139,7 +138,7 @@ defmodule GistsIO.GistHandler do
 	defp render(gist, loggedin?, client) do
 		files = gist["files"]
 		gist_id = gist["id"]
-		{name, attrs} = Enum.filter(files, &Utils.is_markdown/1) |> Enum.at 0
+		{name, attrs} = Enum.find(files, &Utils.is_markdown/1)
 		{:ok, comments} = Cache.get_comments gist_id, client
 		{:ok, comments_html} = Enum.reduce(comments, "", fn(comment, acc) ->
 			username = comment["user"]["login"]

@@ -19,8 +19,7 @@
 					<div class="tab-content">
 			        	<div class="tab-pane active" id="editor">
 			          		<textarea name="content" id="test" class="form-control" rows="10"><%=
-		          				{file_name, file}= Enum.find(entry["files"], fn({filename,_}) -> 
-		          					:binary.match(filename,".md") != :nomatch end)
+		          				{file_name, file}= Enum.find(entry["files"], &GistsIO.Utils.is_markdown/1)
 		          				file["content"]%></textarea>
 			          	</div>
 							<div class="tab-pane" id="preview"></div>
