@@ -23,4 +23,12 @@ defmodule GistsIO.Utils do
 			{entry["filename"], ""}
 		end
 	end
+
+	def prep_trevor(content) do
+		text = Regex.split(%r/<%=.*%>/,content,[])
+		data = lc part inlist text do
+			[{"type","text"},{"data",[{"text",part}]}]
+		end
+		Jsonex.encode([{"data",data}])
+	end
 end

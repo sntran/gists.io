@@ -11,6 +11,8 @@
 	<link rel="stylesheet" href="/s/css/monokai_sublime.css">
 	<link rel="stylesheet" href="/s/css/codemirror.css">
 	<link rel="stylesheet" href="/s/css/monokai.css">
+	<link rel="stylesheet" href="/s/css/sir-trevor.css">
+	<link rel="stylesheet" href="/s/css/sir-trevor-icons.css">
 	<link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,300|Roboto+Slab:400,300&amp;subset=latin" rel="stylesheet" type="text/css">
 	<style type="text/css"></style>
 </head>
@@ -27,7 +29,7 @@
 					<%= end %>
 					<h1><%= title %></h1> 
 
-				  <!-- Modal -->
+					<!-- Modal -->
 				    <div class="modal fade" id="createGist" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 				        <div class="modal-dialog">
 				      		<div class="modal-content">
@@ -79,6 +81,9 @@
 <script src="/s/js/marked.js"></script>
 <script src="/s/js/highlight.pack.js"></script>
 <script src="/s/js/codemirror-compressed.js"></script>
+<script src="https://raw.github.com/jashkenas/underscore/master/underscore.js"></script>
+<script src="https://raw.github.com/madebymany/eventable/master/eventable.js"></script>
+<script src="https://raw.github.com/madebymany/sir-trevor-js/master/sir-trevor.js"></script>
 
 <script>
 $(function() {

@@ -46,7 +46,6 @@
 	<%= end %>
 	</p>
 	</form>
-	
 </div>
 
 <div class="tags">
@@ -66,9 +65,26 @@
 	</li>
 <% end %>
 </ul> -->
-
-<article>
-	<%= entry["html"] %>
-</article>
+<%= if is_loggedin == entry["user"]["login"] do %>
+	<form>
+ 		<textarea class="blog"><%={file_name, file}= Enum.find(entry["files"], &GistsIO.Utils.is_markdown/1)
+ 			GistsIO.Utils.prep_trevor(file["content"])
+ 		%></textarea>
+	</form>	
+<%= else %>
+	<article>
+		<%= entry["html"] %>
+	</article>
+<%= end %>
 
 <%= comments %>
+
+
+<script>
+	window.onload=function() {
+		new SirTrevor.Editor({ 
+			el: $('.blog'),
+			blockTypes: ["Text"]
+		});
+	};
+</script>
