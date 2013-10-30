@@ -24,7 +24,7 @@
 				<div class="content">
 					<%= if is_loggedin != false do %>
 						<a class="logout" href="/logout?redirect=">Log out</a>
-						<a data-toggle="modal" href="#createGist" class="btn btn-primary">Create a gist</a>
+						<a data-toggle="modal" href="/<%= is_loggedin %>/new" class="btn btn-primary">Create a gist</a>
 					<%= else %>
 						<a class="login" href="/login?redirect=">Log in</a>
 					<%= end %>
@@ -88,12 +88,13 @@
 
 <script>
 function to_blocks(markdown) {
-	var result = {}, blocks = markdown.split(/(<pre>[\s\S]*<\/pre>)/);
+	var result = {}, blocks = markdown.split(/(<pre id=".*">[\s\S]*<\/pre>)/);
 		result.data = blocks.map(function(text) {
-			var matches = text.match(/<pre>([\s\S]*)<\/pre>/);
-			if (matches && matches[1]) {
+			var matches = text.match(/<pre id="(.*)">([\s\S]*)<\/pre>/);
+			if (matches && matches[1] && matches[2]) {
 				// %TODO: Change type to the code block type
-				return { type: "text", data: { text: matches[1] } };
+				// matches[1] is the filename, matches[2] is the code
+				return { type: "text", data: { text: matches[2] } };
 			}
 			return { type: "text", data: { text: text } };
 		});
