@@ -1,39 +1,3 @@
-<div class="modal fade" id="editGist" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-	<div class="modal-dialog">
-			<div class="modal-content">
-			<div class="modal-header">
-	  			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-	  			<h4 class="modal-title">Edit Gist</h4>
-			</div>
-			<form action=<%= "/#{is_loggedin}/#{entry["id"]}" %> method="post" accept-charset="utf-8">
-		        <div class="modal-body">
-		        	<label for="title">Title:</label>
-		        	<input type="text" name="title" class="form-control" value="<%= entry["title"] %>">
-		        	<label for="teaser">Teaser:</label>
-		        	<textarea name="teaser" class="form-control" rows="5"><%= entry["teaser"] %></textarea>
-		        	<label for="content">Blog Content:</label>
-		        	<ul class="nav nav-tabs">
-						<li class="active"><a href="#editor" data-toggle="tab">Editor</a></li>
-						<li><a href="#preview" data-toggle="tab">Preview</a></li>
-					</ul>
-					<div class="tab-content">
-			        	<div class="tab-pane active" id="editor">
-			          		<textarea name="content" id="test" class="form-control" rows="10"><%=
-		          				{file_name, file}= Enum.find(entry["files"], &GistsIO.Utils.is_markdown/1)
-		          				file["content"]%></textarea>
-			          	</div>
-							<div class="tab-pane" id="preview"></div>
-					</div>
-		        </div>
-		        <div class="modal-footer">
-		          	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-		          	<button type="submit" class="btn btn-primary">Save changes</button>
-		        </div>
-	        </form>
-			</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-
 <div class="meta">
 	<form style='display:inline;' action=<%= "/#{is_loggedin}/#{entry["id"]}/delete" %> method="post" accept-charset="utf-8" name="delete">
 	<p>
@@ -41,7 +5,6 @@
 	<span><%= entry["comments"] %> comments</span>
 	<span><a href="/<%= entry["user"]["login"] %>">All entries</a></span>
 	<%= if is_loggedin == entry["user"]["login"] do %>
-		<span><a data-toggle="modal" href="#editGist">Edit Entry</a><span>
 		<span><a href="#" onclick="document.delete.submit()">Delete Entry</a></span>			
 	<%= end %>
 	</p>
@@ -67,6 +30,8 @@
 </ul> -->
 <%= if is_loggedin == entry["user"]["login"] do %>
 	<form>
+		<label for="title">Title:</label>
+		<input type="test" name="title" value="<%= entry["title"] %>" required/>
  		<textarea class="blog"><%=entry["content"]%></textarea>
 	</form>	
 <%= else %>
