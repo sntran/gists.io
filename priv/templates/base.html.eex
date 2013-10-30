@@ -87,7 +87,7 @@
 
 <script>
 function to_blocks(markdown) {
-	var result = {}, blocks = markdown.split(/<%%=.*%>/);
+	var result = {}, blocks = markdown.split(/(<%%=.*%>)/);
 		result.data = blocks.map(function(text) {
 			return { type: "text", data: { text: text } };
 		});
