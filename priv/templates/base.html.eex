@@ -85,6 +85,7 @@
 <script src="/s/js/underscore.js"></script>
 <script src="/s/js/eventable.js"></script>
 <script src="/s/js/sir-trevor.js"></script>
+<script src="/s/js/file.js"></script>
 
 <script>
 function to_blocks(markdown) {
@@ -94,7 +95,7 @@ function to_blocks(markdown) {
 			if (matches && matches[1] && matches[2]) {
 				// %TODO: Change type to the code block type
 				// matches[1] is the filename, matches[2] is the code
-				return { type: "text", data: { text: matches[2] } };
+				return { type: "file", data: { text: matches[2], name: matches[1] } };
 			}
 			return { type: "text", data: { text: text } };
 		});
@@ -108,7 +109,7 @@ $(function() {
 
 	new SirTrevor.Editor({ 
 		el: $editor,
-		blockTypes: ["Text"]
+		blockTypes: ["Text","File"]
 	});
 
 	var options = {
