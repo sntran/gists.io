@@ -78,13 +78,3 @@
 <%= end %>
 
 <%= comments %>
-
-
-<script>
-	window.onload=function() {
-		new SirTrevor.Editor({ 
-			el: $('.blog'),
-			blockTypes: ["Text"]
-		});
-	};
-</script>
