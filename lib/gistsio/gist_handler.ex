@@ -23,32 +23,65 @@ defmodule GistsIO.GistHandler do
 	def resource_exists(req, _state) do
 		case Req.binding :gist, req do
 			{:undefined, req} -> {:false, req, :index}
-			{gist_id, req} ->
-				gist_id = :erlang.integer_to_binary(gist_id) 
-				client = Session.get("gist_client", req)
-				case Cache.get_gist gist_id, client do
-					{:error, _} -> {:false, req, gist_id}
-					{:ok, gist} ->
-						case Req.binding :username, req do
-							{:undefined, req} ->
-								username = gist["user"]["login"]
-								{:false, req, {:redirect, "/#{username}/#{gist_id}"}}
-							{username, req} ->
-								files = gist["files"]
-								if files !== nil and Enum.any?(files, &Utils.is_markdown/1) do
-									{path,req} = Req.path(req)
-									[""|path_parts] = Regex.split(%r/\//, path)
-									{:true, req, {path_parts,gist}}
-								else
-									{:false, req, gist}
-								end
-						end
-				end	
+			{"new", req} -> can_create_new_gist?(req)
+			{gist_id, req} when is_integer(gist_id) ->
+				maybe_get_gist(req, gist_id)
+		end
+	end
+
+	defp can_create_new_gist?(req) do
+		# From /:username/new
+		client = Session.get("gist_client", req)
+		{username, req} = Req.binding :username, req
+		case Session.get("is_loggedin", req) do
+			^username -> 
+				# Only for the rightful owner
+				faux_gist = Utils.empty_gist(username)
+				{path,req} = Req.path(req)
+				[""|path_parts] = Regex.split(%r/\//, path)
+				{:true, req, {path_parts,faux_gist}}
+			other_user ->
+				{:false, req, :index}
+				#{:false, req, {:redirect, "/#{username}"}}
+			:undefined ->
+				{:false, req, :index}
+				#{:false, req, {:redirect, "/"}}
+		end
+	end
+	
+	defp maybe_get_gist(req, gist_id) do
+		gist_id = :erlang.integer_to_binary(gist_id) 
+		client = Session.get("gist_client", req)
+		case Cache.get_gist gist_id, client do
+			{:error, _} -> {:false, req, gist_id}
+			{:ok, gist} -> maybe_redirect_to_gist_path(req, gist)
+		end
+	end
+
+	def maybe_redirect_to_gist_path(req, gist) do
+		gist_id = gist["id"]
+		case Req.binding :username, req do
+			{:undefined, req} ->
+				username = gist["user"]["login"]
+				{:false, req, {:redirect, "/#{username}/#{gist_id}"}}
+			{username, req} ->
+				files = gist["files"]
+				if files !== nil and Enum.any?(files, &Utils.is_markdown/1) do
+					{path,req} = Req.path(req)
+					[""|path_parts] = Regex.split(%r/\//, path)
+					{:true, req, {path_parts,gist}}
+				else
+					{:false, req, gist}
+				end
 		end
 	end
 
 	def previously_existed(req, {:redirect, path}) do
 		{:true, req, {:redirect, path}}
+	end
+
+	def previously_existed(req, state) do
+		{:false, req, state}
 	end
 
 	def moved_permanently(req, {:redirect, path}) do
@@ -139,40 +172,54 @@ defmodule GistsIO.GistHandler do
 		files = gist["files"]
 		gist_id = gist["id"]
 		{name, attrs} = Enum.find(files, &Utils.is_markdown/1)
-		{:ok, comments} = Cache.get_comments gist_id, client
-		{:ok, comments_html} = Enum.reduce(comments, "", fn(comment, acc) ->
-			username = comment["user"]["login"]
-			acc <> "<div class=\"comment-author\">\n"
-			<> "<a href=\"/" <> username <> "\" target=\"_blank\">"
-			<> "<img src=\"" <> comment["user"]["avatar_url"] <> "\" alt=\"" <> username <>"\" class=\"img-circle comment-author-avatar\" />"
-			<> "</a>\n"
-			<> "<a href=\"/" <> username <> "\" target=\"_blank\"><span class=\"comment-author-name\">" <> username <> "</span></a>\n"
-			<> "<span class=\"comment-time\">" <> comment["updated_at"] <> "</span>"
-			<> "</div>\n\n" 
-			<> to_blockquote(comment["body"]) <> "\n"
-		end) |> Cache.get_html(client)
 
-		# Acquire embed code for each file other than the main file
-		attachments = lc {n, _} inlist files, n !== name, do: {n, embed(gist, n)}
-		# Parse the Markdown into HTML, then evaluate any <%= files[filename] %> tag
-		# and replace with the corresponding embed code.
-		# This way the author can embed any file in his/her gist any where in the article.
-		{:ok, entry_html} = Cache.get_html(attrs["content"], client)
-		entry_html = Regex.replace(%r/&lt;/, entry_html, "<")
-		entry_html = Regex.replace(%r/&gt;/, entry_html, ">")
-					|> EEx.eval_string [files: attachments] # allow inline embed
+		html = if (gist_id !== nil) do
+			{:ok, comments} = Cache.get_comments gist_id, client
+			{:ok, comments_html} = Enum.reduce(comments, "", fn(comment, acc) ->
+				username = comment["user"]["login"]
+				acc <> "<div class=\"comment-author\">\n"
+				<> "<a href=\"/" <> username <> "\" target=\"_blank\">"
+				<> "<img src=\"" <> comment["user"]["avatar_url"] <> "\" alt=\"" <> username <>"\" class=\"img-circle comment-author-avatar\" />"
+				<> "</a>\n"
+				<> "<a href=\"/" <> username <> "\" target=\"_blank\"><span class=\"comment-author-name\">" <> username <> "</span></a>\n"
+				<> "<span class=\"comment-time\">" <> comment["updated_at"] <> "</span>"
+				<> "</div>\n\n" 
+				<> to_blockquote(comment["body"]) <> "\n"
+			end) |> Cache.get_html(client)
 
-		# Then set up article's title using either the description or filename
-		gist = gist |> Utils.prep_gist 
-					|> ListDict.put("name", name)
-					|> ListDict.put("html", entry_html)
-					|> ListDict.put("content", attrs["content"])
-					|> ListDict.put("attachments", attachments)
+			# Acquire embed code for each file other than the main file
+			attachments = lc {n, _} inlist files, n !== name, do: {n, embed(gist, n)}
+			# Parse the Markdown into HTML, then evaluate any <%= files[filename] %> tag
+			# and replace with the corresponding embed code.
+			# This way the author can embed any file in his/her gist any where in the article.
+			{:ok, entry_html} = Cache.get_html(attrs["content"], client)
+			entry_html = Regex.replace(%r/&lt;/, entry_html, "<")
+			entry_html = Regex.replace(%r/&gt;/, entry_html, ">")
+						|> EEx.eval_string [files: attachments] # allow inline embed
 
-		comments_html = [:code.priv_dir(:gistsio), "templates", "comments.html.eex"]
-				|> Path.join
-				|> EEx.eval_file [gist_id: gist_id, html: comments_html, is_loggedin: loggedin?]
+			# Then set up article's title using either the description or filename
+			gist = gist |> Utils.prep_gist 
+						|> ListDict.put("name", name)
+						|> ListDict.put("html", entry_html)
+						|> ListDict.put("content", attrs["content"])
+						|> ListDict.put("attachments", attachments)
 
+			comments_html = [:code.priv_dir(:gistsio), "templates", "comments.html.eex"]
+					|> Path.join
+					|> EEx.eval_file [gist_id: gist_id, html: comments_html, is_loggedin: loggedin?]
+
+			do_render(gist, comments_html, loggedin?, client)
+		else
+			gist = gist |> Utils.prep_gist 
+						|> ListDict.put("name", name)
+						|> ListDict.put("content", attrs["content"])
+
+			do_render(gist, "", loggedin?, client)
+		end
+		{:ok, html}
+	end
+
+	defp do_render(gist, comments_html, loggedin?, client) do
 		# Render the gist's partial
 		gist_html = [:code.priv_dir(:gistsio), "templates", "gist.html.eex"]
 				|> Path.join
@@ -191,7 +238,6 @@ defmodule GistsIO.GistHandler do
 									title: gist["title"],
 									sidebar: sidebar_html,
 									is_loggedin: loggedin?]
-		{:ok, html}
 	end
 
 	defp html_path(username, gist_id) do

@@ -23,4 +23,20 @@ defmodule GistsIO.Utils do
 			{entry["filename"], ""}
 		end
 	end
+
+	def empty_gist(username) do
+		[
+			{"description", "New Entry"},
+            {"user", [
+                {"login", username}
+            ]},
+            {"files", [
+                {"blog.md", [
+                    {"filename", "blog.md"},
+                    {"language", "Markdown"},
+                    {"content", ""}
+                ]}
+            ]}
+        ]
+	end
 end

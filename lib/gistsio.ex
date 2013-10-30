@@ -21,6 +21,7 @@ defmodule GistsIO do
                 {"/:username/:gist/delete", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:username", GistsIO.GistsHandler, []},
                 {"/:username/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
+                {"/:username/:gist", GistsIO.GistHandler, []},
                 {"/s/[:...]", :cowboy_static, [
                     directory: static_dir, mimetypes: {
                         &:mimetypes.path_to_mimes/2, :default
