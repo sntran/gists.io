@@ -1,18 +1,19 @@
 
-SirTrevor.Blocks.File = (function(){
+SirTrevor.Blocks.Code = (function(){
 
   var template = _.template([
     "<label for='filename'>File Name:</label>",
     "<input type='text' name='filename' id='filename' class='form-control'>",
-    "<textarea name='file' id='file' class='form-control' rows='10'></textarea>"
+    "<textarea name='code' id='code' class='form-control' rows='10'></textarea>"
   ].join("\n"));
 
   return SirTrevor.Block.extend({
 
-    type: 'file',
+    type: 'code',
 
     icon_name: 'text',
 
+    //List of languages that the editor supports
     languages: {
         "js": "javascript",
         "erl": "erlang",
@@ -20,7 +21,8 @@ SirTrevor.Blocks.File = (function(){
         "coffee": "coffeescript"
     },
 
-
+    //Pulls out the file extension and checks the list of supported languages
+    //If language is supported the language of the editor is adjusted
     setMode: function() {
         var matches = this.$("#filename")[0].value.match(/\.(.*)/)
         if(matches && this.languages[matches[1]]){
@@ -33,10 +35,11 @@ SirTrevor.Blocks.File = (function(){
     },
 
     loadData: function(data){
-        this.$("#file")[0].value = data.text;
+        this.$("#code")[0].value = data.source;
         this.$("#filename")[0].value = data.name;
     },
 
+    //Called after the block is rendered
     onBlockRender: function() {
         var block = this;
 
@@ -46,11 +49,13 @@ SirTrevor.Blocks.File = (function(){
             autofocus: true
         };
 
-        var textArea = this.$("#file")[0];
+        var textArea = this.$("#code")[0];
         this.editor = CodeMirror.fromTextArea(textArea,options);
+        //Attempt to update language mode of editor when filename is changed
         this.$("#filename").on("propertychange input paste", function(event){
             block.setMode();
         })
+        //Sets the language mode of editor based on file extension
         block.setMode();
     }
   });
