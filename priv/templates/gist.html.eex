@@ -67,9 +67,7 @@
 </ul> -->
 <%= if is_loggedin == entry["user"]["login"] do %>
 	<form>
- 		<textarea class="blog"><%={file_name, file}= Enum.find(entry["files"], &GistsIO.Utils.is_markdown/1)
- 			GistsIO.Utils.prep_trevor(file["content"])
- 		%></textarea>
+ 		<textarea class="blog"><%=entry["content"]%></textarea>
 	</form>	
 <%= else %>
 	<article>

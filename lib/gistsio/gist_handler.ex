@@ -165,6 +165,7 @@ defmodule GistsIO.GistHandler do
 		# Then set up article's title using either the description or filename
 		gist = gist |> Utils.prep_gist 
 					|> ListDict.put("html", entry_html)
+					|> ListDict.put("content", attrs["content"])
 					|> ListDict.put("attachments", attachments)
 
 		comments_html = [:code.priv_dir(:gistsio), "templates", "comments.html.eex"]

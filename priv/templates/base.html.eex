@@ -86,9 +86,21 @@
 <script src="/s/js/sir-trevor.js"></script>
 
 <script>
+function to_blocks(markdown) {
+	var result = {}, blocks = markdown.split(/<%%=.*%>/);
+		result.data = blocks.map(function(text) {
+			return { type: "text", data: { text: text } };
+		});
+	return result;
+}
+
 $(function() {
+	var $editor = $('.blog'), markdown = $editor.text(),
+		blocksData = to_blocks(markdown);
+	$editor.val(JSON.stringify(blocksData));
+
 	new SirTrevor.Editor({ 
-		el: $('.blog'),
+		el: $editor,
 		blockTypes: ["Text"]
 	});
 
