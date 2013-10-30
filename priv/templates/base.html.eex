@@ -16,6 +16,7 @@
 	<link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,300|Roboto+Slab:400,300&amp;subset=latin" rel="stylesheet" type="text/css">
 	<style type="text/css"></style>
 </head>
+<body>
 <div class="container">
 	<div class="main">
 		<div class="row">
@@ -87,8 +88,13 @@
 
 <script>
 function to_blocks(markdown) {
-	var result = {}, blocks = markdown.split(/(<%%=.*%>)/);
+	var result = {}, blocks = markdown.split(/(<pre>[\s\S]*<\/pre>)/);
 		result.data = blocks.map(function(text) {
+			var matches = text.match(/<pre>([\s\S]*)<\/pre>/);
+			if (matches && matches[1]) {
+				// %TODO: Change type to the code block type
+				return { type: "text", data: { text: matches[1] } };
+			}
 			return { type: "text", data: { text: text } };
 		});
 	return result;

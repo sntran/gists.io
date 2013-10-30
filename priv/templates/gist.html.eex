@@ -32,7 +32,8 @@
 	<form>
 		<label for="title">Title:</label>
 		<input type="test" name="title" value="<%= entry["title"] %>" required/>
- 		<textarea class="blog"><%=entry["content"]%></textarea>
+		<% files = lc {n, a} inlist entry["files"], n !== entry["name"], do: {n, "<pre>#{a["content"]}</pre>"} %>
+ 		<textarea class="blog"><%=EEx.eval_string(entry["content"], [files: files])%></textarea>
 	</form>	
 <%= else %>
 	<article>
