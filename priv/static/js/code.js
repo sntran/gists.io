@@ -46,11 +46,26 @@ SirTrevor.Blocks.Code = (function(){
         var options = {
             theme: "monokai",
             lineNumbers: true,
-            autofocus: true
+            autofocus: true,
+            matchBrackets: true,
+            autoCloseBrackets: true,
+            styleActiveLine: true
         };
 
         var textArea = this.$("#code")[0];
         this.editor = CodeMirror.fromTextArea(textArea,options);
+
+        this.editor.on("drop", function(instance, event) {
+            var file = event.dataTransfer.files[0];
+            if (!file) return;
+            if(confirm('Replace with new file?')) {
+                instance.setValue(""); // Clear existing content
+                this.$("#filename")[0].value = file.name;
+                block.setMode();
+            } else {
+                event.preventDefault();
+            }
+        });
         //Attempt to update language mode of editor when filename is changed
         this.$("#filename").on("propertychange input paste", function(event){
             block.setMode();
