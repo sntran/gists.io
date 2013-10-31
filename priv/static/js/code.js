@@ -24,10 +24,10 @@ SirTrevor.Blocks.Code = (function(){
     //Pulls out the file extension and checks the list of supported languages
     //If language is supported the language of the editor is adjusted
     setMode: function() {
-        var matches = this.$("#filename")[0].value.match(/\.(.*)/)
+        var matches = this.$("#filename")[0].value.match(/\.(.*)/);
         if(matches && this.languages[matches[1]]){
-            this.editor.setOption("mode", this.languages[matches[1]])
-        }
+            this.editor.setOption("mode", this.languages[matches[1]]);
+        };
     },
 
     editorHTML: function() {
@@ -37,6 +37,16 @@ SirTrevor.Blocks.Code = (function(){
     loadData: function(data){
         this.$("#code")[0].value = data.source;
         this.$("#filename")[0].value = data.name;
+        this.oldname = data.name;
+    },
+
+    toData: function(){
+        var dataObj = {};
+
+        dataObj.code = this.$("#code")[0].value;
+        dataObj.name = this.$("#filename")[0].value;
+        dataObj.oldname = this.oldname;
+        this.setData(dataObj);
     },
 
     //Called after the block is rendered
@@ -56,7 +66,7 @@ SirTrevor.Blocks.Code = (function(){
             block.setMode();
         })
         //Sets the language mode of editor based on file extension
-        block.setMode();
+        setTimeout(function() { block.setMode();}, 0);
     }
   });
 })();

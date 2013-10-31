@@ -24,47 +24,11 @@
 				<div class="content">
 					<%= if is_loggedin != false do %>
 						<a class="logout" href="/logout?redirect=">Log out</a>
-						<a data-toggle="modal" href="/<%= is_loggedin %>/new" class="btn btn-primary">Create a gist</a>
+						<a href="/<%= is_loggedin %>/new" class="btn btn-primary">Create a gist</a>
 					<%= else %>
 						<a class="login" href="/login?redirect=">Log in</a>
 					<%= end %>
 					<h1><%= title %></h1> 
-
-					<!-- Modal -->
-				    <div class="modal fade" id="createGist" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-				        <div class="modal-dialog">
-				      		<div class="modal-content">
-				        		<div class="modal-header">
-				          			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				          			<h4 class="modal-title">Create a gist</h4>
-				        		</div>
-				        		<form action="/gists" method="post" accept-charset="utf-8">
-							        <div class="modal-body">
-							        	<label for="title">Title:</label>
-							        	<input type="text" name="title" class="form-control" required>
-							        	<label for="teaser">Teaser:</label>
-							        	<textarea name="teaser" class="form-control" rows="5"></textarea>
-							        	<label for="content">Blog Content:</label>
-							        	<ul class="nav nav-tabs">
-											<li class="active"><a href="#editor" data-toggle="tab">Editor</a></li>
-											<li><a href="#preview" data-toggle="tab">Preview</a></li>
-										</ul>
-										<div class="tab-content">
-								        	<div class="tab-pane active" id="editor">
-								          		<textarea name="content" id="test" class="form-control" rows="10"></textarea>
-								          	</div>
-	  										<div class="tab-pane" id="preview"></div>
-	  									</div>
-							        </div>
-							        <div class="modal-footer">
-							        	<button type="button" id="newFile" class="btn btn-primary pull-left">New File</button> 
-							          	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-							          	<button type="submit" class="btn btn-primary">Save changes</button>
-							        </div>
-						        </form>
-				      		</div><!-- /.modal-content -->
-				    	</div><!-- /.modal-dialog -->
-				  	</div><!-- /.modal -->
 
 					<%= content %>
 
@@ -86,6 +50,7 @@
 <script src="/s/js/eventable.js"></script>
 <script src="/s/js/sir-trevor.js"></script>
 <script src="/s/js/code.js"></script>
+<script src="/s/js/markdown.js"></script>
 
 <script>
 function to_blocks(markdown) {
@@ -97,7 +62,7 @@ function to_blocks(markdown) {
 				// matches[1] is the filename, matches[2] is the code
 				return { type: "code", data: { source: matches[2], name: matches[1] } };
 			}
-			return { type: "text", data: { text: text } };
+			return { type: "markdown", data: { text: text } };
 		});
 	return result;
 }
@@ -109,30 +74,7 @@ $(function() {
 
 	new SirTrevor.Editor({ 
 		el: $editor,
-		blockTypes: ["Text","Code"]
-	});
-
-	var options = {
-		theme: "monokai",
-		lineNumbers: true,
-		mode: "javascript"
-	};
-	var textAreas = [];
-	var files = 0;
-
-	$('#newFile').click(function(e) {
-		file = "file" + files;
-		var html = "<div id='"+file+"'>";
-		html += "<label for='filename'>File Name:</label>";
-		html += "<input type='text' name='filename' id='filename' class='form-control'>";
-		html += "<label for='file'>File Content:</label>";
-		html += "<textarea name='file' id='file' class='form-control' rows='10'></textarea>";
-		html += "</div>";
-		$(html).appendTo('.modal-body');
-		var textArea = $("#"+file+" #file")[0];
-		textAreas[file] = CodeMirror.fromTextArea(textArea,options);
-		textAreas[file].setSize(540,150);
-		files += 1;
+		blockTypes: ["Markdown","Code"]
 	});
 
 	marked.setOptions({
@@ -151,20 +93,6 @@ $(function() {
 		
 		_link.prop('href', _url + '/' + _this.data('style') + '.css');
 	});
-
-	var previousMd = ""
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    	console.log(e);
-  		var $editor = $("#editor textarea")
-  		var $preview = $("#preview")
-  		if ($(e.target).attr("href") === "#preview") {
-  			var markdown = $editor.val()
-  			if(markdown == previousMd) return;
-  			previousMd = markdown
-  			html = marked(markdown)
-  			$preview.html(html)
-  		}
-	})
 });
 </script>
 
