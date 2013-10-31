@@ -40,12 +40,10 @@ defmodule GistsIO.GistHandler do
 				{path,req} = Req.path(req)
 				[""|path_parts] = Regex.split(%r/\//, path)
 				{:true, req, {path_parts,faux_gist}}
-			other_user ->
-				{:false, req, :index}
-				#{:false, req, {:redirect, "/#{username}"}}
 			:undefined ->
-				{:false, req, :index}
-				#{:false, req, {:redirect, "/"}}
+				{:false, req, {:redirect, "/"}}
+			me ->
+				{:false, req, {:redirect, "/#{me}"}}
 		end
 	end
 	

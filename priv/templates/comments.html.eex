@@ -1,21 +1,8 @@
 <%= if is_loggedin != false do %>
 	<h3 class="text-center">Your thoughts?</h3>
-    <ul class="nav nav-tabs">
-            <li class="active"><a href="#editor" data-toggle="tab">Editor</a></li>
-            <li><a href="#preview" data-toggle="tab">Preview</a></li>
-    </ul>
-
-    <div class="tab-content">
-            <div class="tab-pane active" id="editor">
-                    <form action=<%= "/#{is_loggedin}/#{gist_id}/comments" %> method="post">
-                            <div class="form-group">
-                                    <textarea name="comment" class="form-control" rows="10"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-default pull-right">Submit</button>
-                    </form>
-            </div>
-              <div class="tab-pane" id="preview"></div>
-    </div>
+    <form action=<%= "/#{is_loggedin}/#{gist_id}/comments" %> method="post">
+        <textarea name="comment" id="gio-comment"></textarea>
+    </form>
 <%= else %>
     <button type="button" onclick="location.href='/login'" class="btn btn-primary btn-lg btn-block">Login to comment</button>
 <%= end %>
@@ -25,3 +12,14 @@
 <div class="comments">
 	<%= html %>
 </div>
+
+<script>
+    window.onload = function() {
+        new SirTrevor.Editor({ 
+            el: $("#gio-comment"),
+            defaultType: "Text",
+            blockTypes: ["Text"],
+            blockLimit: 1
+        });
+    };
+</script>
