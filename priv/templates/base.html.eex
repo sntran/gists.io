@@ -51,6 +51,7 @@
 <script src="/s/js/sir-trevor.js"></script>
 <script src="/s/js/code.js"></script>
 <script src="/s/js/markdown.js"></script>
+<script src="/s/js/teaser.js"></script>
 
 <script>
 function to_blocks(markdown) {
@@ -74,7 +75,8 @@ $(function() {
 
 	new SirTrevor.Editor({ 
 		el: $editor,
-		blockTypes: ["Markdown","Code"]
+		blockTypes: ["Markdown","Code","Teaser"],
+		blockTypeLimits: {"Teaser":1}
 	});
 
 	marked.setOptions({

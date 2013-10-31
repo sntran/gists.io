@@ -22,6 +22,8 @@ SirTrevor.Blocks.Markdown = (function(){
 
     type: "markdown",
 
+    icon_name: 'text',
+
     editorHTML: function() {
       return md_template(this);
     },
