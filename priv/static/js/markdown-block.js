@@ -12,7 +12,7 @@ SirTrevor.Blocks.Markdown = (function(){
     '</ul>',
 
     '<div class="tab-content">',
-      '<div class="tab-pane active gio-write" contenteditable="true"></div>',
+      '<pre class="tab-pane active gio-write" contenteditable="true"></pre>',
       '<div class="tab-pane gio-preview"></div>',
     '</div>',
   ].join("\n"));
@@ -34,8 +34,8 @@ SirTrevor.Blocks.Markdown = (function(){
 
     onBlockRender: function() {
       var block = this;
-      var editorID = block.blockID.replace(/st-block-/,"gio-write-");
-      var previewID = block.blockID.replace(/st-block-/,"gio-preview-");
+      var editorID = "gio-write-"+block.blockID;
+      var previewID = "gio-preview-"+block.blockID;
       var $editor = block.$el.find(".gio-write");
       var $preview = block.$el.find(".gio-preview");
       $editor[0].id = editorID;
@@ -52,7 +52,7 @@ SirTrevor.Blocks.Markdown = (function(){
         var previousMd = "";
         block.$el.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
           if ($(e.target).attr("href") === "#"+previewID) {
-            var markdown = $editor.html();
+            var markdown = $editor.text();
             if(markdown == previousMd) return;
             previousMd = markdown;
             html = marked(markdown);

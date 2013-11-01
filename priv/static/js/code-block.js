@@ -24,7 +24,7 @@ SirTrevor.Blocks.Code = (function(){
     //Pulls out the file extension and checks the list of supported languages
     //If language is supported the language of the editor is adjusted
     setMode: function() {
-        var matches = this.$el.find(".gio-filename")[0].value.match(/\.(.*)/);
+        var matches = this.$filename[0].value.match(/\.(.*)/);
         if(matches && this.languages[matches[1]]){
             this.editor.setOption("mode", this.languages[matches[1]]);
         };
@@ -34,7 +34,7 @@ SirTrevor.Blocks.Code = (function(){
         return template(this);
     },
 
-    loadData: function(data){
+    loadData: function(data){ 
         this.$el.find(".gio-code")[0].value = data.source;
         this.$el.find(".gio-filename")[0].value = data.name;
         this.oldname = data.name;
@@ -52,6 +52,8 @@ SirTrevor.Blocks.Code = (function(){
     //Called after the block is rendered
     onBlockRender: function() {
         var block = this;
+        block.$code = block.$el.find(".gio-code")
+        block.$filename = block.$el.find(".gio-filename")
 
         var options = {
             theme: "monokai",
@@ -62,7 +64,7 @@ SirTrevor.Blocks.Code = (function(){
             styleActiveLine: true
         };
 
-        var textArea = block.$el.find(".gio-code")[0];
+        var textArea = block.$code[0];
         this.editor = CodeMirror.fromTextArea(textArea,options);
 
         this.editor.on("drop", function(instance, event) {
@@ -70,14 +72,14 @@ SirTrevor.Blocks.Code = (function(){
             if (!file) return;
             if(confirm('Replace with new file?')) {
                 instance.setValue(""); // Clear existing content
-                block.$el.find(".gio-filename")[0].value = file.name;
+                block.$filename[0].value = file.name;
                 block.setMode();
             } else {
                 event.preventDefault();
             }
         });
         //Attempt to update language mode of editor when filename is changed
-        block.$el.find(".gio-filename").on("propertychange input paste", function(event){
+        block.$filename.on("propertychange input paste", function(event){
             block.setMode();
         })
         //Sets the language mode of editor based on file extension

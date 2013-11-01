@@ -49,9 +49,9 @@
 <script src="/s/js/underscore.js"></script>
 <script src="/s/js/eventable.js"></script>
 <script src="/s/js/sir-trevor.js"></script>
-<script src="/s/js/code.js"></script>
-<script src="/s/js/markdown.js"></script>
-<script src="/s/js/teaser.js"></script>
+<script src="/s/js/code-block.js"></script>
+<script src="/s/js/markdown-block.js"></script>
+<script src="/s/js/teaser-block.js"></script>
 
 <script>
 function to_blocks(markdown) {
