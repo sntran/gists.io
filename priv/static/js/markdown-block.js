@@ -52,7 +52,7 @@ SirTrevor.Blocks.Markdown = (function(){
         var previousMd = "";
         block.$el.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
           if ($(e.target).attr("href") === "#"+previewID) {
-            var markdown = $editor.text();
+            var markdown = $editor.html();
             if(markdown == previousMd) return;
             previousMd = markdown;
             html = marked(markdown);
