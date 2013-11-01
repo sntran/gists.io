@@ -12,7 +12,7 @@ SirTrevor.Blocks.Markdown = (function(){
   ].join("\n"));
 
   var previewer = function($editor, $preview) {
-    var $el = $("<a>").html("preview")
+    var $el = $("<a>").html('<i class="icon-retweet"></i>')
                 .addClass("st-block-ui-btn st-icon");
 
     var previousMd = "";

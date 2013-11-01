@@ -1,0 +1,29 @@
+.nav-tabs>li>a:hover,
+.nav-tabs>li.active>a, 
+.nav-tabs>li.active>a:hover, 
+.nav-tabs>li.active>a:focus {
+	background-color: #f5f5f5;
+}
+
+.st-block__ui {
+	bottom: auto;
+	top: 0;
+}
+.st-block-ui-btn {
+	border-top: 0;
+	border-bottom: 2px solid #34e0c2;
+}
+
+.st-block__inner .gio-write,
+.st-block__inner .gio-write:hover,
+.st-block__inner .gio-write:focus {
+	border-left: 1px solid #ddd;
+	border-top-left-radius: 0;
+	width: 100%;
+	background-color: #f5f5f5;
+	margin-top: 20px;
+	overflow: hidden;
+}
+.st-block__inner .gio-preview {
+	margin-top: 20px;
+}
