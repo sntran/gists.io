@@ -5,23 +5,40 @@ Markdown Block
 SirTrevor.Blocks.Markdown = (function(){
 
   var md_template = _.template([
-
-    '<ul class="nav nav-tabs" id="myTab">',
-      '<li class="active"><a data-toggle="tab" class="tab-write">Write</a></li>',
-      '<li><a data-toggle="tab" class="tab-preview">Preview</a></li>',
-    '</ul>',
-
-    '<div class="tab-content">',
-      '<pre class="tab-pane active gio-write" contenteditable="true"></pre>',
-      '<div class="tab-pane gio-preview"></div>',
-    '</div>',
+    '<div class="container">',
+      '<textarea class="tab-pane active gio-write"></textarea>',
+      '<div class="gio-preview" style="display:hidden"></div>',
+    '</div>'
   ].join("\n"));
 
+  var previewer = function($editor, $preview) {
+    var $el = $("<a>").html("preview")
+                .addClass("st-block-ui-btn st-icon");
+
+    var previousMd = "";
+    $el.hover(function() {
+      var markdown = $editor.hide().val();
+      caret = $editor[0].selectionStart;
+      $preview.show();
+      if(markdown == previousMd) return;
+      previousMd = markdown;
+      html = marked(markdown);
+      $preview.html(html);
+    }, function() {
+      $preview.hide();
+      $editor.show();
+    });
+    return $el;
+  }
+
+  var autoAdjust = function($textarea) {
+    $textarea.height("auto").height( $textarea[0].scrollHeight );
+    return $textarea
+  }
 
   return SirTrevor.Block.extend({
 
     type: "markdown",
-
     icon_name: 'text',
 
     editorHTML: function() {
@@ -33,31 +50,15 @@ SirTrevor.Blocks.Markdown = (function(){
     },
 
     onBlockRender: function() {
-      var block = this;
-      var editorID = "gio-write-"+block.blockID;
-      var previewID = "gio-preview-"+block.blockID;
-      var $editor = block.$el.find(".gio-write");
-      var $preview = block.$el.find(".gio-preview");
-      $editor[0].id = editorID;
-      $preview[0].id = previewID;
-      block.$el.find(".tab-write")[0].href = "#"+editorID;
-      block.$el.find(".tab-preview")[0].href = "#"+previewID;
+      var $editor = this.$el.find(".gio-write");
+      var $preview = this.$el.find(".gio-preview");
+
+      this.$ui.prepend(previewer($editor, $preview));
 
       setTimeout(function() {
-        $('#myTab a').click(function (e) {
-          e.preventDefault();
-          $(this).tab('show');
-        })
-
-        var previousMd = "";
-        block.$el.find('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-          if ($(e.target).attr("href") === "#"+previewID) {
-            var markdown = $editor.html();
-            if(markdown == previousMd) return;
-            previousMd = markdown;
-            html = marked(markdown);
-            $preview.html(html);
-          };
+        // Auto-adjust the height of editor based on content.
+        autoAdjust($editor).on('keyup', function() {
+          autoAdjust($editor);
         });
       }, 0);
     },
