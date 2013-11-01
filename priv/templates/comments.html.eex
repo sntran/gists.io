@@ -17,8 +17,8 @@
     window.onload = function() {
         new SirTrevor.Editor({ 
             el: $("#gio-comment"),
-            defaultType: "Text",
-            blockTypes: ["Text"],
+            defaultType: "Markdown",
+            blockTypes: ["Markdown"],
             blockLimit: 1
         });
     };

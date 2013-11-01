@@ -14,18 +14,14 @@
 	border-bottom: 2px solid #34e0c2;
 }
 
-.st-block__inner .gio-write,
-.st-block__inner .gio-write:hover,
-.st-block__inner .gio-write:focus {
-	border-left: 1px solid #ddd;
-	border-top-left-radius: 0;
+.gio-write {
 	width: 100%;
-	background-color: #f5f5f5;
+	background-color: transparent;
 	margin-top: 20px;
 	overflow-y: hidden;
 	overflow-x: auto;
 }
-.st-block__inner .gio-preview {
+.gio-preview {
 	margin-top: 20px;
 }
 
