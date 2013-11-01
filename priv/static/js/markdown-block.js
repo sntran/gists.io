@@ -26,7 +26,7 @@ SirTrevor.Blocks.Markdown = (function(){
       $preview.html(html);
     }, function() {
       $preview.hide();
-      $editor.show();
+      $editor.show().focus();
     });
     return $el;
   }
