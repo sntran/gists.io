@@ -12,10 +12,11 @@ SirTrevor.Blocks.Teaser = (function(){
             '<div class="tab-pane gio-preview"></div>',
         '</div>',
     ].join("\n"));
-    
+
     return SirTrevor.Blocks.Markdown.extend({
 
         type: "teaser",
+        icon_name: '<i class="icon-ellipsis-horizontal"></i>',
 
         editorHTML: function() {
             return md_template(this);

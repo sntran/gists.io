@@ -11,7 +11,7 @@ SirTrevor.Blocks.Code = (function(){
 
     type: 'code',
 
-    icon_name: 'text',
+    icon_name: '<i class="icon-code"></i>',
 
     //List of languages that the editor supports
     languages: {
