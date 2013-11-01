@@ -61,7 +61,8 @@ SirTrevor.Blocks.Code = (function(){
             autofocus: true,
             matchBrackets: true,
             autoCloseBrackets: true,
-            styleActiveLine: true
+            styleActiveLine: true,
+            viewportMargin: Infinity
         };
 
         var textArea = block.$code[0];

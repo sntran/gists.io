@@ -22,8 +22,18 @@
 	width: 100%;
 	background-color: #f5f5f5;
 	margin-top: 20px;
-	overflow: hidden;
+	overflow-y: hidden;
+	overflow-x: auto;
 }
 .st-block__inner .gio-preview {
 	margin-top: 20px;
+}
+
+.CodeMirror {
+  border: 1px solid #eee;
+  height: auto;
+}
+.CodeMirror-scroll {
+  overflow-y: hidden;
+  overflow-x: auto;
 }
