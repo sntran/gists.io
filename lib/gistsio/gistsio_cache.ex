@@ -4,11 +4,12 @@ defmodule GistsIO.Cache do
 
 	def get_gists(username, page, gister, filter // fn(_) -> true end) do
 		key = {:user, username, "gists"}
-		per_page = :application.get_env(:gistsio, :gists_per_page, 5)
+		per_page = :application.get_env(:gistsio, :gists_per_page, 50)
 		cache = Cacherl.lookup(key)
 		filtered_gists = case cache do
 			{:error, :not_found} ->
-				gists = do_fetch_gists(username, gister)
+				# gists = do_fetch_gists(username, gister)
+				{:ok, [{"entries", gists}, {"pager", nil}]} = Gist.fetch_gists(gister, username)
 				Cacherl.insert(key, gists)
 				gists
 			{:ok, gists} -> gists
