@@ -115,15 +115,15 @@ defmodule GistsIO.GistHandler do
   	def gist_post(req, {path_parts,gist}) do
   		client = Session.get("gist_client", req)
   		{:ok, body, req} = Req.body_qs(req)
-  		teaser = body["teaser"]
   		title = body["title"]
-  		description = "#{title}\n#{teaser}"
-  		new_filename = "#{title}.md"
-  		{old_filename, old_file} = Enum.find(gist["files"], &Utils.is_markdown/1)
-		files = [{old_filename, [{"filename", new_filename},{"content",body["content"]}]}]
-  		Gist.edit_gist client, gist["id"], description, files
-  		Cache.update_gist(description, files, gist)
-
+		filename = "#{Regex.replace(%r/ /, title, "_")}.md"
+		{old_filename, old_file} = Enum.find(gist["files"], &Utils.is_markdown/1)
+        gist_data = Jsonex.decode(body["gist"])
+		{teaser, content, files} = Utils.compose_gist(gist_data["data"])
+		description = "#{title}\n#{teaser}"
+		files = files ++ [{old_filename, [{"content", content},{"filename",filename}]}]
+		Gist.edit_gist client, gist["id"], description, files
+		Cache.update_gist(description, files, gist)
   		prev_path = Session.get("previous_path", req)
   		{{true,prev_path}, req, gist}
   	end

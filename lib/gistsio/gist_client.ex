@@ -16,8 +16,8 @@ defmodule GistsIO.GistClient do
         :gen_server.call(client, ["gist", id])
     end
 
-    def create_gist(client, description, files, contents) do
-        :gen_server.call(client, ["gist", description, files, contents])
+    def create_gist(client, description, files) do
+        :gen_server.call(client, ["gist", description, files])
     end
 
     def edit_gist(client, gist_id, description, files) do
@@ -79,11 +79,10 @@ defmodule GistsIO.GistClient do
         {:reply, {stat, Jsonex.decode(data)}, state}
     end
 
-    def handle_call(["gist", description, files, contents], _from, state) do
+    def handle_call(["gist", description, files], _from, state) do
         url = url("gists", state)
-        fileList = List.zip([files,contents])
         body = Jsonex.encode([{"description", description}, {"public", true}, 
-            {"files", fileList}])
+            {"files", files}])
         {:reply, post(url, body), state}
     end
 

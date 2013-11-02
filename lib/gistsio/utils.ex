@@ -39,4 +39,34 @@ defmodule GistsIO.Utils do
             ]}
         ]
 	end
+
+	# Takes form data from gist form and extracts
+	# lists for the file names and contents
+	def compose_gist(data) do
+		files = []
+		content = ""
+		compose_gist(data,files,content)
+	end
+	def compose_gist([], files, content, teaser) do
+		{teaser, content, files}
+	end
+	def compose_gist([field|rest], files, content, teaser // "") do
+		case field do
+			[{"type", "markdown"}, {"data", data}] ->
+				compose_gist(rest, files, content <> data["text"], teaser)
+			[{"type", "code"}, {"data", data}] ->
+				filename = data["name"]
+				oldfilename = data["oldname"]
+				if oldfilename == :nil do
+					file = [{filename, [{"content",data["source"]}]}]
+				else
+					file = [{oldfilename, [{"content",data["source"]},{"filename",filename}]}]
+				end	
+				compose_gist(rest, files ++ file, content <> "\n\n<%= files[\"#{filename}\"] %>\n\n", teaser)
+			[{"type", "teaser"}, {"data", data}] ->
+				compose_gist(rest, files, content, data["text"])
+			{_,_} ->
+				compose_gist(rest, files, content, teaser)
+		end
+	end
 end

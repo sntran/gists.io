@@ -83,7 +83,7 @@ SirTrevor.Blocks.Markdown = (function(){
     toData: function() {
       var dataObj = {};
 
-      dataObj.text = this.$el.find(".gio-write").html();
+      dataObj.text = this.$el.find(".gio-write")[0].value;
       this.setData(dataObj);
     },
 

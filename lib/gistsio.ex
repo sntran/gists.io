@@ -13,6 +13,7 @@ defmodule GistsIO do
         static_dir = Path.join [Path.dirname(:code.which(__MODULE__)), "..", "priv", "static"]
         dispatch = [
             {:_, [
+                {"/s/favicon.ico", :cowboy_static, [{:directory, {:priv_dir, :gistsio, []}}, {:file, "favicon.ico"}]},
                 {"/login", GistsIO.AuthHandler, []},
                 {"/logout", GistsIO.AuthHandler, []},
                 {"/gists", GistsIO.GistsHandler, []},

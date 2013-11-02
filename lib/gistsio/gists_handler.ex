@@ -45,14 +45,17 @@ defmodule GistsIO.GistsHandler do
   	def gists_post(req, gist) do
   		client = Session.get("gist_client", req)
   		{:ok, body, req} = Req.body_qs(req)
-  		teaser = body["teaser"]
   		title = body["title"]
+		filename = "#{Regex.replace(%r/ /, title, "_")}.md"
+        gist_data = Jsonex.decode(body["gist"])
+		{teaser, content, files} = Utils.compose_gist(gist_data["data"])
+        files = files ++ [{filename, [{"content", content}]}]
   		description = "#{title}\n#{teaser}"
-  		{files, contents} = extract_files(body)
-  		{:ok, response} = Gist.create_gist client, description, files, contents
+  		{:ok, response} = Gist.create_gist client, description, files
   		gist = Jsonex.decode(response)
-  		Cache.update_gist(description, gist)
+  		# Cache.update_gist(description, gist)
         prev_path = Session.get("previous_path", req)
+
         # Cowboy set status code to be 201 instead of 3xx
         # Browser does not redirect, so we have to set the
         # Refresh header
@@ -129,34 +132,5 @@ defmodule GistsIO.GistsHandler do
 
 	defp is_public_markdown(gist) do
 		gist["public"] === :true and Enum.any? gist["files"], &Utils.is_markdown/1
-	end
-
-	# Takes form data from gist form and extracts
-	# lists for the file names and contents
-	defp extract_files(data) do
-		title = data["title"]
-		files = ["#{Regex.replace(%r/ /, title, "_")}.md"]
-		contents = [[{"content",data["content"]}]]
-		extract_files(data,files,contents)
-	end
-	defp extract_files([field|[]], files, contents) do
-		case field do
-			{"filename", file} ->
-				{files ++ [file], contents}
-			{"file", content} ->
-				{files, contents ++ [[{"content",content}]]}
-			{_,_} ->
-				{files,contents}
-		end
-	end
-	defp extract_files([field|data], files, contents) do
-		case field do
-			{"filename", file} ->
-				extract_files(data, files ++ [file], contents)
-			{"file", content} ->
-				extract_files(data, files, contents ++ [[{"content",content}]])
-			{_,_} ->
-				extract_files(data, files, contents)
-		end
 	end
 end

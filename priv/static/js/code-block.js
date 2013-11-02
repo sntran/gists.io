@@ -2,7 +2,7 @@
 SirTrevor.Blocks.Code = (function(){
 
   var template = _.template([
-    "<textarea name='code' class='form-control gio-code' rows='10'></textarea>"
+    "<textarea class='form-control gio-code' rows='10'></textarea>"
   ].join("\n"));
 
   return SirTrevor.Block.extend({
@@ -39,12 +39,14 @@ SirTrevor.Blocks.Code = (function(){
 
     toData: function(){
         var dataObj = {};
-
-        dataObj.code = this.$el.find(".gio-code")[0].value;
+        if(this.editor)
+            dataObj.source = this.editor.getValue();
         field = this.$ui.find(".gio-filename")[0];
         dataObj.name = (field)? field.value : this.oldname;
         dataObj.oldname = this.oldname;
-        this.setData(dataObj);
+        if(!_.isEmpty(dataObj)) {
+            this.setData(dataObj);
+        }
     },
 
     adjustUI: function() {
@@ -64,7 +66,7 @@ SirTrevor.Blocks.Code = (function(){
 
         this.$ui.prepend($embedder);
 
-        var $fileInput = $('<input name="filename" class="gio-filename st-block-ui-btn" style="width: 10em;" placeholder="filename.ext">');
+        var $fileInput = $('<input class="gio-filename st-block-ui-btn" style="width: 10em;" placeholder="filename.ext">');
         this.$ui.prepend($fileInput.val(this.oldname));
     },
 
