@@ -53,7 +53,7 @@ defmodule GistsIO.GistsHandler do
   		description = "#{title}\n#{teaser}"
   		{:ok, response} = Gist.create_gist client, description, files
   		gist = Jsonex.decode(response)
-  		# Cache.update_gist(description, gist)
+  		Cache.update_gist(description, gist)
         prev_path = Session.get("previous_path", req)
 
         # Cowboy set status code to be 201 instead of 3xx

@@ -163,18 +163,20 @@ defmodule GistsIO.Cache do
 		Cacherl.insert(gist_key, updated_gist)
 
 		gists_key = {:user, username, "gists"}
-		{:ok, cache} = Cacherl.lookup(gists_key)
-		idx = Enum.find_index(cache, &(&1["id"] === updated_gist["id"]))
-		new_cache = if (idx === nil) do
-			[updated_gist | cache]
-		else
-			changed_gist = Enum.at(cache, idx)
-						|> ListDict.put("description", updated_gist["description"])
-			List.replace_at(cache, idx, changed_gist)
+		case Cacherl.lookup(gists_key) do
+			{:ok, cache} ->
+				idx = Enum.find_index(cache, &(&1["id"] === updated_gist["id"]))
+				new_cache = if (idx === nil) do
+					[updated_gist | cache]
+				else
+					changed_gist = Enum.at(cache, idx)
+								|> ListDict.put("description", updated_gist["description"])
+					List.replace_at(cache, idx, changed_gist)
+				end
+				Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
+				Cacherl.insert(gists_key, new_cache)
+			{:error, :not_found} -> :ok
 		end
-
-		Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
-		Cacherl.insert(gists_key, new_cache)
 	end
 
 	def remove_gist(username, gist_id) do
@@ -186,10 +188,13 @@ defmodule GistsIO.Cache do
 		Cacherl.delete(comments_key)
 		# Remove it from gists list's cache.
 		gists_key = {:user, username, "gists"}
-		{:ok, cache} = Cacherl.lookup(gists_key)
-		new_cache = Enum.reject(cache, &(&1["id"] === gist_id))
-		Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
-		Cacherl.insert(gists_key, new_cache)
+		case Cacherl.lookup(gists_key) do
+			{:ok, cache} ->
+				new_cache = Enum.reject(cache, &(&1["id"] === gist_id))
+				Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
+				Cacherl.insert(gists_key, new_cache)
+			{:error, :not_found} -> :ok
+		end
 	end
 
 	def gist_last_updated(username, gist_id) do

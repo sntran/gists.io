@@ -55,17 +55,17 @@
 
 <script>
 function to_blocks(markdown) {
-	var result = {}, blocks = markdown.split(/\n\n(<pre id=".*">[\s\S]*<\/pre>)\n\n/);
+	var result = {}, blocks = markdown.split(/[\r\n]*(```.+\n[\s\S]+?\n```)[\r\n]*/g);
 	var $teaser = $(".gio-teaser"), teaser = $teaser.html();
 	var data = [];
 	if (teaser !== "") {
 		data.push({type: "teaser", data: {text: teaser}});
 	}
-	result.data = data.concat(blocks.map(function(text) {
-		var matches = text.match(/<pre id="(.*)">([\s\S]*)<\/pre>/);
+	result.data = data.concat(blocks.filter(function(text){
+		return text !== "";
+	}).map(function(text) {
+		var matches = text.match(/```(.+)\n([\s\S]*)\n```/);
 		if (matches && matches[1] && matches[2]) {
-			// %TODO: Change type to the code block type
-			// matches[1] is the filename, matches[2] is the code
 			return { type: "code", data: { source: matches[2], name: matches[1] } };
 		}
 		return { type: "markdown", data: { text: text } };

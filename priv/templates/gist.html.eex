@@ -26,7 +26,7 @@
 	<form action=<%= if entry["id"] == :nil do "/gists" else "/#{is_loggedin}/#{entry["id"]}" end%> method="post">
 		<label for="title">Title:</label>
 		<input type="test" name="title" value="<%= entry["title"] %>" required/>
-		<% files = lc {n, a} inlist entry["files"], n !== entry["name"], do: {n, "<pre id=\"#{n}\">#{a["content"]}</pre>"} %>
+		<% files = lc {n, a} inlist entry["files"], n !== entry["name"], do: {n, "```#{n}\n#{a["content"]}\n```"} %>
 		<div class="gio-teaser" style="display: none;"><%= entry["teaser"] %></div>
  		<textarea name="gist" class="blog"><%=EEx.eval_string(entry["content"], [files: files])%></textarea>
  		<button type="submit" class="btn btn-primary">Submit</button>
