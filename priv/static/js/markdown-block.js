@@ -5,7 +5,7 @@ Markdown Block
 SirTrevor.Blocks.Markdown = (function(){
 
   var md_template = _.template([
-    '<div class="container">',
+    '<div>',
       '<textarea class="tab-pane active gio-write"></textarea>',
       '<div class="gio-preview" style="display:hidden"></div>',
     '</div>'
@@ -36,6 +36,21 @@ SirTrevor.Blocks.Markdown = (function(){
     return $textarea
   }
 
+  function insertTextAtCursor(el, text) {
+    var val = el.value, endIndex, range;
+    if (typeof el.selectionStart != "undefined" && typeof el.selectionEnd != "undefined") {
+        endIndex = el.selectionEnd;
+        el.value = val.slice(0, el.selectionStart) + text + val.slice(endIndex);
+        el.selectionStart = el.selectionEnd = endIndex + text.length;
+    } else if (typeof document.selection != "undefined" && typeof document.selection.createRange != "undefined") {
+        el.focus();
+        range = document.selection.createRange();
+        range.collapse(false);
+        range.text = text;
+        range.select();
+    }
+  };
+
   return SirTrevor.Block.extend({
 
     type: "markdown",
@@ -53,6 +68,8 @@ SirTrevor.Blocks.Markdown = (function(){
       var $editor = this.$el.find(".gio-write");
       var $preview = this.$el.find(".gio-preview");
 
+      this.$el.bind('drop', _.bind(this._handleDrop, this));
+
       this.$ui.prepend(previewer($editor, $preview));
 
       setTimeout(function() {
@@ -68,6 +85,20 @@ SirTrevor.Blocks.Markdown = (function(){
 
       dataObj.text = this.$el.find(".gio-write").html();
       this.setData(dataObj);
+    },
+
+    _handleDrop: function(e) {
+      e.preventDefault();
+      e = e.originalEvent;
+  
+      var $block = this.$el, $el = $(e.target), file = e.dataTransfer.files[0],
+          urlAPI = (typeof URL !== "undefined") ? URL : (typeof webkitURL !== "undefined") ? webkitURL : null;
+
+      if (/image/.test(file.type)) {
+        var imgText = '<img src="' + urlAPI.createObjectURL(file) + '" />';
+        insertTextAtCursor($block.find('.gio-write')[0], imgText);
+      }
+
     }
   });
 })();

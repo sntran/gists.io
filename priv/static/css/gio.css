@@ -5,6 +5,10 @@
 	background-color: #f5f5f5;
 }
 
+.st-block__inner {
+	padding-top: 3em;
+}
+
 .st-block__ui {
 	bottom: auto;
 	top: 0;
@@ -13,16 +17,18 @@
 	border-top: 0;
 	border-bottom: 2px solid #34e0c2;
 }
-
+.st-block__editor img {
+	max-width: 100%;
+	width: auto;
+}
+.gio-preview img {
+	max-width: 100%;
+}
 .gio-write {
 	width: 100%;
 	background-color: transparent;
-	margin-top: 20px;
 	overflow-y: hidden;
 	overflow-x: auto;
-}
-.gio-preview {
-	margin-top: 20px;
 }
 
 .CodeMirror {

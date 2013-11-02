@@ -2,8 +2,6 @@
 SirTrevor.Blocks.Code = (function(){
 
   var template = _.template([
-    "<label for='filename'>File Name:</label>",
-    "<input type='text' name='filename' class='form-control gio-filename'>",
     "<textarea name='code' class='form-control gio-code' rows='10'></textarea>"
   ].join("\n"));
 
@@ -35,8 +33,7 @@ SirTrevor.Blocks.Code = (function(){
     },
 
     loadData: function(data){ 
-        this.$el.find(".gio-code")[0].value = data.source;
-        this.$el.find(".gio-filename")[0].value = data.name;
+        this.$code = this.$el.find(".gio-code").val(data.source);
         this.oldname = data.name;
     },
 
@@ -44,16 +41,38 @@ SirTrevor.Blocks.Code = (function(){
         var dataObj = {};
 
         dataObj.code = this.$el.find(".gio-code")[0].value;
-        dataObj.name = this.$el.find(".gio-filename")[0].value;
+        field = this.$ui.find(".gio-filename")[0];
+        dataObj.name = (field)? field.value : this.oldname;
         dataObj.oldname = this.oldname;
         this.setData(dataObj);
+    },
+
+    adjustUI: function() {
+        var block = this;
+        block.embedded = true;
+        var $embedder = $("<a title='Embed inline'>").html('<i class="icon-link"></i>')
+            .addClass("st-block-ui-btn st-icon");
+
+        $embedder.click(function() {
+            block.embedded = !block.embedded;
+            if (!block.embedded) {
+                $embedder.html('<i class="icon-unlink"></i>');
+            } else {
+                $embedder.html('<i class="icon-link"></i>');
+            }
+        });
+
+        this.$ui.prepend($embedder);
+
+        var $fileInput = $('<input name="filename" class="gio-filename st-block-ui-btn" style="width: 10em;" placeholder="filename.ext">');
+        this.$ui.prepend($fileInput.val(this.oldname));
     },
 
     //Called after the block is rendered
     onBlockRender: function() {
         var block = this;
-        block.$code = block.$el.find(".gio-code")
-        block.$filename = block.$el.find(".gio-filename")
+        this.adjustUI(); // do this gives the filename field.
+        block.$filename = block.$ui.find(".gio-filename");
 
         var options = {
             theme: "monokai",
