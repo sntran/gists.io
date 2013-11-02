@@ -1,7 +1,7 @@
 SirTrevor.Blocks.Teaser = (function(){
 
     return SirTrevor.Blocks.Text.extend({
-
+        title: "Teaser",
         type: "teaser",
         icon_name: '<i class="icon-ellipsis-horizontal"></i>',
 
@@ -10,6 +10,10 @@ SirTrevor.Blocks.Teaser = (function(){
 
             var editorID = this.instanceID, $el = this.$el;
             $el.prepend("<h3>Teaser</h3>");
+
+            this.on("removeBlock", function() {
+                $(".st-block-controls__top").show();
+            });
 
             setTimeout(function() {
                 var editorInstance = _.findWhere(SirTrevor.instances, {"ID": editorID});
@@ -21,7 +25,7 @@ SirTrevor.Blocks.Teaser = (function(){
                     }
                 });
                 editorInstance.changeBlockPosition($el, 1);
-                $(".st-block-controls__top").remove(); // No top "Add" button
+                $(".st-block-controls__top").hide(); // No top "Add" button
                 $el.find(".st-block-ui-btn--reorder").remove(); // Not draggable
                 $el.find(".st-block-positioner").remove();
             }, 0);
