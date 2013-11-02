@@ -10,7 +10,7 @@ SirTrevor.Blocks.Teaser = (function(){
 
             var editorID = this.instanceID, $el = this.$el;
             $el.prepend("<h3>Teaser</h3>");
-            
+
             setTimeout(function() {
                 var editorInstance = _.findWhere(SirTrevor.instances, {"ID": editorID});
                 SirTrevor.EventBus.on(editorID + ":blocks:change_position", function($block, selectedPosition, beforeOrAfter) {
@@ -21,6 +21,9 @@ SirTrevor.Blocks.Teaser = (function(){
                     }
                 });
                 editorInstance.changeBlockPosition($el, 1);
+                $(".st-block-controls__top").remove(); // No top "Add" button
+                $el.find(".st-block-ui-btn--reorder").remove(); // Not draggable
+                $el.find(".st-block-positioner").remove();
             }, 0);
         }
 

@@ -84,7 +84,7 @@ SirTrevor.Blocks.Code = (function(){
             viewportMargin: Infinity
         };
 
-        var textArea = block.$code[0];
+        var textArea = block.$el.find(".gio-code")[0];
         this.editor = CodeMirror.fromTextArea(textArea,options);
 
         this.editor.on("drop", function(instance, event) {

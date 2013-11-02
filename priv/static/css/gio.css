@@ -17,6 +17,9 @@
 	border-top: 0;
 	border-bottom: 2px solid #34e0c2;
 }
+.st-block__ui-delete-controls {
+	top: -2.6em;
+}
 .st-block__editor img {
 	max-width: 100%;
 	width: auto;
