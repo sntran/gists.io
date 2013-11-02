@@ -52,7 +52,8 @@ defmodule GistsIO.Cache do
 					do_fetch_gists(username, gister, page+1, acc ++ gists)
 				end
 			{:error, _} ->
-				do_fetch_gists(username, gister, page+1, acc)
+				Lager.error "Error fetching gists for #{username}."
+				do_fetch_gists(username, gister, nil, acc)
 		end
 	end
 
