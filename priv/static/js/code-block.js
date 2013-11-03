@@ -22,7 +22,7 @@ SirTrevor.Blocks.Code = (function(){
     //Pulls out the file extension and checks the list of supported languages
     //If language is supported the language of the editor is adjusted
     setMode: function() {
-        var matches = this.$filename[0].value.match(/\.(.*)/);
+        var matches = this.$filename.val().match(/\.(.*)/);
         if(matches && this.languages[matches[1]]){
             this.editor.setOption("mode", this.languages[matches[1]]);
         };

@@ -116,7 +116,7 @@ defmodule GistsIO.GistHandler do
   		client = Session.get("gist_client", req)
   		{:ok, body, req} = Req.body_qs(req)
   		title = body["title"]
-		filename = "#{Regex.replace(%r/ /, title, "_")}.md"
+		filename = "#{title}.md"
 		{old_filename, old_file} = Enum.find(gist["files"], &Utils.is_markdown/1)
         gist_data = Jsonex.decode(body["gist"])
 		{teaser, content, files} = Utils.compose_gist(gist_data["data"])

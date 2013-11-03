@@ -79,6 +79,12 @@ defmodule GistsIO.GistClient do
         {:reply, {stat, Jsonex.decode(data)}, state}
     end
 
+    def handle_call(["gist", "delete", gist_id], _from, state) do
+        url = url("gists/#{gist_id}", state)
+        {stat, data, _} = delete(url)
+        {:reply, {stat, Jsonex.decode(data)}, state}
+    end
+
     def handle_call(["gist", description, files], _from, state) do
         url = url("gists", state)
         body = Jsonex.encode([{"description", description}, {"public", true}, 
@@ -91,12 +97,6 @@ defmodule GistsIO.GistClient do
         body = Jsonex.encode([{"description", description}, {"public", true},
             {"files", files}])
         {:reply, patch(url,body), state}
-    end
-
-    def handle_call(["gist", "delete", gist_id], _from, state) do
-        url = url("gists/#{gist_id}", state)
-        {stat, data, _} = delete(url)
-        {:reply, {stat, Jsonex.decode(data)}, state}
     end
 
     def handle_call(["comments", id], _from, state) do
