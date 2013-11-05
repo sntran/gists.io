@@ -43,13 +43,8 @@ SirTrevor.Blocks.Markdown = (function(){
     },
 
     loadData: function(data){
-      var block = this, text = data.text;
       // Convert base64 to regular filename and cache the base64.
-      text = text.replace(/(<img src=")(data:image\/png;base64.+)(" alt=")(.+)("\s?\/>)/g, function(match, p1, p2, p3, p4, p5) {
-        block.images[p4] = p2;
-        return p1 + p4 + p5;
-      });
-      console.log(text);
+      var text = this.toRegularImages(data.text);
       this.$el.find('.gio-write').html(text);
     },
 
@@ -79,20 +74,13 @@ SirTrevor.Blocks.Markdown = (function(){
       var previousMd = "";
       $el.hover(function() {
         var markdown = $editor.hide().val();
-        caret = $editor[0].selectionStart;
         $preview.show();
         if(markdown == previousMd) return;
         previousMd = markdown;
+
         marked(markdown, function(err, html) {
-          var $html = $(html), $images = $html.find("img");
-
-          $images.each(function() {
-            var $image = $(this), src = $image.attr("src"),
-                base64 = block.images[src];
-            $image.attr("src", base64);
-          });
-
-          $preview.html($html);
+          html = block.toBase64Img(html);
+          $preview.html(html);
         });
       }, function() {
         $preview.hide();
@@ -102,13 +90,26 @@ SirTrevor.Blocks.Markdown = (function(){
       this.$ui.prepend($el);
     },
 
+    toBase64Img: function(filename) {
+      var block = this;
+      return filename.replace(/(<img src=")(.+)("\s?\/>)/g, function(match, p1, p2, p3) {
+        return p1 + block.images[p2] + '" alt="' + p2 + p3;
+      });
+    },
+
+    toRegularImages: function(textWithBase64Images) {
+      var block = this;
+      return textWithBase64Images.replace(/(<img src=")(data:image\/.+;base64.+)(" alt=")(.+)("\s?\/>)/g, function(match, p1, p2, p3, p4, p5) {
+        block.images[p4] = p2;
+        return p1 + p4 + p5;
+      });
+    },
+
     toData: function() {
       var block = this, dataObj = {}, 
           text = this.$el.find(".gio-write").val();
       // Convert regular image's filename source to base64.
-      dataObj.text = text.replace(/(<img src=")(.+)("\s?\/>)/g, function(match, p1, p2, p3) {
-        return p1 + block.images[p2] + '" alt="' + p2 + p3;
-      });
+      dataObj.text = this.toBase64Img(text);
       this.setData(dataObj);
     },
 

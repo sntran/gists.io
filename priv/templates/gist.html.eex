@@ -26,7 +26,15 @@
 	<form action=<%= if entry["id"] == :nil do "/gists" else "/#{is_loggedin}/#{entry["id"]}" end%> method="post">
 		<label for="title">Title:</label>
 		<input type="test" name="title" value="<%= entry["title"] %>" required/>
-		<% files = lc {n, a} inlist entry["files"], n !== entry["name"], do: {n, "```#{n}\n#{a["content"]}\n```"} %>
+		<% 
+			files = Enum.filter_map(entry["files"], fn({n, a}) -> n !== entry["name"] end, fn({n, a}) ->
+				if GistsIO.Utils.is_image(n) do
+					{n, "<img src=\"#{a["content"]}\" alt=\"#{n}\"/>"}
+				else
+					{n, "```#{n}\n#{a["content"]}\n```"}
+				end
+			end)
+		%>
 		<div class="gio-teaser" style="display: none;"><%= entry["teaser"] %></div>
  		<textarea name="gist" class="blog"><%=EEx.eval_string(entry["content"], [files: files])%></textarea>
  		<button type="submit" class="btn btn-primary form-control">Submit</button>

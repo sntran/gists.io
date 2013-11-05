@@ -3,6 +3,10 @@ defmodule GistsIO.Utils do
 		attrs["language"] === "Markdown"
 	end
 
+	def is_image(name) do
+		Regex.match?(%r/.\.(?:png|jpg|jpeg|gif)$/, name)
+	end
+
 	def prep_gist(gist) do
 		{_name, entry} = Enum.at gist["files"], 0
 		{title, teaser} = parse_description(gist)
@@ -53,7 +57,8 @@ defmodule GistsIO.Utils do
 	def compose_gist([field|rest], files, content, teaser // "") do
 		case field do
 			[{"type", "markdown"}, {"data", data}] ->
-				compose_gist(rest, files, content <> data["text"], teaser)
+				{text, images} = parse_images(data["text"])
+				compose_gist(rest, files ++ images, content <> text, teaser)
 			[{"type", "code"}, {"data", data}] ->
 				filename = data["name"]
 				oldfilename = data["oldname"]
@@ -68,5 +73,14 @@ defmodule GistsIO.Utils do
 			{_,_} ->
 				compose_gist(rest, files, content, teaser)
 		end
+	end
+
+	defp parse_images(text) do
+		re = %r/<img src=\"(data:image\/.+;base64.+)\" alt=\"(.+)\"\s?\/>/
+		matches = Regex.scan(re, text)
+		images = Enum.map(matches, fn([_, base64, filename]) ->
+			{filename, [{"content",base64}]}
+		end)
+		{Regex.replace(re, text, "<%= files[\"\\2\"] %>"), images}
 	end
 end
