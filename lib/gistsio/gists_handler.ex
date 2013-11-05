@@ -44,7 +44,7 @@ defmodule GistsIO.GistsHandler do
 
   	def gists_post(req, gist) do
   		client = Session.get("gist_client", req)
-  		{:ok, body, req} = Req.body_qs(req)
+  		{:ok, body, req} = Req.body_qs(8000000, req)
   		title = body["title"]
 		filename = "#{title}.md"
         gist_data = Jsonex.decode(body["gist"])

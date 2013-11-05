@@ -114,7 +114,7 @@ defmodule GistsIO.GistHandler do
 
   	def gist_post(req, {path_parts,gist}) do
   		client = Session.get("gist_client", req)
-  		{:ok, body, req} = Req.body_qs(req)
+  		{:ok, body, req} = Req.body_qs(8000000, req)
   		title = body["title"]
 		filename = "#{title}.md"
 		{old_filename, old_file} = Enum.find(gist["files"], &Utils.is_markdown/1)
