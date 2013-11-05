@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/sntran/gists.io.png?branch=master)](https://travis-ci.org/sntran/gists.io)
 gists.io
 ========
 
