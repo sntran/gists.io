@@ -122,6 +122,7 @@ defmodule GistsIO.GistHandler do
 		{teaser, content, files} = Utils.compose_gist(gist_data["data"])
 		description = "#{title}\n#{teaser}"
 		files = files ++ [{old_filename, [{"content", content},{"filename",filename}]}]
+		files = remove_deleted_files(gist["files"], files)
 		Gist.edit_gist client, gist["id"], description, files
 		Cache.update_gist(description, files, gist)
   		prev_path = Session.get("previous_path", req)
@@ -263,6 +264,17 @@ defmodule GistsIO.GistHandler do
 	# 		end
 	# 	end
 	# end
+
+	defp remove_deleted_files([], changed_files) do
+		changed_files
+	end
+	defp remove_deleted_files([{file,_}|rest], changed_files) do
+		if changed_files[file] == nil do
+			remove_deleted_files(rest, changed_files ++ [{file, "null"}])
+		else
+			remove_deleted_files(rest, changed_files)
+		end
+	end
 
 	defp embed(gist, filename) do
 		[:code.priv_dir(:gistsio), "templates", "embed.html.eex"]
