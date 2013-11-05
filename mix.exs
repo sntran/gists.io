@@ -30,7 +30,7 @@ defmodule GistsIO.Mixfile do
     defp deps() do
         [ 
             {:cowboy, github: "extend/cowboy"},
-            {:httpotion, "0.2.3",[github: "myfreeweb/httpotion"]},
+            {:httpotion, github: "myfreeweb/httpotion"},
             {:jsonex,"2.0",[github: "marcelog/jsonex", tag: "2.0"]},
             {:mimetypes, github: "spawngrid/mimetypes", override: true },
             {:exlager, github: "khia/exlager"}
