@@ -114,6 +114,8 @@ defmodule GistsIO.GistHandler do
 
   	def gist_post(req, {path_parts,gist}) do
   		client = Session.get("gist_client", req)
+  		gist_id = gist["id"]
+  		username = gist["user"]["login"]
   		{:ok, body, req} = Req.body_qs(8000000, req)
   		title = body["title"]
 		filename = "#{title}.md"
@@ -122,10 +124,9 @@ defmodule GistsIO.GistHandler do
 		{teaser, content, files} = Utils.compose_gist(gist_data["data"])
 		description = "#{title}\n#{teaser}"
 		files = files ++ [{old_filename, [{"content", content},{"filename",filename}]}]
-		Gist.edit_gist client, gist["id"], description, files
+		Gist.edit_gist client, gist_id, description, files
 		Cache.update_gist(description, files, gist)
-  		prev_path = Session.get("previous_path", req)
-  		{{true,prev_path}, req, gist}
+  		{{true,"/#{username}/#{gist_id}"}, req, gist}
   	end
 
 	def gist_html(req, {path_parts,gist}) do
