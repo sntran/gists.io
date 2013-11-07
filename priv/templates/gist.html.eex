@@ -28,11 +28,7 @@
 		<input type="test" name="title" value="<%= entry["title"] %>" required/>
 		<% 
 			files = Enum.filter_map(entry["files"], fn({n, a}) -> n !== entry["name"] end, fn({n, a}) ->
-				if GistsIO.Utils.is_image(n) do
-					{n, "<img src=\"#{a["content"]}\" alt=\"#{n}\"/>"}
-				else
-					{n, "```#{n}\n#{a["content"]}\n```"}
-				end
+				{n, "```#{n}\n#{a["content"]}\n```"}
 			end)
 		%>
 		<div class="gio-teaser" style="display: none;"><%= entry["teaser"] %></div>

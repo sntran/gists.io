@@ -9,14 +9,14 @@ SirTrevor.Blocks.Image = (function(){
 
         loadData: function(data){
             // Create our image tag
-            this.$editor.html($('<img>', { src: data.src }));
+            this.$editor.html($('<img>', { src: data.source }));
         },
 
         toData: function() {
             var $img = this.$editor.find("img"),
             data = {
                 name: $img.attr("alt"),
-                src: $img.attr("src")
+                source: $img.attr("src")
             };
             this.setData(data);
         },
@@ -45,9 +45,9 @@ SirTrevor.Blocks.Image = (function(){
                     var url = file.name;
                     var data = {
                         name: file.name,
-                        src: e.target.result
+                        source: e.target.result
                     };
-                    block.$editor.html($('<img>', { src: data.src, alt: file.name })).show();
+                    block.$editor.html($('<img>', { src: data.source, alt: file.name })).show();
                     block.setData(data);
                     block.ready();
                 }

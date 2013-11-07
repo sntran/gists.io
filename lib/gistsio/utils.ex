@@ -60,7 +60,7 @@ defmodule GistsIO.Utils do
 				compose_gist(rest, files, content <> data["text"], teaser)
 			[{"type", "image"}, {"data", data}] ->
 				filename = data["name"]
-				file = [{filename, [{"content", data["src"]}]}]
+				file = [{filename, [{"content", data["source"]}]}]
 				replacement = "\n\n<%= files[\"#{filename}\"] %>\n\n"
 				compose_gist(rest, files ++ file, content <> replacement, teaser)
 			[{"type", "code"}, {"data", data}] ->

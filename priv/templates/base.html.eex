@@ -55,6 +55,9 @@
 <script src="/s/js/image-block.js"></script>
 
 <script>
+function is_image(name, content) {
+	return /(?:\.jpg|jpeg|png|gif)/.test(name) && /data:image\/.+;base64.+/.test(content);
+}
 function to_blocks(markdown) {
 	var result = {}, blocks = markdown.split(/[\r\n]*(```.+\n[\s\S]+?\n```)[\r\n]*/g);
 	var $teaser = $(".gio-teaser"), teaser = $teaser.html();
@@ -67,7 +70,14 @@ function to_blocks(markdown) {
 	}).map(function(text) {
 		var matches = text.match(/```(.+)\n([\s\S]*)\n```/);
 		if (matches && matches[1] && matches[2]) {
-			return { type: "code", data: { source: matches[2], name: matches[1] } };
+			var name = matches[1], content = matches[2];
+			return { 
+				type: is_image(name, content)? "image": "code", 
+				data: { 
+					source: content, 
+					name: name 
+				} 
+			};
 		}
 		return { type: "markdown", data: { text: text } };
 	}));
