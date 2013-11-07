@@ -140,7 +140,7 @@ defmodule GistsIO.GistClient do
     end
 
     defp fetch(url, req_headers // []) do
-        case HTTPotion.get(url, req_headers) do
+        case HTTPotion.get(url, req_headers, [timeout: 80000]) do
             Response[body: body, status_code: status, headers: headers] when status in 200..299 ->
                 status = Keyword.get(headers, :"Status")
                 if status !== "200 OK" do
@@ -154,7 +154,7 @@ defmodule GistsIO.GistClient do
     end
 
     defp post(url, body) do
-        case HTTPotion.post(url, body, [is_ssl: true]) do
+        case HTTPotion.post(url, body, [is_ssl: true, timeout: 80000]) do
             Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
                 {:ok, body}
             Response[body: body, status_code: _status, headers: _headers] ->

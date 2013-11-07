@@ -20,7 +20,7 @@
 .st-block__ui-delete-controls {
 	top: -2.6em;
 }
-.st-block__editor img {
+article img, .st-block__editor img {
 	max-width: 100%;
 	width: auto;
 }

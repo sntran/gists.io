@@ -57,8 +57,12 @@ defmodule GistsIO.Utils do
 	def compose_gist([field|rest], files, content, teaser // "") do
 		case field do
 			[{"type", "markdown"}, {"data", data}] ->
-				{text, images} = parse_images(data["text"])
-				compose_gist(rest, files ++ images, content <> text, teaser)
+				compose_gist(rest, files, content <> data["text"], teaser)
+			[{"type", "image"}, {"data", data}] ->
+				filename = data["name"]
+				file = [{filename, [{"content", data["src"]}]}]
+				replacement = "\n\n<%= files[\"#{filename}\"] %>\n\n"
+				compose_gist(rest, files ++ file, content <> replacement, teaser)
 			[{"type", "code"}, {"data", data}] ->
 				filename = data["name"]
 				oldfilename = data["oldname"]

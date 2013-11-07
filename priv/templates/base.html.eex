@@ -52,6 +52,7 @@
 <script src="/s/js/code-block.js"></script>
 <script src="/s/js/markdown-block.js"></script>
 <script src="/s/js/teaser-block.js"></script>
+<script src="/s/js/image-block.js"></script>
 
 <script>
 function to_blocks(markdown) {
@@ -80,7 +81,7 @@ $(function() {
 
 	new SirTrevor.Editor({ 
 		el: $editor,
-		blockTypes: ["Markdown","Code","Teaser"],
+		blockTypes: ["Markdown","Code","Teaser", "Image"],
 		blockTypeLimits: {"Teaser":1}
 	});
 
