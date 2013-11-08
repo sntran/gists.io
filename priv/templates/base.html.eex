@@ -53,6 +53,7 @@
 <script src="/s/js/markdown-block.js"></script>
 <script src="/s/js/teaser-block.js"></script>
 <script src="/s/js/image-block.js"></script>
+<script src="/s/js/jquery.timeago.js"></script>
 
 <script>
 function is_image(name, content) {
@@ -85,6 +86,8 @@ function to_blocks(markdown) {
 }
 
 $(function() {
+	$("time.timeago").timeago();
+
 	var $editor = $('.blog'), markdown = $editor.text(),
 		blocksData = to_blocks(markdown);
 	$editor.val(JSON.stringify(blocksData));

@@ -2,7 +2,7 @@
 	<%= if entry["id"] !== nil do %>
 		<form style='display:inline;' action=<%= "/#{is_loggedin}/#{entry["id"]}/delete" %> method="post" accept-charset="utf-8" name="delete">
 			<p>
-			Last updated: <span><%= entry["updated_at"] %></span> | 
+			Last updated: <time class="timeago" datetime="<%= entry["updated_at"] %>"></time> | 
 			<span><%= entry["comments"] %> comments</span>
 			<span><a href="/<%= entry["user"]["login"] %>">All entries</a></span>
 			<%= if is_loggedin == entry["user"]["login"] do %>
