@@ -116,7 +116,8 @@ defmodule GistsIO.GistHandler do
   		client = Session.get("gist_client", req)
   		gist_id = gist["id"]
   		username = gist["user"]["login"]
-  		{:ok, body, req} = Req.body_qs(8000000, req)
+  		max_body_length = :application.get_env(:gistsio, :max_body_length, 8000000)
+  		{:ok, body, req} = Req.body_qs(max_body_length, req)
   		title = body["title"]
 		filename = "#{title}.md"
 		{old_filename, old_file} = Enum.find(gist["files"], &Utils.is_markdown/1)
@@ -125,8 +126,8 @@ defmodule GistsIO.GistHandler do
 		description = "#{title}\n#{teaser}"
 		files = files ++ [{old_filename, [{"content", content},{"filename",filename}]}]
 		files = remove_deleted_files(gist["files"], files)
-		Gist.edit_gist client, gist_id, description, files
-		Cache.update_gist(description, files, gist)
+		{:ok, updated_gist} = Gist.edit_gist client, gist_id, description, files
+		Cache.update_gist(updated_gist)
   		{{true,"/#{username}/#{gist_id}"}, req, gist}
   	end
 

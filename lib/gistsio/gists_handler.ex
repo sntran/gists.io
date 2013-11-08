@@ -44,7 +44,8 @@ defmodule GistsIO.GistsHandler do
 
   	def gists_post(req, gist) do
   		client = Session.get("gist_client", req)
-  		{:ok, body, req} = Req.body_qs(8000000, req)
+  		max_body_length = :application.get_env(:gistsio, :max_body_length, 8000000)
+  		{:ok, body, req} = Req.body_qs(max_body_length, req)
   		title = body["title"]
 		filename = "#{title}.md"
         gist_data = Jsonex.decode(body["gist"])

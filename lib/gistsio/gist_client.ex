@@ -96,7 +96,8 @@ defmodule GistsIO.GistClient do
         url = url("gists/#{gist_id}", state)
         body = Jsonex.encode([{"description", description}, {"public", true},
             {"files", files}])
-        {:reply, patch(url,body), state}
+        {stat, response} = patch(url,body)
+        {:reply, {stat, Jsonex.decode(response)}, state}
     end
 
     def handle_call(["comments", id], _from, state) do

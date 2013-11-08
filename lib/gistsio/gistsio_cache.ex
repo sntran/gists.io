@@ -111,6 +111,31 @@ defmodule GistsIO.Cache do
 		end
 	end
 
+	def update_gist(updated_gist) do
+		gist_id = updated_gist["id"]
+		username = updated_gist["user"]["login"]
+
+		gist_key = {:gist, gist_id, username}
+		Cacherl.delete(gist_key) # Remove the cache so we can reset the start and lease time
+		Cacherl.insert(gist_key, updated_gist)
+
+		gists_key = {:user, username, "gists"}
+		case Cacherl.lookup(gists_key) do
+			{:ok, cache} ->
+				idx = Enum.find_index(cache, &(&1["id"] === updated_gist["id"]))
+				new_cache = if (idx === nil) do
+					[updated_gist | cache]
+				else
+					changed_gist = Enum.at(cache, idx)
+								|> ListDict.put("description", updated_gist["description"])
+					List.replace_at(cache, idx, changed_gist)
+				end
+				Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
+				Cacherl.insert(gists_key, new_cache)
+			{:error, :not_found} -> :ok
+		end
+	end
+
 	@doc """
 	Update a cached gist.
 
@@ -125,7 +150,9 @@ defmodule GistsIO.Cache do
 	@arguments:
 	description = binary()
 	files = [file]
-	file = [{oldname, [{"filename", newname},{"content", content}]}]
+	file = [{oldname, [{"filename", newname},{"content", content}]}] |
+			[{oldname, "null"}] |
+			[{newname, [{"content", content}]}]
 	oldname = newname = content = binary()
 	"""
 	def update_gist(description, files // [], gist) do

@@ -81,6 +81,28 @@ defmodule GistTest do
         assert new_file["content"] === new_file_content
     end
 
+    # test "adding a new file in existing gist", meta do
+    #     gist = meta[:gist]
+    #     new_file_name = "new name"
+    #     assert length(gist["files"]) === 2
+    #     assert gist["files"][new_file_name] === nil
+
+    #     new_description = "New Description"
+    #     new_file_content = "New File Content"
+    #     new_files = [
+    #         {new_file_name, [{"content", new_file_content}]}
+    #     ]
+    #     Cache.update_gist(new_description, new_files, gist)
+    #     {:ok, cache} = Cacherl.lookup(@key)
+    #     refute cache === gist
+    #     files = cache["files"]
+    #     refute length(files) === 2
+    #     assert length(files) === 3
+    #     new_file = files[new_file_name]
+    #     refute new_file === nil
+    #     assert new_file["filename"] === new_file_name
+    # end
+
     test "update a cached gist should have start time reset", meta do
         gist = meta[:gist]
         start_time = Cacherl.last_updated(@key)
