@@ -4,6 +4,7 @@ SirTrevor.Blocks.Teaser = (function(){
         title: "Teaser",
         type: "teaser",
         icon_name: '<i class="icon-ellipsis-horizontal"></i>',
+        editorHTML: '<div class="st-text-block" contenteditable="true"></div>',
 
         onBlockRender: function() {
             SirTrevor.Blocks.Text.prototype.onBlockRender.call(this);
