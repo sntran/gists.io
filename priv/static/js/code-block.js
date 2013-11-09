@@ -32,7 +32,13 @@ SirTrevor.Blocks.Code = (function(){
         return template(this);
     },
 
-    loadData: function(data){ 
+    loadData: function(data){
+        var matches = data.name.match(/__(.+)__/);
+        if(matches && matches[1]){
+            this.embedded = false;
+            data.name = matches[1]
+        }
+
         this.$code = this.$el.find(".gio-code").val(data.source);
         this.oldname = data.name;
     },
@@ -43,6 +49,7 @@ SirTrevor.Blocks.Code = (function(){
             dataObj.source = this.editor.getValue();
         field = this.$ui.find(".gio-filename")[0];
         dataObj.name = (field)? field.value : this.oldname;
+        dataObj.embedded = this.embedded
         dataObj.oldname = this.oldname;
         if(!_.isEmpty(dataObj)) {
             this.setData(dataObj);
@@ -51,9 +58,14 @@ SirTrevor.Blocks.Code = (function(){
 
     adjustUI: function() {
         var block = this;
-        block.embedded = true;
-        var $embedder = $("<a title='Embed inline'>").html('<i class="icon-link"></i>')
-            .addClass("st-block-ui-btn st-icon");
+        if(block.embedded == null)
+            block.embedded = true;
+        var $embedder = $("<a class='.linkbtn' title='Embed inline'>").addClass("st-block-ui-btn st-icon");
+
+        if(block.embedded == true)
+            $embedder.html('<i class="icon-link"></i>');
+        else
+            $embedder.html('<i class="icon-unlink"></i>');
 
         $embedder.click(function() {
             block.embedded = !block.embedded;

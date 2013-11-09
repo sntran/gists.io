@@ -71,7 +71,11 @@ defmodule GistsIO.Utils do
 				else
 					file = [{oldfilename, [{"content",data["source"]},{"filename",filename}]}]
 				end	
-				compose_gist(rest, files ++ file, content <> "\n\n<%= files[\"#{filename}\"] %>\n\n", teaser)
+				if data["embedded"] == true do
+					compose_gist(rest, files ++ file, content <> "\n\n<%= files[\"#{filename}\"] %>\n\n", teaser)
+				else
+					compose_gist(rest, files ++ file, content, teaser)
+				end
 			[{"type", "teaser"}, {"data", data}] ->
 				compose_gist(rest, files, content, data["text"])
 			{_,_} ->

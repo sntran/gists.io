@@ -89,8 +89,11 @@ SirTrevor.Blocks.Markdown = (function(){
       var block = this, dataObj = {}, 
           text = this.$el.find(".gio-write").val();
       // Convert regular image's filename source to base64.
+
       dataObj.text = text;
-      this.setData(dataObj);
+      if(!_.isEmpty(dataObj)) {
+        this.setData(dataObj);
+      }
     }
   });
 })();
