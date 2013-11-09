@@ -61,6 +61,7 @@ SirTrevor.Blocks.Code = (function(){
         if(block.embedded == null)
             block.embedded = true;
         var $embedder = $("<a class='.linkbtn' title='Embed inline'>").addClass("st-block-ui-btn st-icon");
+        var editorID = this.instanceID;
 
         if(block.embedded == true)
             $embedder.html('<i class="icon-link"></i>');
@@ -68,9 +69,11 @@ SirTrevor.Blocks.Code = (function(){
             $embedder.html('<i class="icon-unlink"></i>');
 
         $embedder.click(function() {
+            var editorInstance = _.findWhere(SirTrevor.instances, {"ID": editorID});
             block.embedded = !block.embedded;
             if (!block.embedded) {
                 $embedder.html('<i class="icon-unlink"></i>');
+                editorInstance.changeBlockPosition(block.$el,editorInstance.blocks.length);
             } else {
                 $embedder.html('<i class="icon-link"></i>');
             }
