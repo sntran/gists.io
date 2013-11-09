@@ -39,14 +39,10 @@
 			end)
 
 			files = Enum.filter_map(entry["files"], fn({n, a}) -> n !== entry["name"] end, fn({n, a}) ->
-				if GistsIO.Utils.is_image(n) do
-					{n, "<img src=\"#{a["content"]}\" alt=\"#{n}\"/>"}
+				if Enum.member?(embedded_files,n) do
+					{n, "```#{n}\n#{a["content"]}\n```"}
 				else
-					if Enum.member?(embedded_files,n) do
-						{n, "```#{n}\n#{a["content"]}\n```"}
-					else
-						{n, "```__#{n}__\n#{a["content"]}\n```"}
-					end
+					{n, "```__#{n}__\n#{a["content"]}\n```"}
 				end
 			end)
 		%>
