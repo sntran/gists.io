@@ -19,6 +19,8 @@ SirTrevor.Blocks.Code = (function(){
         "coffee": "coffeescript"
     },
 
+    oldname: "",
+
     //Pulls out the file extension and checks the list of supported languages
     //If language is supported the language of the editor is adjusted
     setMode: function() {
@@ -44,13 +46,12 @@ SirTrevor.Blocks.Code = (function(){
     },
 
     toData: function(){
-        var dataObj = {};
+        var dataObj = {}, source = "";
         if(this.editor)
-            dataObj.source = this.editor.getValue();
+            source = this.editor.getValue();
         field = this.$ui.find(".gio-filename")[0];
-        dataObj.name = (field)? field.value : this.oldname;
-        dataObj.embedded = this.embedded
-        dataObj.oldname = this.oldname;
+        var name = (field)? field.value : this.oldname;
+        dataObj = {source: source, name: name, embedded: this.embedded, oldname: this.oldname};
         if(!_.isEmpty(dataObj)) {
             this.setData(dataObj);
         }
@@ -81,7 +82,7 @@ SirTrevor.Blocks.Code = (function(){
 
         this.$ui.prepend($embedder);
 
-        var $fileInput = $('<input class="gio-filename st-block-ui-btn" style="width: 10em;" placeholder="filename.ext">');
+        var $fileInput = $('<input class="gio-filename st-block-ui-btn" style="width: 10em;" placeholder="filename.ext" required>');
         this.$ui.prepend($fileInput.val(this.oldname));
     },
 

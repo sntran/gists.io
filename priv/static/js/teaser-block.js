@@ -30,7 +30,17 @@ SirTrevor.Blocks.Teaser = (function(){
                 $el.find(".st-block-ui-btn--reorder").remove(); // Not draggable
                 $el.find(".st-block-positioner").remove();
             }, 0);
-        }
+        },
 
+        toData: function() {
+            var dataObj={}
+            if (this.hasTextBlock()){
+                var content = this.getTextBlock().html()
+                content = content.replace(/^<br\>*|<br\>*$/g, '');
+                if(content != "")
+                    dataObj.text = SirTrevor.toMarkdown(content, this.type);
+            }
+            this.setData(dataObj);
+        }
     })
 })();

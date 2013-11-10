@@ -6,7 +6,7 @@ SirTrevor.Blocks.Markdown = (function(){
 
   var md_template = _.template([
     '<div>',
-      '<textarea class="tab-pane active gio-write"></textarea>',
+      '<textarea class="tab-pane active gio-write" required></textarea>',
       '<div class="gio-preview" style="display:hidden"></div>',
     '</div>'
   ].join("\n"));
@@ -90,10 +90,9 @@ SirTrevor.Blocks.Markdown = (function(){
           text = this.$el.find(".gio-write").val();
       // Convert regular image's filename source to base64.
 
-      dataObj.text = text;
-      if(!_.isEmpty(dataObj)) {
-        this.setData(dataObj);
-      }
+      if(text != "")
+        dataObj.text = text;
+      this.setData(dataObj);
     }
   });
 })();

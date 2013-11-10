@@ -9,14 +9,14 @@ SirTrevor.Blocks.Image = (function(){
 
         loadData: function(data){
             // Create our image tag
-            this.$editor.html($('<img>', { src: data.source }));
+            this.$editor.html($('<img>', { src: data.source , alt: data.name}));
         },
 
         toData: function() {
             var $img = this.$editor.find("img"),
             data = {
-                name: $img.attr("alt"),
-                source: $img.attr("src")
+                source: $img.attr("src"),
+                name: $img.attr("alt")
             };
             this.setData(data);
         },

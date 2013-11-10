@@ -66,8 +66,9 @@ function to_blocks(markdown) {
 	if (teaser !== "") {
 		data.push({type: "teaser", data: {text: teaser}});
 	}
+	var numBlocks = blocks.length;
 	result.data = data.concat(blocks.filter(function(text){
-		return text !== "";
+		return numBlocks === 1 || text !== "";
 	}).map(function(text) {
 		var matches = text.match(/```(.+)\n([\s\S]*)\n```/);
 		if (matches && matches[1] && matches[2]) {
@@ -95,7 +96,8 @@ $(function() {
 	new SirTrevor.Editor({ 
 		el: $editor,
 		blockTypes: ["Markdown","Code","Teaser", "Image"],
-		blockTypeLimits: {"Teaser":1}
+		blockTypeLimits: {"Teaser":1},
+		required: ["Markdown"]
 	});
 
 	marked.setOptions({

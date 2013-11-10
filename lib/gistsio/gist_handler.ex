@@ -118,16 +118,26 @@ defmodule GistsIO.GistHandler do
   		username = gist["user"]["login"]
   		max_body_length = :application.get_env(:gistsio, :max_body_length, 8000000)
   		{:ok, body, req} = Req.body_qs(max_body_length, req)
-  		title = body["title"]
-		filename = "#{title}.md"
-		{old_filename, old_file} = Enum.find(gist["files"], &Utils.is_markdown/1)
-        gist_data = Jsonex.decode(body["gist"])
-		{teaser, content, files} = Utils.compose_gist(gist_data["data"])
-		description = "#{title}\n#{teaser}"
-		files = files ++ [{old_filename, [{"content", content},{"filename",filename}]}]
-		files = remove_deleted_files(gist["files"], files)
-		{:ok, updated_gist} = Gist.edit_gist client, gist_id, description, files
-		Cache.update_gist(updated_gist)
+  		IO.inspect body
+  		[_, {"gist", data}] = body
+  		# If no data is sent to the server then it will just
+  		# redirect the user with no action taken.
+  		if data != "" do
+	  		title = body["title"]
+			filename = "#{title}.md"
+			{old_filename, old_file} = Enum.find(gist["files"], &Utils.is_markdown/1)
+	        gist_data = Jsonex.decode(body["gist"])
+			{teaser, content, files} = Utils.compose_gist(gist_data["data"])
+			description = "#{title}\n#{teaser}"
+			# If both files and content are missing then the user
+			# will be redirected with no action taken.
+			if !Enum.empty?(files) or content != "" do
+				files = files ++ [{old_filename, [{"content", content},{"filename",filename}]}]
+				files = remove_deleted_files(gist["files"], files)
+				{:ok, updated_gist} = Gist.edit_gist client, gist_id, description, files
+				Cache.update_gist(updated_gist)
+			end
+		end
   		{{true,"/#{username}/#{gist_id}"}, req, gist}
   	end
 

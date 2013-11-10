@@ -46,21 +46,33 @@ defmodule GistsIO.GistsHandler do
   		client = Session.get("gist_client", req)
   		max_body_length = :application.get_env(:gistsio, :max_body_length, 8000000)
   		{:ok, body, req} = Req.body_qs(max_body_length, req)
-  		title = body["title"]
-		filename = "#{title}.md"
-        gist_data = Jsonex.decode(body["gist"])
-		{teaser, content, files} = Utils.compose_gist(gist_data["data"])
-        files = files ++ [{filename, [{"content", content}]}]
-  		description = "#{title}\n#{teaser}"
-  		{:ok, response} = Gist.create_gist client, description, files
-  		gist = Jsonex.decode(response)
-  		Cache.update_gist(description, gist)
+  		[_, {"gist", data}] = body
+  		IO.inspect body
+  		# If no data is sent to the server then it will just
+  		# redirect the user with no action taken.
+  		if data != "" do
+	   		title = body["title"]
+			filename = "#{title}.md"
+	        gist_data = Jsonex.decode(body["gist"])
+	        IO.inspect gist_data
+			{teaser, content, files} = Utils.compose_gist(gist_data["data"])
+			# If both files and content are missing then the user
+			# will be redirected with no action taken.
+			if !Enum.empty?(files) or content != "" do
+	        	files = files ++ [{filename, [{"content", content}]}]
+	        	IO.inspect files
+	  			description = "#{title}\n#{teaser}"
+	  			{:ok, response} = Gist.create_gist client, description, files
+	  			gist = Jsonex.decode(response)
+	  			Cache.update_gist(description, gist)
+	  		end
+	  	end
         prev_path = Session.get("previous_path", req)
 
         # Cowboy set status code to be 201 instead of 3xx
         # Browser does not redirect, so we have to set the
         # Refresh header
-        req = Req.set_resp_header("Refresh", "0; url=#{prev_path}", req)
+        req = Req.set_resp_header("Refresh", "0; url=#{Session.get("is_loggedin",req)}", req)
   		{{true,prev_path}, req, gist}
   	end
 
