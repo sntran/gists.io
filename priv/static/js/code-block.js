@@ -9,6 +9,9 @@ SirTrevor.Blocks.Code = (function(){
 
     type: 'code',
 
+    embeddable: true,
+    is_initialized: false,
+
     icon_name: '<i class="icon-code"></i>',
 
     //List of languages that the editor supports
@@ -20,6 +23,11 @@ SirTrevor.Blocks.Code = (function(){
     },
 
     oldname: "",
+
+    initialize_mixins: function() {
+        this.withMixin(SirTrevor.BlockMixins.Embeddable);
+        this.is_initialized = true;
+    },
 
     //Pulls out the file extension and checks the list of supported languages
     //If language is supported the language of the editor is adjusted
@@ -35,12 +43,8 @@ SirTrevor.Blocks.Code = (function(){
     },
 
     loadData: function(data){
-        var matches = data.name.match(/__(.+)__/);
-        if(matches && matches[1]){
-            this.embedded = false;
-            data.name = matches[1]
-        }
-
+        this.initialize_mixins();
+        data.name = this.loadNonEmbedded(data.name);
         this.$code = this.$el.find(".gio-code").val(data.source);
         this.oldname = data.name;
     },
@@ -57,31 +61,9 @@ SirTrevor.Blocks.Code = (function(){
         }
     },
 
-    adjustUI: function() {
-        var block = this;
-        if(block.embedded == null)
-            block.embedded = true;
-        var $embedder = $("<a class='.linkbtn' title='Embed inline'>").addClass("st-block-ui-btn st-icon");
-        var editorID = this.instanceID;
-
-        if(block.embedded == true)
-            $embedder.html('<i class="icon-link"></i>');
-        else
-            $embedder.html('<i class="icon-unlink"></i>');
-
-        $embedder.click(function() {
-            var editorInstance = _.findWhere(SirTrevor.instances, {"ID": editorID});
-            block.embedded = !block.embedded;
-            if (!block.embedded) {
-                $embedder.html('<i class="icon-unlink"></i>');
-                editorInstance.changeBlockPosition(block.$el,editorInstance.blocks.length);
-            } else {
-                $embedder.html('<i class="icon-link"></i>');
-            }
-        });
-
-        this.$ui.prepend($embedder);
-
+    adjustUI: function() {     
+        if(!this.is_initialized)
+            this.initialize_mixins();
         var $fileInput = $('<input class="gio-filename st-block-ui-btn" style="width: 10em;" placeholder="filename.ext" required>');
         this.$ui.prepend($fileInput.val(this.oldname));
     },

@@ -68,10 +68,15 @@ defmodule GistsIO.Utils do
 			# name and source in that order.
 			[{"type", "image"}, {"data", [{}]}] ->
 				compose_gist(rest, files, content, teaser)
-			[{"type", "image"}, {"data", [{"source",source},{"name",filename}]}] ->
+			[{"type", "image"}, {"data", [{"source",source},{"name",filename},{"embedded",embedded}]}] 
+			when embedded == true ->
 				file = [{filename, [{"content", source}]}]
 				replacement = "\n\n<%= files[\"#{filename}\"] %>\n\n"
 				compose_gist(rest, files ++ file, content <> replacement, teaser)
+			[{"type", "image"}, {"data", [{"source",source},{"name",filename},{"embedded",embedded}]}] 
+			when embedded == false ->
+				file = [{filename, [{"content", source}]}]
+				compose_gist(rest, files ++ file, content, teaser)
 			[{"type", "image"}, {"data", data}] ->
 				compose_gist(rest, files, content, teaser)
 			# Code files will only be included if the data specifically contains

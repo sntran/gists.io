@@ -54,6 +54,7 @@
 <script src="/s/js/teaser-block.js"></script>
 <script src="/s/js/image-block.js"></script>
 <script src="/s/js/jquery.timeago.js"></script>
+<script src="/s/js/embeddable-mixin.js"></script>
 
 <script>
 function is_image(name, content) {

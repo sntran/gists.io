@@ -6,8 +6,17 @@ SirTrevor.Blocks.Image = (function(){
 
         droppable: true,
         uploadable: true,
+        embeddable: true,
+        is_initialized: false,
+
+        initialize_mixins: function(){
+            this.withMixin(SirTrevor.BlockMixins.Embeddable);
+            this.is_initialized = true;
+        },
 
         loadData: function(data){
+            this.initialize_mixins();
+            data.name = this.loadNonEmbedded(data.name);
             // Create our image tag
             this.$editor.html($('<img>', { src: data.source , alt: data.name}));
         },
@@ -16,13 +25,16 @@ SirTrevor.Blocks.Image = (function(){
             var $img = this.$editor.find("img"),
             data = {
                 source: $img.attr("src"),
-                name: $img.attr("alt")
+                name: $img.attr("alt"),
+                embedded: this.embedded
             };
             this.setData(data);
         },
       
         onBlockRender: function(){
             this.$editor.css("textAlign", "center");
+            if(!this.is_initialized)
+                this.initialize_mixins();
             /* Setup the upload button */
             this.$inputs.find('button').bind('click', function(ev){ ev.preventDefault(); });
             this.$inputs.find('input').on('change', _.bind(function(ev){

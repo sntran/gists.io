@@ -53,7 +53,6 @@ defmodule GistsIO.GistsHandler do
 	   		title = body["title"]
 			filename = "#{title}.md"
 	        gist_data = Jsonex.decode(body["gist"])
-	        IO.inspect gist_data
 			{teaser, content, files} = Utils.compose_gist(gist_data["data"])
 			# If both files and content are missing then the user
 			# will be redirected with no action taken.
