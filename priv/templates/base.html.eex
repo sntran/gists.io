@@ -90,22 +90,25 @@ function to_blocks(markdown) {
 $(function() {
 	$("time.timeago").timeago();
 
-	var $editor = $('.blog'), markdown = $editor.text(),
-		blocksData = to_blocks(markdown);
-	$editor.val(JSON.stringify(blocksData));
+	var $editor = $('.gio-entry');
+	$editor.each(function() {
+		var markdown = $editor.text(),
+			blocksData = to_blocks(markdown);
+		$editor.val(JSON.stringify(blocksData));
 
-	new SirTrevor.Editor({ 
-		el: $editor,
-		blockTypes: ["Markdown","Code","Teaser", "Image"],
-		blockTypeLimits: {"Teaser":1},
-		required: ["Markdown"]
-	});
+		new SirTrevor.Editor({ 
+			el: $editor,
+			blockTypes: ["Markdown","Code","Teaser", "Image"],
+			blockTypeLimits: {"Teaser":1},
+			required: ["Markdown"]
+		});
 
-	marked.setOptions({
-    	highlight: function(code, lang){
-        	// More info at http://softwaremaniacs.org/soft/highlight/en/download/
-        	return hljs.LANGUAGES[lang] ? hljs.highlight(lang, code).value : code;
-    	}
+		marked.setOptions({
+	    	highlight: function(code, lang){
+	        	// More info at http://softwaremaniacs.org/soft/highlight/en/download/
+	        	return hljs.LANGUAGES[lang] ? hljs.highlight(lang, code).value : code;
+	    	}
+		});
 	});
 
 	$('a.style-option').click(function(e) {

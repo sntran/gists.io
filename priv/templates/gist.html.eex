@@ -47,7 +47,7 @@
 			end)
 		%>
 		<div class="gio-teaser" style="display: none;"><%= entry["teaser"] %></div>
- 		<textarea name="gist" class="blog"><%=EEx.eval_string(modified_content, [files: files])%></textarea>
+ 		<textarea name="entry" class="gio-entry"><%=EEx.eval_string(modified_content, [files: files])%></textarea>
  		<button type="submit" class="btn btn-primary form-control">Submit</button>
 	</form>	
 <%= else %>

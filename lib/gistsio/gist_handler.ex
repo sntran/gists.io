@@ -118,7 +118,7 @@ defmodule GistsIO.GistHandler do
   		username = gist["user"]["login"]
   		max_body_length = :application.get_env(:gistsio, :max_body_length, 8000000)
   		{:ok, body, req} = Req.body_qs(max_body_length, req)
-  		[_, {"gist", data}] = body
+  		[_, {"entry", data}] = body
   		# If no data is sent to the server then it will just
   		# redirect the user with no action taken.
   		if data != "" do

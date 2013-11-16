@@ -15,11 +15,14 @@
 
 <script>
     window.onload = function() {
-        new SirTrevor.Editor({ 
-            el: $("#gio-comment"),
-            defaultType: "Markdown",
-            blockTypes: ["Markdown"],
-            blockLimit: 1
+        var $commentForm = $("#gio-comment");
+        $commentForm.each(function() {
+            new SirTrevor.Editor({ 
+                el: $commentForm,
+                defaultType: "Markdown",
+                blockTypes: ["Markdown"],
+                blockLimit: 1
+            });
         });
     };
 </script>
