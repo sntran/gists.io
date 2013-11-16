@@ -132,7 +132,7 @@ defmodule GistsIO.GistHandler do
 			# will be redirected with no action taken.
 			if !Enum.empty?(files) or content != "" do
 				files = files ++ [{old_filename, [{"content", content},{"filename",filename}]}]
-				files = remove_deleted_files(gist["files"], files)
+				files = Utils.diff_files(gist["files"], files)
 				{:ok, updated_gist} = Gist.edit_gist client, gist_id, description, files
 				Cache.update_gist(updated_gist)
 			end

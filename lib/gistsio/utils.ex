@@ -44,6 +44,26 @@ defmodule GistsIO.Utils do
         ]
 	end
 
+	def diff_files([], changed_files) do
+		changed_files
+	end
+	def diff_files([{file,attrs}|rest], changed_files) do
+		diff_attrs = changed_files[file]
+		if diff_attrs === nil do
+			# File is not in list of updates, meaning to be deleted
+			diff_files(rest, changed_files ++ [{file, "null"}])
+		else
+			# Either rename, or change content, or both.
+			old_content = attrs["content"]
+			case {diff_attrs["content"], diff_attrs["filename"]} do
+				{^old_content, nil} ->
+					diff_files(rest, Dict.delete(changed_files, file))
+				_ ->
+					diff_files(rest, changed_files)
+			end
+		end
+	end	
+
 	# Takes form data from gist form and extracts
 	# lists for the file names and contents
 	def compose_gist(data) do
@@ -68,13 +88,11 @@ defmodule GistsIO.Utils do
 			# name and source in that order.
 			[{"type", "image"}, {"data", [{}]}] ->
 				compose_gist(rest, files, content, teaser)
-			[{"type", "image"}, {"data", [{"source",source},{"name",filename},{"embedded",embedded}]}] 
-			when embedded == true ->
+			[{"type", "image"}, {"data", [{"source",source},{"name",filename},{"embedded",true}]}] ->
 				file = [{filename, [{"content", source}]}]
 				replacement = "\n\n<%= files[\"#{filename}\"] %>\n\n"
 				compose_gist(rest, files ++ file, content <> replacement, teaser)
-			[{"type", "image"}, {"data", [{"source",source},{"name",filename},{"embedded",embedded}]}] 
-			when embedded == false ->
+			[{"type", "image"}, {"data", [{"source",source},{"name",filename},{"embedded",false}]}] ->
 				file = [{filename, [{"content", source}]}]
 				compose_gist(rest, files ++ file, content, teaser)
 			[{"type", "image"}, {"data", data}] ->
