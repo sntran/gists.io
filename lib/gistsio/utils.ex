@@ -22,7 +22,8 @@ defmodule GistsIO.Utils do
 			[title] = Regex.run %r/.*$/m, description
 			size = Kernel.byte_size(title)
 			<<title :: [size(size), binary], teaser :: binary>> = description
-			{title, teaser}
+			# Trim the new line character at the beginning of teaser
+			{title, :binary.replace(teaser, "\n", "", , [{:scope, {0, 2}}])}
 		else
 			{entry["filename"], ""}
 		end
@@ -57,6 +58,8 @@ defmodule GistsIO.Utils do
 			old_content = attrs["content"]
 			case {diff_attrs["content"], diff_attrs["filename"]} do
 				{^old_content, nil} ->
+					diff_files(rest, Dict.delete(changed_files, file))
+				{^old_content, ^file} ->
 					diff_files(rest, Dict.delete(changed_files, file))
 				_ ->
 					diff_files(rest, changed_files)
