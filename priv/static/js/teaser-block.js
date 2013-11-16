@@ -29,6 +29,8 @@ SirTrevor.Blocks.Teaser = (function(){
                 $(".st-block-controls__top").hide(); // No top "Add" button
                 $el.find(".st-block-ui-btn--reorder").remove(); // Not draggable
                 $el.find(".st-block-positioner").remove();
+
+                $el.find(".st-text-block").focus();
             }, 0);
         },
 

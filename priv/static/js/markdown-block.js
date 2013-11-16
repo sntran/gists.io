@@ -57,6 +57,8 @@ SirTrevor.Blocks.Markdown = (function(){
         autoAdjust($editor).on('keyup', function() {
           autoAdjust($editor);
         });
+
+        $editor.focus();
       }, 0);
     },
 

@@ -103,7 +103,10 @@ SirTrevor.Blocks.Code = (function(){
             block.setMode();
         })
         //Sets the language mode of editor based on file extension
-        setTimeout(function() { block.setMode();}, 0);
+        setTimeout(function() { 
+            block.setMode(); 
+            block.editor.refresh();
+        }, 0);
     }
   });
 })();
