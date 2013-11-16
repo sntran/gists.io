@@ -128,12 +128,12 @@ defmodule GistsIO.GistHandler do
 	        gist_data = Jsonex.decode(body["gist"])
 			{teaser, content, files} = Utils.compose_gist(gist_data["data"])
 			description = "#{title}\n#{teaser}"
-			# If both files and content are missing then the user
-			# will be redirected with no action taken.
-			if !Enum.empty?(files) or content != "" do
-				files = files ++ [{old_filename, [{"content", content},{"filename",filename}]}]
-				files = Utils.diff_files(gist["files"], files)
-				{:ok, updated_gist} = Gist.edit_gist client, gist_id, description, files
+			files = files ++ [{old_filename, [{"content", content},{"filename",filename}]}]
+			diff_files = Utils.diff_files(gist["files"], files)
+			if description !== gist["description"] or !Enum.empty?(diff_files) do
+				# If either description, or has diff files, we perform update
+				Lager.debug "Updating gist #{gist_id}"
+				{:ok, updated_gist} = Gist.edit_gist client, gist_id, description, diff_files
 				Cache.update_gist(updated_gist)
 			end
 		end
@@ -263,28 +263,6 @@ defmodule GistsIO.GistHandler do
 	defp to_blockquote([line | rest]) do
 		rest = to_blockquote(rest)
 		<<"> ", line :: binary, "\n", rest :: binary >>
-	end
-
-	# defp to_bq(markdown) do
-	# 	markdown = <<"> ", markdown :: binary>>
-	# 	bc <<c>> inbits markdown do
-	# 		if c == ?\n do
-	# 			<<"\n> ">>
-	# 		else
-	# 			<<c>>
-	# 		end
-	# 	end
-	# end
-
-	defp remove_deleted_files([], changed_files) do
-		changed_files
-	end
-	defp remove_deleted_files([{file,_}|rest], changed_files) do
-		if changed_files[file] == nil do
-			remove_deleted_files(rest, changed_files ++ [{file, "null"}])
-		else
-			remove_deleted_files(rest, changed_files)
-		end
 	end
 
 	defp embed(gist, filename) do
