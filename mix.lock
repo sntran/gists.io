@@ -1,4 +1,5 @@
 [ "cowboy": {:git, "git://github.com/extend/cowboy.git", "9eaee45c090b9cb170554bc7e09d679bc0598716", [{:tag, "0.8.6"}]},
+  "discount": {:git, "git://github.com/asaaki/discount.ex.git", "51fd00969308b34e37829114d7e3fc57194c0c96", [{:tag, "0.3.0"}]},
   "exlager": {:git, "git://github.com/khia/exlager.git", "0b840aae773e6eb6de7cdbb703b47031b6608bfb", []},
   "goldrush": {:git, "git://github.com/DeadZen/goldrush.git", "1d883423ac360b3536ca52dc733a0164bacf3109", [{:tag, "0.1.5"}]},
   "httpotion": {:git, "git://github.com/myfreeweb/httpotion.git", "ee3cd8ad5630b20b236c0076c59e04fef973adbb", [{:ref, "ee3cd8ad5630b20b236c0076c59e04fef973adbb"}]},

@@ -280,14 +280,18 @@ defmodule GistsIO.Cache do
 		case cache do
 			{:error, :not_found} ->
 				Lager.debug "No cached html for markdown: `#{markdown}`. Calling service to render."
-				fetch = Gist.render gister, markdown
-				case fetch do
-					{:ok, html} ->
-						Cacherl.insert({:html, markdown}, html)
-						{:ok, html}
-					{:error, error} ->
-						Lager.error "Failed to render html for markdown: `#{markdown}` from service with error #{error}."
-						{:error, error}
+				try do
+					html = Discount.to_html markdown
+					html = Regex.replace(%r/&ldquo;/, html, "\"")
+					html = Regex.replace(%r/&rdquo;/, html, "\"")
+					html = Regex.replace(%r/&lt;/, html, "<")
+					html = Regex.replace(%r/&gt;/, html, ">")
+					Cacherl.insert({:html, markdown}, html)
+					{:ok, html}
+				rescue
+					error -> 
+						Lager.error "Failed to render html for markdown: `#{markdown}` with error #{error}."
+						{:error, "failed to parse"}
 				end
 			{:ok, html} ->
 				Lager.debug "Fetching rendered html for markdown: `#{markdown} from cache."

@@ -202,23 +202,24 @@ defmodule GistsIO.GistHandler do
 			# Parse the Markdown into HTML, then evaluate any <%= files[filename] %> tag
 			# and replace with the corresponding embed code.
 			# This way the author can embed any file in his/her gist any where in the article.
-			{:ok, entry_html} = Cache.get_html(attrs["content"], client)
-			entry_html = Regex.replace(%r/&lt;/, entry_html, "<")
-			entry_html = Regex.replace(%r/&gt;/, entry_html, ">")
-						|> EEx.eval_string [files: attachments] # allow inline embed
+			case Cache.get_html(attrs["content"], client) do
+				{:ok, entry_html} ->
+					entry_html = EEx.eval_string entry_html, [files: attachments] # allow inline embed
 
-			# Then set up article's title using either the description or filename
-			gist = gist |> Utils.prep_gist 
-						|> ListDict.put("name", name)
-						|> ListDict.put("html", entry_html)
-						|> ListDict.put("content", attrs["content"])
-						|> ListDict.put("attachments", attachments)
+					# Then set up article's title using either the description or filename
+					gist = gist |> Utils.prep_gist 
+								|> ListDict.put("name", name)
+								|> ListDict.put("html", entry_html)
+								|> ListDict.put("content", attrs["content"])
+								|> ListDict.put("attachments", attachments)
 
-			comments_html = [:code.priv_dir(:gistsio), "templates", "comments.html.eex"]
-					|> Path.join
-					|> EEx.eval_file [gist_id: gist_id, html: comments_html, is_loggedin: loggedin?]
+					comments_html = [:code.priv_dir(:gistsio), "templates", "comments.html.eex"]
+							|> Path.join
+							|> EEx.eval_file [gist_id: gist_id, html: comments_html, is_loggedin: loggedin?]
 
-			do_render(gist, comments_html, loggedin?, client)
+					do_render(gist, comments_html, loggedin?, client)
+				{:error, error} -> error
+			end
 		else
 			gist = gist |> Utils.prep_gist 
 						|> ListDict.put("name", name)

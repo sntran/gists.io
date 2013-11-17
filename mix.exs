@@ -31,6 +31,7 @@ defmodule GistsIO.Mixfile do
         [ 
             {:cowboy, github: "extend/cowboy", tag: "0.8.6"},
             {:httpotion, github: "myfreeweb/httpotion", ref: "ee3cd8ad5630b20b236c0076c59e04fef973adbb"},
+            {:discount, [github: "asaaki/discount.ex", tag: "0.3.0"]},
             {:jsonex,"2.0",[github: "marcelog/jsonex", tag: "2.0"]},
             {:mimetypes, github: "spawngrid/mimetypes", override: true },
             {:exlager, github: "khia/exlager"}
