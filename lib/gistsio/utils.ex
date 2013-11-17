@@ -23,7 +23,7 @@ defmodule GistsIO.Utils do
 			size = Kernel.byte_size(title)
 			<<title :: [size(size), binary], teaser :: binary>> = description
 			# Trim the new line character at the beginning of teaser
-			{title, :binary.replace(teaser, "\n", "", [{:scope, {0, 2}}])}
+			{title, :binary.replace(teaser, "\n", "")}
 		else
 			{entry["filename"], ""}
 		end
