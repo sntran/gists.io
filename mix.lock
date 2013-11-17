@@ -1,11 +1,12 @@
-[ "cowboy": {:git, "git://github.com/extend/cowboy.git", "9eaee45c090b9cb170554bc7e09d679bc0598716", [{:tag, "0.8.6"}]},
-  "discount": {:git, "git://github.com/asaaki/discount.ex.git", "51fd00969308b34e37829114d7e3fc57194c0c96", [{:tag, "0.3.0"}]},
+[ "cowboy": {:git, "git://github.com/extend/cowboy.git", "db52494371ea249f38d51108c7d79cf487ff6374", [{:tag, "0.9.0"}]},
+  "cowlib": {:git, "git://github.com/extend/cowlib.git", "63298e8e160031a70efff86a1acde7e7db1fcda6", [{:ref, "0.4.0"}]},
+  "discount": {:git, "git://github.com/asaaki/discount.ex.git", "51fd00969308b34e37829114d7e3fc57194c0c96", [{:tag, "0.3.1"}]},
   "exlager": {:git, "git://github.com/khia/exlager.git", "0b840aae773e6eb6de7cdbb703b47031b6608bfb", []},
   "goldrush": {:git, "git://github.com/DeadZen/goldrush.git", "1d883423ac360b3536ca52dc733a0164bacf3109", [{:tag, "0.1.5"}]},
   "httpotion": {:git, "git://github.com/myfreeweb/httpotion.git", "ee3cd8ad5630b20b236c0076c59e04fef973adbb", [{:ref, "ee3cd8ad5630b20b236c0076c59e04fef973adbb"}]},
   "ibrowse": {:git, "git://github.com/cmullaparthi/ibrowse.git", "2e13b63788f48934ab9b075b9d741bfa814d0d6d", []},
   "jsonex": {:git, "git://github.com/marcelog/jsonex.git", "746c8492d66e130ee74cb2d857f8458fe3a2c0e2", [{:tag, "2.0"}]},
   "jsx": {:git, "git://github.com/talentdeficit/jsx.git", "cb14b92a228e51f7bdcaa7eb17f035e4a5c0b47d", [{:tag, "v1.3.3"}]},
-  "lager": {:git, "https://github.com/basho/lager.git", "ad400896af5b1ad8b4f7a4d34e609b5a990640bb", []},
+  "lager": {:git, "https://github.com/basho/lager.git", "7763143a293edebb2885d8a7cf8124778edb8bba", []},
   "mimetypes": {:git, "git://github.com/spawngrid/mimetypes.git", "47d37a977a7d633199822bf6b08353007483d00f", []},
-  "ranch": {:git, "git://github.com/extend/ranch.git", "4f70a16bbe08e446e8fec248ca345d5f8e7df038", [{:ref, "0.8.4"}]} ]
+  "ranch": {:git, "git://github.com/extend/ranch.git", "5df1f222f94e08abdcab7084f5e13027143cc222", [{:ref, "0.9.0"}]} ]

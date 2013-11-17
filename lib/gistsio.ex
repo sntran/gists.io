@@ -10,10 +10,9 @@ defmodule GistsIO do
         Lager.info("Cache storage started.")
 
         port = :application.get_env(:gistsio, :port, 8080)
-        static_dir = Path.join [Path.dirname(:code.which(__MODULE__)), "..", "priv", "static"]
         dispatch = [
             {:_, [
-                {"/s/favicon.ico", :cowboy_static, [{:directory, {:priv_dir, :gistsio, []}}, {:file, "favicon.ico"}]},
+                {"/s/favicon.ico", :cowboy_static, {:priv_file, :gistsio, "favicon.ico"}},
                 {"/login", GistsIO.AuthHandler, []},
                 {"/logout", GistsIO.AuthHandler, []},
                 {"/gists", GistsIO.GistsHandler, []},
@@ -23,11 +22,8 @@ defmodule GistsIO do
                 {"/:username", GistsIO.GistsHandler, []},
                 {"/:username/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:username/:gist", GistsIO.GistHandler, []},
-                {"/s/[:...]", :cowboy_static, [
-                    directory: static_dir, mimetypes: {
-                        &:mimetypes.path_to_mimes/2, :default
-                    }]
-                }
+                {"/s/[:...]", :cowboy_static, {:priv_dir, :gistsio, "static", 
+                    [{:mimetypes, :cow_mimetypes, :all}]}}
             ]}
         ] |> :cowboy_router.compile
 
