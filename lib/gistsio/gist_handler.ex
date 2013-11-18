@@ -125,7 +125,7 @@ defmodule GistsIO.GistHandler do
 	  		title = body["title"]
 			filename = "#{title}.md"
 			{old_filename, old_file} = Enum.find(gist["files"], &Utils.is_markdown/1)
-	        gist_data = Jsonex.decode(body["gist"])
+	        gist_data = Jsonex.decode(body["entry"])
 			{teaser, content, files} = Utils.compose_gist(gist_data["data"])
 			description = "#{title}\n#{teaser}"
 			files = files ++ [{old_filename, [{"content", content},{"filename",filename}]}]
