@@ -16,7 +16,7 @@ defmodule GistsIO.AuthHandler do
         case Req.qs_val("code", req) do
             {:undefined, req} -> 
                 auth_url = "https://github.com/login/oauth/authorize?scope=gist,public_repo"
-                url = "#{auth_url}&state=#{session}&client_id=#{client_id}&redirect_uri=http://#{host}:#{port}/login"
+                url = "#{auth_url}&state=#{session}&client_id=#{client_id}"
                 req = Req.set_resp_header("Location", url, req)
                 {:ok, req} = Req.reply(302, [], "", req)
                 {:ok, req, "/login"}
