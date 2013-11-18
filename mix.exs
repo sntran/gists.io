@@ -15,7 +15,7 @@ defmodule GistsIO.Mixfile do
     def application do
         [ 
             mod: { GistsIO, [] },
-            applications: [:crypto, :mimetypes, :cowboy, :exlager],
+            applications: [:crypto, :cowboy, :exlager],
             env: [
                 port: 8080,
                 sessions: [store: {Session.ETS, []}],
@@ -33,7 +33,6 @@ defmodule GistsIO.Mixfile do
             {:httpotion, github: "myfreeweb/httpotion", ref: "ee3cd8ad5630b20b236c0076c59e04fef973adbb"},
             {:discount, [github: "asaaki/discount.ex", tag: "0.3.1"]},
             {:jsonex,"2.0",[github: "marcelog/jsonex", tag: "2.0"]},
-            {:mimetypes, github: "spawngrid/mimetypes", override: true },
             {:exlager, github: "khia/exlager"}
         ]
     end
