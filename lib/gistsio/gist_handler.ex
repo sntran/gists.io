@@ -185,17 +185,13 @@ defmodule GistsIO.GistHandler do
 
 		html = if (gist_id !== nil) do
 			{:ok, comments} = Cache.get_comments gist_id, client
-			{:ok, comments_html} = Enum.reduce(comments, "", fn(comment, acc) ->
-				username = comment["user"]["login"]
-				acc <> "<div class=\"comment-author\">\n"
-				<> "<a href=\"/" <> username <> "\" target=\"_blank\">"
-				<> "<img src=\"" <> comment["user"]["avatar_url"] <> "\" alt=\"" <> username <>"\" class=\"img-circle comment-author-avatar\" />"
-				<> "</a>\n"
-				<> "<a href=\"/" <> username <> "\" target=\"_blank\"><span class=\"comment-author-name\">" <> username <> "</span></a>\n"
-				<> "<span class=\"comment-time\">" <> comment["updated_at"] <> "</span>"
-				<> "</div>\n\n" 
-				<> to_blockquote(comment["body"]) <> "\n"
-			end) |> Cache.get_html(client)
+			comments_html = Enum.reduce(comments, "", fn(comment, acc) -> 
+				{:ok, body} = Cache.get_html(comment["body"], client)
+				render = [:code.priv_dir(:gistsio), "templates", "comment.html.eex"]
+							|> Path.join
+							|> EEx.eval_file [comment: ListDict.put(comment, "body", body)]
+				acc <> render
+			end) 
 
 			# Acquire embed code for each file other than the main file
 			attachments = lc {n, _} inlist files, n !== name, do: {n, embed(gist, n)}
@@ -215,7 +211,7 @@ defmodule GistsIO.GistHandler do
 
 					comments_html = [:code.priv_dir(:gistsio), "templates", "comments.html.eex"]
 							|> Path.join
-							|> EEx.eval_file [gist_id: gist_id, html: comments_html, is_loggedin: loggedin?]
+							|> EEx.eval_file [gist_id: gist_id, comments: comments_html, is_loggedin: loggedin?]
 
 					do_render(gist, comments_html, loggedin?, client)
 				{:error, error} -> error
