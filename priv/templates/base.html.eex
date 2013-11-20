@@ -61,7 +61,7 @@ function is_image(name, content) {
 	return /(?:\.jpg|jpeg|png|gif)/.test(name) && /data:image\/.+;base64.+/.test(content);
 }
 function to_blocks(markdown) {
-	var result = {}, blocks = markdown.split(/[\r\n]*(```.+\n[\s\S]+?\n```)[\r\n]*/g);
+	var result = {}, blocks = markdown.split(/(?:[\r\n]*|<br\s?\/?>*)(```.+\n[\s\S]+?\n```|(?:\s-\s.+\n)+)(?:[\r\n]*|<br\s?\/?>*)/g);
 	var $teaser = $(".gio-teaser"), teaser = $teaser.html();
 	var data = [];
 	if (teaser !== "") {
@@ -82,6 +82,10 @@ function to_blocks(markdown) {
 				} 
 			};
 		}
+		matches = text.match(/(?:\s-\s.+\n)+/);
+		if (matches && matches[0]) {
+			return { type: "list", data: { text: matches[0] } };
+		}
 		return { type: "markdown", data: { text: text } };
 	}));
 	return result;
@@ -98,7 +102,7 @@ $(function() {
 
 		new SirTrevor.Editor({ 
 			el: $editor,
-			blockTypes: ["Markdown","Code","Teaser", "Image"],
+			blockTypes: ["Markdown","Code","List", "Teaser", "Image"],
 			blockTypeLimits: {"Teaser":1},
 			required: ["Markdown"]
 		});

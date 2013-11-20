@@ -87,6 +87,8 @@ defmodule GistsIO.Utils do
 				compose_gist(rest, files, content <> text, teaser)
 			[{"type", "markdown"}, {"data", data}] ->
 				compose_gist(rest, files, content, teaser)
+			[{"type", "list"}, {"data", [{"text",text}]}] ->
+				compose_gist(rest, files, content <> "\n\n" <> text <> "\n\n", teaser)
 			# Image will only be included if the data specifically contains
 			# name and source in that order.
 			[{"type", "image"}, {"data", [{}]}] ->
