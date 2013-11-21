@@ -1,23 +1,10 @@
-<div class="meta">
-	<%= if entry["id"] !== nil do %>
-		<form style='display:inline;' action=<%= "/#{is_loggedin}/#{entry["id"]}/delete" %> method="post" accept-charset="utf-8" name="delete">
-			<p>
-			Last updated: <time class="timeago" datetime="<%= entry["updated_at"] %>"></time> | 
-			<span><%= entry["comments"] %> comments</span>
-			<span><a href="/<%= entry["user"]["login"] %>">All entries</a></span>
-			<%= if is_loggedin == entry["user"]["login"] do %>
-				<span><a href="#" onclick="document.delete.submit()">Delete Entry</a></span>			
-			<%= end %>
-			</p>
-		</form>
-	<%= end %>
-</div>
+<h1><%= entry["title"] %></h1>
 
-<div class="tags">
-	Posted in
-	<ul class="post-tags">
+<div class="post-tags">
+	Last updated <time class="timeago" datetime="<%= entry["updated_at"] %>"></time> in
+	<ul class="post-tags-list">
 		<%= lc {name, attrs} inlist entry["files"], attrs["language"] !== "Markdown" do %>
-		<li><%= attrs["language"] %></li>
+		<li><a href="#"><%= attrs["language"] %></a></li>
 		<% end %>
 	</ul>
 </div>
@@ -51,7 +38,7 @@
  		<button type="submit" class="btn btn-primary form-control">Submit</button>
 	</form>	
 <%= else %>
-	<article>
+	<article class="post-content">
 		<%= entry["html"] %>
 	</article>
 <%= end %>
