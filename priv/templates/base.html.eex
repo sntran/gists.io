@@ -3,7 +3,7 @@
 <head>
 	<title><%= title %> | Gists.io</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="/s/favicon.ico" rel="icon">
+	<link href="/favicon.ico" rel="icon">
 	<!-- Bootstrap -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" media="screen">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">

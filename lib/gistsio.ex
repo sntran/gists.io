@@ -12,7 +12,7 @@ defmodule GistsIO do
         port = :application.get_env(:gistsio, :port, 8080)
         dispatch = [
             {:_, [
-                {"/s/favicon.ico", :cowboy_static, {:priv_file, :gistsio, "favicon.ico"}},
+                {"/favicon.ico", :cowboy_static, {:priv_file, :gistsio, "favicon.ico"}},
                 {"/login", GistsIO.AuthHandler, []},
                 {"/logout", GistsIO.AuthHandler, []},
                 {"/gists", GistsIO.GistsHandler, []},
@@ -61,11 +61,6 @@ defmodule GistsIO do
     end
 
     def page_data(200, _headers, _body, req) do
-        # {session, req} = Req.cookie("session_id", req)
-        # {host, req} = Req.host(req)
-        # {path, req} = Req.path(req) 
-
-        # {:ok, req} = Req.reply(200, _headers, body, req)
         req
     end
     def page_data(_, _, _, req) do req end
