@@ -66,7 +66,7 @@ SirTrevor.Blocks.Markdown = (function(){
       var block = this, 
           $editor = block.$el.find(".gio-write"),
           $preview = block.$el.find(".gio-preview"),
-          $el = $("<a>").html('<i class="icon-eye-open"></i>')
+          $el = $("<a>").html('<i class="fa fa-eye"></i>')
                 .addClass("st-block-ui-btn st-icon");
 
       var previousMd = "";

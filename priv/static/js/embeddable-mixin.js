@@ -8,16 +8,16 @@ SirTrevor.BlockMixins.Embeddable = {
         block.embedded = true;
     var $embedder = $("<a class='linkbtn' title='Embed inline'>").addClass("st-block-ui-btn st-icon");
     var editorID = this.instanceID;
-    $embedder.html('<i class="icon-link"></i>');
+    $embedder.html('<i class="fa fa-link"></i>');
 
     $embedder.click(function() {
       var editorInstance = _.findWhere(SirTrevor.instances, {"ID": editorID});
       block.embedded = !block.embedded;
       if (!block.embedded) {
-        $embedder.html('<i class="icon-unlink"></i>');
+        $embedder.html('<i class="fa fa-unlink"></i>');
         editorInstance.changeBlockPosition(block.$el,editorInstance.blocks.length);
       } else {
-        $embedder.html('<i class="icon-link"></i>');
+        $embedder.html('<i class="fa fa-link"></i>');
       }
     });
 

@@ -3,7 +3,7 @@ SirTrevor.Blocks.Teaser = (function(){
     return SirTrevor.Blocks.Text.extend({
         title: "Teaser",
         type: "teaser",
-        icon_name: '<i class="icon-ellipsis-horizontal"></i>',
+        icon_name: '<i class="fa fa-ellipsis-h"></i>',
         editorHTML: '<div class="st-text-block" contenteditable="true"></div>',
 
         onBlockRender: function() {
