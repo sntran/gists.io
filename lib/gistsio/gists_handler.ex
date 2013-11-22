@@ -46,13 +46,13 @@ defmodule GistsIO.GistsHandler do
   		client = Session.get("gist_client", req)
   		max_body_length = :application.get_env(:gistsio, :max_body_length, 8000000)
   		{:ok, body, req} = Req.body_qs(max_body_length, req)
-  		[_, {"gist", data}] = body
+  		[_, {"entry", data}] = body
   		# If no data is sent to the server then it will just
   		# redirect the user with no action taken.
   		if data != "" do
 	   		title = body["title"]
 			filename = "#{title}.md"
-	        gist_data = Jsonex.decode(body["gist"])
+	        gist_data = Jsonex.decode(body["entry"])
 			{teaser, content, files} = Utils.compose_gist(gist_data["data"])
 			# If both files and content are missing then the user
 			# will be redirected with no action taken.
