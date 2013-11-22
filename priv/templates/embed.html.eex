@@ -1,5 +1,9 @@
-<script src="https://gist.github.com/<%= gist["id"] %>.js?file=<%= name %>"></script>
-<noscript>
-	<p><%= name %>
-	<pre><%= gist["files"][name]["content"] %></pre>
-</noscript>
+<%= if GistsIO.Utils.is_image(name) do %>
+	<img src="<%= gist["files"][name]["content"] %>" alt="<%= name %>" />
+<%= else %>
+	<script src="https://gist.github.com/<%= gist["id"] %>.js?file=<%= name %>"></script>
+	<noscript>
+		<p><%= name %>
+		<pre><%= gist["files"][name]["content"] %></pre>
+	</noscript>
+<%= end %>

@@ -3,7 +3,7 @@
 	<div class="gist-item">
 		<h3><a href="/<%= entry["user"]["login"] %>/<%= entry["id"] %>"><%= entry["title"] %></a></h3>
 		<div><%= entry["teaser"] %></div>
-		<p class="published"><%= entry["created_at"] %></p>
+		<time class="published timeago" datetime="<%= entry["created_at"] %>"></time>
 		<!-- <p><a href="/<%= entry["user"]["login"] %>/<%= entry["id"] %>">
 		Read more</a></p> -->
 	</div>

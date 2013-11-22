@@ -10,9 +10,9 @@ defmodule GistsIO do
         Lager.info("Cache storage started.")
 
         port = :application.get_env(:gistsio, :port, 8080)
-        static_dir = Path.join [Path.dirname(:code.which(__MODULE__)), "..", "priv", "static"]
         dispatch = [
             {:_, [
+                {"/favicon.ico", :cowboy_static, {:priv_file, :gistsio, "favicon.ico"}},
                 {"/login", GistsIO.AuthHandler, []},
                 {"/logout", GistsIO.AuthHandler, []},
                 {"/gists", GistsIO.GistsHandler, []},
@@ -21,11 +21,9 @@ defmodule GistsIO do
                 {"/:username/:gist/delete", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:username", GistsIO.GistsHandler, []},
                 {"/:username/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
-                {"/s/[:...]", :cowboy_static, [
-                    directory: static_dir, mimetypes: {
-                        &:mimetypes.path_to_mimes/2, :default
-                    }]
-                }
+                {"/:username/:gist", GistsIO.GistHandler, []},
+                {"/s/[:...]", :cowboy_static, {:priv_dir, :gistsio, "static", 
+                    [{:mimetypes, :cow_mimetypes, :all}]}}
             ]}
         ] |> :cowboy_router.compile
 
@@ -48,7 +46,7 @@ defmodule GistsIO do
         req = Session.new(req)
         previous_path = Session.get("current_path", req)
         {current, req} = Req.path(req)
-        if previous_path != current and :binary.match(current,"/s/") == :nomatch do
+        if previous_path != current and :binary.match(current,"/s/") == :nomatch and :binary.match(current,"/favicon.ico") == :nomatch do
             Session.set("current_path", current, req)
             Session.set("previous_path", previous_path, req)
         end
@@ -63,11 +61,6 @@ defmodule GistsIO do
     end
 
     def page_data(200, _headers, _body, req) do
-        # {session, req} = Req.cookie("session_id", req)
-        # {host, req} = Req.host(req)
-        # {path, req} = Req.path(req) 
-
-        # {:ok, req} = Req.reply(200, _headers, body, req)
         req
     end
     def page_data(_, _, _, req) do req end

@@ -1,0 +1,11 @@
+<div class="row comment-single">
+    <div class="comment-author">
+        <a href='/<%= comment["user"]["login"] %>' target="_blank"><img src="<%= comment["user"]["avatar_url"] %>" alt='<%= comment["user"]["login"] %>' class="img-circle comment-author-avatar"></a>
+        <a href='/<%= comment["user"]["login"] %>' target="_blank"><span class="comment-author-name"><%= comment["user"]["login"] %></span></a>
+        <span class="comment-time"><time class="timeago" datetime="<%= comment["created_at"] %>"</span>
+    </div>
+
+    <div class="comment-content">
+        <%= comment["body"] %>
+    </div>
+</div>

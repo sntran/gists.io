@@ -1,0 +1,578 @@
+/*------------------------------------*\
+    $CONTENTS
+\*------------------------------------*/
+
+/**
+ * 
+ * CONTENTS..................You're reading it
+ * ELEMENTS..................Styles applied to root HTML elements
+ * UTILITIES.................
+ * LOGO......................Obviously the site's logo
+ * NAV.......................Site's navigator
+ * NAV SEARCH................
+ * LANDING...................Landing component in homepage
+ * LANDING TESTIMONIALS......
+ * SIDEBAR...................
+ * SIDEBAR AUTHOR............
+ * COMMENTS..................
+ * NAVIGATION LINKS..........
+ * ARTICLE LIST..............
+ * ARTICLE SINGLE............
+ * RESPONSIVE XS.............Responsive rules for @screen-xs
+ * RESPONSIVE SM.............Responsive rules for @screen-sm
+ * RESPONSIVE MD.............Responsive rules for @screen-md
+ * RESPONSIVE LG.............Responsive rules for @screen-lg
+ * 
+ */
+
+/*------------------------------------*\
+    $ELEMENTS
+\*------------------------------------*/
+body {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 13px;
+	background: #efefef;
+}
+
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'Roboto Slab', sans-serif;
+}
+
+footer {
+	font-size: 0.85em;
+	padding: 20px;
+	margin-top: 40px;
+	background-color: #333;
+	color: #888;
+}
+
+a, a:hover {
+	color: #333;
+	text-decoration: underline;
+}
+
+/*------------------------------------*\
+    $UTILITIES
+\*------------------------------------*/
+.input-simple
+{
+  outline: none;
+  border:none !important;
+  box-shadow:none !important;
+}
+
+.main {
+	padding-top: 70px;
+}
+
+/*------------------------------------*\
+    $LOGO
+\*------------------------------------*/
+.logo {
+	font-weight: 700;
+	font-family: 'Roboto Slab', sans-serif;
+	color: #666;
+	text-decoration: none;
+}
+
+/*------------------------------------*\
+    $NAV
+\*------------------------------------*/
+.nav-white {
+	background-color: #fff;
+	border: none;
+}
+
+.gists-navbar-nav > li > a {
+	color: #555;
+	text-transform: uppercase;
+	font-size: 13px;
+	text-decoration: none;
+}
+
+.gists-navbar-toggle {
+	background-color: #efefef;
+}
+
+.gists-navbar-toggle .icon-bar {
+	background-color: #999;
+}
+
+/*------------------------------------*\
+    $NAV SEARCH
+\*------------------------------------*/
+.nav-search {
+	margin-left: 10px;
+}
+
+/*------------------------------------*\
+    $LANDING
+\*------------------------------------*/
+.landing-content {
+	position: absolute;
+	top: 20%;
+	left: 0;
+	right: 0;
+}
+
+.landing-tagline {
+	font-family: 'Roboto Slab', sans-serif;
+	font-weight: 700;
+	color: #fff;
+	font-size: 60px;
+	padding: 20px 30px;
+	display: inline-block;
+	opacity: 0.8;
+	background-color: #333;
+}
+
+.landing-tagline-light {
+	color: #ddd;
+	font-size: 20px;
+}
+
+.landing-email-form {
+	display: block;
+	margin-top: -5px;
+}
+
+.landing-input,
+.landing-label {
+	font-weight: 300;
+	font-family: 'Roboto Slab', sans-serif;
+	font-size: 1.8em;
+	color: #222;
+	height: 1.8em;
+	background-color: transparent;
+}
+
+.landing-gists-url {
+	margin: 0;
+}
+
+.input-blogname {
+	width: 230px;
+	margin-top: -12px;
+}
+
+.input-email {
+	background-color: #fff;
+	opacity: 0.5;
+	width: 500px;
+}
+
+.form-group-beta-apply {
+	display: block !important;
+	margin-top: 15px;
+}
+
+.landing-image {
+	background: transparent url(../img/landing.jpg) center center no-repeat;
+	margin-top: -20px;
+	position: relative;
+	text-align: center;
+}
+
+.landing-copyright {
+	bottom: 3px;
+	right: 5px;
+	position: absolute;
+	color: #222;
+	background-color: #efefef;
+	padding: 3px 5px;
+	font-size: 0.8em;
+	opacity: 0.7;
+	border-radius: 3px;
+}
+
+.landing-heading {
+	font-weight: 700;
+	text-align: center;
+	margin: 40px 0;
+}
+
+.landing-screenshots {
+
+}
+
+.landing-features-item {
+	margin-bottom: 30px;
+}
+
+.landing-features-image {
+	position: absolute;
+	top: 0;
+	left: 25%;
+}
+
+.landing-features-image-wrapper {
+	position: relative;
+}
+
+/*------------------------------------*\
+    $LANDING TESTIMONIALS
+\*------------------------------------*/
+.landing-testimonials-item {
+	text-align: center;
+	margin-bottom: 20px;
+}
+
+.landing-testimonials-item .caption h3 {
+	font-weight: 300;
+}
+
+.landing-testimonials-item .caption p {
+	text-align: left;
+}
+
+.landing-testimonials-item blockquote {
+	border-left: 5px solid #ddd;
+	text-align: left;
+}
+
+/*------------------------------------*\
+    $SIDEBAR
+\*------------------------------------*/
+.sidebar {
+	text-align: center;
+}
+
+.sidebar-divider {
+	border: none;
+	border-bottom: 2px solid #bbb;
+	width: 50%;
+}
+
+.go-to-home a {
+	background-color: #ddd;
+	border-radius: 25px;
+	width: 50px;
+	height: 50px;
+	color: #999;
+	display: inline-block;
+	padding-top: 10px;
+	text-decoration: none;
+}
+
+.go-to-home a:hover {
+	color: #555;
+	text-decoration: none;
+}
+
+/*------------------------------------*\
+    $STYLE SWITCHER
+\*------------------------------------*/
+.style-switcher {
+	width: 10px;
+	height: 10px;
+	display: inline-block;
+}
+
+.style-switcher-dark {
+	background-color: #57534a;
+	border: 1px solid #aaa;
+}
+
+.style-switcher-light {
+	background-color: #efefef;
+	border: 1px solid #aaa;
+}
+
+/*------------------------------------*\
+    $SIDEBAR AUTHOR
+\*------------------------------------*/
+.author {
+	color: #999;
+}
+
+.author-name {
+	text-transform: uppercase;
+}
+
+.author-links {
+	list-style-type: none;
+	text-align: center;
+	margin: 0;
+	padding: 0;
+}
+
+.author-links > li {
+	display: inline-block;
+}
+.author-links > li > a {
+	display: block;
+	margin-left: 5px;
+	color: #888;
+	text-decoration: none;
+}
+
+.author-links > li > a:hover {
+	color: #bbb;
+}
+
+/*------------------------------------*\
+    $POST
+\*------------------------------------*/
+.post-tags {
+	font-size: 12px;
+	text-transform: uppercase;
+	margin: 20px 0;
+	text-align: right;
+	line-height: 20px;
+}
+
+.post-tags-list {
+	list-style-type: none;
+}
+
+.post-tags-list li {
+	display: inline-block;
+	margin-left: 10px;
+	text-transform: uppercase;
+	font-size: 11px;
+	font-weight: 700;
+}
+
+.post-tags-list li:before {
+	content: "#";
+}
+
+.post-content {
+	font-size: 1.1em;
+	line-height: 200%;
+}
+
+.post-divider {
+	width: 30%;
+	border: none;
+	border-bottom: 2px solid #bbb;
+}
+
+/*------------------------------------*\
+    $COMMENTS
+\*------------------------------------*/
+.comments {
+	margin-top: 30px;
+}
+.comment-heading {
+	margin-top: 50px;
+}
+.comments p {
+	line-height: 25px;
+}
+
+.comment-author {
+	font-size: 13px;
+}
+
+.comment-author-name {
+	font-weight: 700;
+	color: #555;
+	background-color: #fefefe;
+	padding: 3px 15px;
+	z-index: 1;
+	border-top-right-radius: 15px;
+	border-bottom-right-radius: 15px;
+	margin-left: -10px;
+	position: relative;
+}
+
+.comment-author-avatar {
+	border: 5px solid #ddd;
+	z-index: 2;
+	position: relative;
+	max-width: 100px;
+}
+
+.comment-time {
+	color: #999;
+	text-align: right;
+}
+
+.comment-content {
+	font-size: 14px;
+	color: #444;
+}
+
+.comment-single {
+	padding: 20px;
+	z-index: 1;
+}
+
+.comment-content {
+	padding: 0;
+	border: none;
+	margin-right: 15px;
+}
+
+.comment-content p {
+	font-size: 1em;
+	font-weight: 400;
+}
+
+.comment-single:nth-child(2n) {
+	background-color: #e7e7e7;
+}
+
+/*------------------------------------*\
+    $NAVIGATION LINKS
+\*------------------------------------*/
+.nav-links {
+	margin-top: 30px;
+}
+
+.nav-link {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	width: 50%;
+	white-space: nowrap;
+	display: inline-block;
+}
+
+/*------------------------------------*\
+    $ARTICLE LIST
+\*------------------------------------*/
+.article-list {
+
+}
+
+.article-list-author {
+	padding-top: 10px;
+	text-align: center;
+}
+
+.article-list-author a {
+	display: inline-block;
+	text-decoration: none;
+	font-weight: 700;
+	padding-top: 5px;
+	color: #666;
+}
+
+.article-list-author a:hover {
+	color: #555;
+	text-decoration: underline;
+}
+
+.article-list-loading {
+	display: block;
+	text-align: center;
+	background-color: #dfdfdf;
+	padding: 13px 0;
+}
+
+.article-list-tags li {
+	text-transform: uppercase;
+	font-size: 11px;
+}
+
+.article-list-tags li:before {
+	content: "#";
+}
+
+/*------------------------------------*\
+    $ARTICLE SINGLE
+\*------------------------------------*/
+.article-single {
+	margin-bottom: 30px;
+}
+
+.article-single a {
+	text-decoration: none;
+	font-weight: 400;
+	color: #555;
+}
+
+.article-single a:hover {
+	text-decoration: underline;
+}
+
+
+
+/*------------------------------------*\
+    $RESPONSIVE XS
+\*------------------------------------*/
+@media (max-width: 480px) {
+	.landing-content {
+		top: 0;
+	}
+
+	.input-blogname {
+		background-color: #fff;
+		opacity: 0.5;
+	}
+
+	.landing-input {
+		display: inline-block;
+		width: 96%;
+	}
+}
+
+/*------------------------------------*\
+    $RESPONSIVE SM
+\*------------------------------------*/
+@media (min-width: 480px) and (max-width: 768px) {
+	.landing-content {
+		top: 0;
+	}
+
+	.landing-input {
+		display: inline-block;
+		width: 96%;
+	}
+}
+
+/*------------------------------------*\
+    $RESPONSIVE MD
+\*------------------------------------*/
+@media (min-width: 992px) {
+	.sidebar {
+		position: fixed;
+		top: 80px;
+		width: 25%;
+	}
+
+	.author-bio dt {
+		width: 90px;
+	}
+
+	.author-bio dd {
+		margin-left: 110px;
+	}
+
+	.comment-author {
+		position: absolute;
+		bottom: 10px;
+		right: 10px;
+	}
+
+	.comment-author-name {
+		position: absolute;
+		bottom: 20px;
+		right: 40px;
+		border-radius: 0;
+		border-top-left-radius: 15px;
+		border-bottom-left-radius: 15px;
+		padding: 3px 40px 3px 10px;
+	}
+
+	.comment-author-avatar {
+		position: absolute;
+		bottom: 20px;
+		right: 0;
+	}
+
+	.comment-time {
+		position: absolute;
+		bottom: 0;
+		width: 150px;
+		right: 0;
+	}
+
+	.comment-single {
+		padding: 20px;
+		padding-right: 110px;
+		position: relative;
+		z-index: 1;
+	}
+}

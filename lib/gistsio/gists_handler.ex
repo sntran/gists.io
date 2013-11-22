@@ -44,19 +44,33 @@ defmodule GistsIO.GistsHandler do
 
   	def gists_post(req, gist) do
   		client = Session.get("gist_client", req)
-  		{:ok, body, req} = Req.body_qs(req)
-  		teaser = body["teaser"]
-  		title = body["title"]
-  		description = "#{title}\n#{teaser}"
-  		{files, contents} = extract_files(body)
-  		{:ok, response} = Gist.create_gist client, description, files, contents
-  		gist = Jsonex.decode(response)
-  		Cache.update_gist(description, gist)
+  		max_body_length = :application.get_env(:gistsio, :max_body_length, 8000000)
+  		{:ok, body, req} = Req.body_qs(max_body_length, req)
+  		[_, {"entry", data}] = body
+  		# If no data is sent to the server then it will just
+  		# redirect the user with no action taken.
+  		if data != "" do
+	   		title = body["title"]
+			filename = "#{title}.md"
+	        gist_data = Jsonex.decode(body["entry"])
+			{teaser, content, files} = Utils.compose_gist(gist_data["data"])
+			# If both files and content are missing then the user
+			# will be redirected with no action taken.
+			if !Enum.empty?(files) or content != "" do
+	        	files = files ++ [{filename, [{"content", content}]}]
+	        	IO.inspect files
+	  			description = "#{title}\n#{teaser}"
+	  			{:ok, response} = Gist.create_gist client, description, files
+	  			gist = Jsonex.decode(response)
+	  			Cache.update_gist(description, gist)
+	  		end
+	  	end
         prev_path = Session.get("previous_path", req)
+
         # Cowboy set status code to be 201 instead of 3xx
         # Browser does not redirect, so we have to set the
         # Refresh header
-        req = Req.set_resp_header("Refresh", "0; url=#{prev_path}", req)
+        req = Req.set_resp_header("Refresh", "0; url=#{Session.get("is_loggedin",req)}", req)
   		{{true,prev_path}, req, gist}
   	end
 
@@ -129,34 +143,5 @@ defmodule GistsIO.GistsHandler do
 
 	defp is_public_markdown(gist) do
 		gist["public"] === :true and Enum.any? gist["files"], &Utils.is_markdown/1
-	end
-
-	# Takes form data from gist form and extracts
-	# lists for the file names and contents
-	defp extract_files(data) do
-		title = data["title"]
-		files = ["#{Regex.replace(%r/ /, title, "_")}.md"]
-		contents = [[{"content",data["content"]}]]
-		extract_files(data,files,contents)
-	end
-	defp extract_files([field|[]], files, contents) do
-		case field do
-			{"filename", file} ->
-				{files ++ [file], contents}
-			{"file", content} ->
-				{files, contents ++ [[{"content",content}]]}
-			{_,_} ->
-				{files,contents}
-		end
-	end
-	defp extract_files([field|data], files, contents) do
-		case field do
-			{"filename", file} ->
-				extract_files(data, files ++ [file], contents)
-			{"file", content} ->
-				extract_files(data, files, contents ++ [[{"content",content}]])
-			{_,_} ->
-				extract_files(data, files, contents)
-		end
 	end
 end

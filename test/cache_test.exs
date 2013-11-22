@@ -20,6 +20,15 @@ defmodule GistTest do
         {:ok, gist: gist}
     end
 
+    teardown meta do
+        Cacherl.delete(@key)
+        key = {:user, @username, "gists"}
+        Cacherl.delete(key)
+        key = {:comments, @gist_id}
+        Cacherl.delete(key)
+        :ok
+    end
+
     test "update a description in existing gist", meta do
         gist = meta[:gist]
         old_description = gist["description"]
@@ -71,6 +80,28 @@ defmodule GistTest do
         assert new_file["language"] === "Markdown"
         assert new_file["content"] === new_file_content
     end
+
+    # test "adding a new file in existing gist", meta do
+    #     gist = meta[:gist]
+    #     new_file_name = "new name"
+    #     assert length(gist["files"]) === 2
+    #     assert gist["files"][new_file_name] === nil
+
+    #     new_description = "New Description"
+    #     new_file_content = "New File Content"
+    #     new_files = [
+    #         {new_file_name, [{"content", new_file_content}]}
+    #     ]
+    #     Cache.update_gist(new_description, new_files, gist)
+    #     {:ok, cache} = Cacherl.lookup(@key)
+    #     refute cache === gist
+    #     files = cache["files"]
+    #     refute length(files) === 2
+    #     assert length(files) === 3
+    #     new_file = files[new_file_name]
+    #     refute new_file === nil
+    #     assert new_file["filename"] === new_file_name
+    # end
 
     test "update a cached gist should have start time reset", meta do
         gist = meta[:gist]
@@ -130,6 +161,16 @@ defmodule GistTest do
         assert updated_gist["description"] === new_description
     end
 
+    test "updating a gist when no gists list's cache available should not touch it", meta do
+        gist = meta[:gist]
+        key = {:user, @username, "gists"}
+        # Don't create cache for gists list.
+        new_description = "New description"
+        Cache.update_gist(new_description, gist)
+        gists_cache = Cacherl.lookup(key)
+        assert gists_cache === {:error, :not_found}
+    end
+
     test "updating gists list's cache should reset its start time", meta do
         gist = meta[:gist]
         key = {:user, @username, "gists"}
@@ -153,6 +194,8 @@ defmodule GistTest do
 
     test "removing a gist should also clear its comments' cache" do
         comments_key = {:comments, @gist_id}
+        comments = lc id inlist [1,2,3], do: get_comment(id)
+        Cacherl.insert(comments_key, comments)
         refute Cacherl.lookup(comments_key) === {:error, :not_found}
         Cache.remove_gist(@username, @gist_id)
         assert Cacherl.lookup(comments_key) === {:error, :not_found}
@@ -199,6 +242,16 @@ defmodule GistTest do
                 ]},
                 {"filename with space and different attrs order", @unchanged_file}
             ]}
+        ]
+    end
+
+    defp get_comment(id, username // @username) do
+        [
+            {"id", id},
+            {"user", [
+                {"login", username}
+            ]},
+            {"body", "Comment #{id}"}
         ]
     end
 end

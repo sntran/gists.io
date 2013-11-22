@@ -1,30 +1,34 @@
-<div class="col-md-3 col-lg-3">
+<aside class="col-md-3 col-lg-3" style="position: relative;">
 	<div class="sidebar">
 		<div class="author">
-			<img src="<%= user["avatar_url"] %>&s=140" class="img-circle" width="140">
+			<img src="<%= user["avatar_url"] %>&s=100" class="img-circle">
 			<h5 class="author-name"><%= user["name"] %></h5>
 			<ul class="author-links">
-				<li><a href=""><i class="icon-facebook icon-large"></i></a></li>
-				<li><a href="<%= user["html_url"] %>"><i class="icon-github icon-large"></i></a></li>
-				<li><a href=""><i class="icon-bitbucket icon-large"></i></a></li>
-				<li><a href=""><i class="icon-twitter icon-large"></i></a></li>
-				<li><a href=""><i class="icon-tumblr icon-large"></i></a></li>
+				<li><a href=""><i class="fa fa-facebook fa-lg"></i></a></li>
+				<li><a href="<%= user["html_url"] %>"><i class="fa fa-github fa-lg"></i></a></li>
+				<li><a href=""><i class="fa fa-bitbucket fa-lg"></i></a></li>
+				<li><a href=""><i class="fa fa-twitter fa-lg"></i></a></li>
+				<li><a href=""><i class="fa fa-tumblr fa-lg"></i></a></li>
 			</ul>
+
+			<dl class="dl-horizontal author-bio">
+				<dt>Live in</dt>
+				<dd><%= user["location"] %></dd>
+				<dt>Work at</dt>
+				<dd><%= user["company"] %></dd>
+				<dt tilte="Public repos">Public repo</dt>
+				<dd><%= user["public_repos"] %></dd>
+				<dt title="Followers">Followers</dt>
+				<dd><%= user["followers"] %></dd>
+				<dt tilte="Following">Following</dt>
+				<dd><%= user["following"] %></dd>
+			</dl>
 		</div>
 
 		<hr class="sidebar-divider">
 
-		<p class="published-time">
-			Published on <span>24 August, 2006</span>
-		</p>
-
 		<p class="go-to-home">
-			<a href="/" title="Come back home"><i class="icon-home icon-2x"></i></a>
-		</p>
-
-		<p class="style-switcher">
-			<a href="#" data-style="dark" class="style-option dark"></a>
-			<a href="#" data-style="light" class="style-option light"></a>
+			<a href="/<%= user["login"] %>" title="Come back home"><i class="fa fa-home fa-2x"></i></a>
 		</p>
 	</div>
-</div>
+</aside>

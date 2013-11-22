@@ -3,113 +3,145 @@
 <head>
 	<title><%= title %> | Gists.io</title>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link href="/s/favicon.ico" rel="icon">
+	<link href="/favicon.ico" rel="icon">
 	<!-- Bootstrap -->
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" media="screen">
-	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/3.2.1/css/font-awesome.min.css">
-	<link rel="stylesheet" href="/s/css/light.css" id="main-style">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/s/css/main.css" id="main-style">
+	<link href="//fonts.googleapis.com/css?family=Open+Sans:700,400,300|Roboto:400,700,900,300|Roboto+Slab:400,300&amp;subset=latin" rel="stylesheet" type="text/css">
 	<link rel="stylesheet" href="/s/css/monokai_sublime.css">
 	<link rel="stylesheet" href="/s/css/codemirror.css">
 	<link rel="stylesheet" href="/s/css/monokai.css">
-	<link href="//fonts.googleapis.com/css?family=Roboto:400,700,900,300|Roboto+Slab:400,300&amp;subset=latin" rel="stylesheet" type="text/css">
-	<style type="text/css"></style>
+	<link rel="stylesheet" href="/s/css/sir-trevor.css">
+	<link rel="stylesheet" href="/s/css/sir-trevor-icons.css">
+	<link rel="stylesheet" href="/s/css/gio.css">
 </head>
-<div class="container">
-	<div class="main">
+<body>
+<header>
+	<nav class="navbar nav-white navbar-fixed-top" role="navigation">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle gists-navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+			<span class="sr-only">Toggle navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			</button>
+
+			<a class="navbar-brand logo" href="/">gists.io</a>
+		</div>
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse navbar-ex1-collapse">
+			<form class="navbar-form navbar-right nav-search" role="search">
+				<div class="form-group">
+					<input type="text" class="form-control input-sm" placeholder="Search by #hashtag">
+				</div>
+				<%= if is_loggedin != false do %>
+					<a href="/logout" class="btn btn-primary">Log out</a>
+					<a href="/<%= is_loggedin %>/new" class="btn btn-primary">Create a gist</a>
+				<%= else %>
+				<a class="btn btn-success btn-sm" href="/login">SIGN IN <i class="icon-github"></i></a>
+				<%= end %>
+			</form>
+
+			<ul class="nav navbar-nav navbar-right gists-navbar-nav">
+				<li><a href="/">Home</a></li>
+				<li><a href="#">Features</a></li>
+				<li><a href="#">Expore</a></li>
+				<li><a href="#">Contact</a></li>
+			</ul>
+		</div>
+		<!-- /.navbar-collapse -->
+	</nav>
+</header>
+
+<main role="main" class="main">
+	<section class="container">
 		<div class="row">
 			<div class="col-md-9 col-lg-9">
-				<div class="content">
-					<%= if is_loggedin != false do %>
-						<a class="logout" href="/logout?redirect=">Log out</a>
-						<a data-toggle="modal" href="#createGist" class="btn btn-primary">Create a gist</a>
-					<%= else %>
-						<a class="login" href="/login?redirect=">Log in</a>
-					<%= end %>
-					<h1><%= title %></h1> 
-
-				  <!-- Modal -->
-				    <div class="modal fade" id="createGist" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-				        <div class="modal-dialog">
-				      		<div class="modal-content">
-				        		<div class="modal-header">
-				          			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-				          			<h4 class="modal-title">Create a gist</h4>
-				        		</div>
-				        		<form action="/gists" method="post" accept-charset="utf-8">
-							        <div class="modal-body">
-							        	<label for="title">Title:</label>
-							        	<input type="text" name="title" class="form-control" required>
-							        	<label for="teaser">Teaser:</label>
-							        	<textarea name="teaser" class="form-control" rows="5"></textarea>
-							        	<label for="content">Blog Content:</label>
-							        	<ul class="nav nav-tabs">
-											<li class="active"><a href="#editor" data-toggle="tab">Editor</a></li>
-											<li><a href="#preview" data-toggle="tab">Preview</a></li>
-										</ul>
-										<div class="tab-content">
-								        	<div class="tab-pane active" id="editor">
-								          		<textarea name="content" id="test" class="form-control" rows="10"></textarea>
-								          	</div>
-	  										<div class="tab-pane" id="preview"></div>
-	  									</div>
-							        </div>
-							        <div class="modal-footer">
-							        	<button type="button" id="newFile" class="btn btn-primary pull-left">New File</button> 
-							          	<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-							          	<button type="submit" class="btn btn-primary">Save changes</button>
-							        </div>
-						        </form>
-				      		</div><!-- /.modal-content -->
-				    	</div><!-- /.modal-dialog -->
-				  	</div><!-- /.modal -->
-
-					<%= content %>
-
-				</div>
+				<%= content %>
 			</div>
 			<%= sidebar %>
 		</div>
-	</div>
-</div>
+	</section>
+</main>
 
-<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-<script src="//code.jquery.com/jquery.js"></script>
-<!-- Include all compiled plugins (below), or include individual files as needed -->
+<footer class="text-right">
+	<p>&copy; InHuman 2013</p>	
+</footer>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+
 <script src="/s/js/marked.js"></script>
 <script src="/s/js/highlight.pack.js"></script>
 <script src="/s/js/codemirror-compressed.js"></script>
+<script src="/s/js/underscore.js"></script>
+<script src="/s/js/eventable.js"></script>
+<script src="/s/js/sir-trevor.js"></script>
+<script src="/s/js/code-block.js"></script>
+<script src="/s/js/markdown-block.js"></script>
+<script src="/s/js/teaser-block.js"></script>
+<script src="/s/js/image-block.js"></script>
+<script src="/s/js/jquery.timeago.js"></script>
+<script src="/s/js/embeddable-mixin.js"></script>
 
 <script>
+function is_image(name, content) {
+	return /(?:\.jpg|jpeg|png|gif)/.test(name) && /data:image\/.+;base64.+/.test(content);
+}
+function to_blocks(markdown) {
+	var result = {}, blocks = markdown.split(/(?:[\r\n]*|<br\s?\/?>*)(```.+\n[\s\S]+?\n```|(?:\s-\s.+\n)+)(?:[\r\n]*|<br\s?\/?>*)/g);
+	var $teaser = $(".gio-teaser"), teaser = $teaser.html();
+	var data = [];
+	if (teaser !== "") {
+		data.push({type: "teaser", data: {text: teaser}});
+	}
+	var numBlocks = blocks.length;
+	result.data = data.concat(blocks.filter(function(text){
+		return numBlocks === 1 || text !== "";
+	}).map(function(text) {
+		var matches = text.match(/```(.+)\n([\s\S]*)\n```/);
+		if (matches && matches[1] && matches[2]) {
+			var name = matches[1], content = matches[2];
+			return { 
+				type: is_image(name, content)? "image": "code", 
+				data: { 
+					source: content, 
+					name: name 
+				} 
+			};
+		}
+		matches = text.match(/(?:\s-\s.+\n)+/);
+		if (matches && matches[0]) {
+			return { type: "list", data: { text: matches[0] } };
+		}
+		return { type: "markdown", data: { text: text } };
+	}));
+	return result;
+}
+
 $(function() {
-	var options = {
-		theme: "monokai",
-		lineNumbers: true,
-		mode: "javascript"
-	};
-	var textAreas = [];
-	var files = 0;
+	$("time.timeago").timeago();
 
-	$('#newFile').click(function(e) {
-		file = "file" + files;
-		var html = "<div id='"+file+"'>";
-		html += "<label for='filename'>File Name:</label>";
-		html += "<input type='text' name='filename' id='filename' class='form-control'>";
-		html += "<label for='file'>File Content:</label>";
-		html += "<textarea name='file' id='file' class='form-control' rows='10'></textarea>";
-		html += "</div>";
-		$(html).appendTo('.modal-body');
-		var textArea = $("#"+file+" #file")[0];
-		textAreas[file] = CodeMirror.fromTextArea(textArea,options);
-		textAreas[file].setSize(540,150);
-		files += 1;
-	});
+	var $editor = $('.gio-entry');
+	$editor.each(function() {
+		var markdown = $editor.text(),
+			blocksData = to_blocks(markdown);
+		$editor.val(JSON.stringify(blocksData));
 
-	marked.setOptions({
-    	highlight: function(code, lang){
-        	// More info at http://softwaremaniacs.org/soft/highlight/en/download/
-        	return hljs.LANGUAGES[lang] ? hljs.highlight(lang, code).value : code;
-    	}
+		new SirTrevor.Editor({ 
+			el: $editor,
+			blockTypes: ["Markdown","Code","List", "Teaser", "Image"],
+			blockTypeLimits: {"Teaser":1},
+			required: ["Markdown"]
+		});
+
+		marked.setOptions({
+	    	highlight: function(code, lang){
+	        	// More info at http://softwaremaniacs.org/soft/highlight/en/download/
+	        	return hljs.LANGUAGES[lang] ? hljs.highlight(lang, code).value : code;
+	    	}
+		});
 	});
 
 	$('a.style-option').click(function(e) {
@@ -121,20 +153,6 @@ $(function() {
 		
 		_link.prop('href', _url + '/' + _this.data('style') + '.css');
 	});
-
-	var previousMd = ""
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
-    	console.log(e);
-  		var $editor = $("#editor textarea")
-  		var $preview = $("#preview")
-  		if ($(e.target).attr("href") === "#preview") {
-  			var markdown = $editor.val()
-  			if(markdown == previousMd) return;
-  			previousMd = markdown
-  			html = marked(markdown)
-  			$preview.html(html)
-  		}
-	})
 });
 </script>
 

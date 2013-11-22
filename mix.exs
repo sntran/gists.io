@@ -5,7 +5,7 @@ defmodule GistsIO.Mixfile do
         [ 
             app: :gistsio,
             version: "0.3.0",
-            elixir: "~> 0.10.2",
+            elixir: "~> 0.11.0",
             deps: deps,
             elixirc_options: options(Mix.env)
         ]
@@ -15,7 +15,7 @@ defmodule GistsIO.Mixfile do
     def application do
         [ 
             mod: { GistsIO, [] },
-            applications: [:crypto, :mimetypes, :cowboy, :exlager],
+            applications: [:crypto, :cowboy, :exlager],
             env: [
                 port: 8080,
                 sessions: [store: {Session.ETS, []}],
@@ -29,10 +29,10 @@ defmodule GistsIO.Mixfile do
     # { :foobar, "~> 0.1", git: "https://github.com/elixir-lang/foobar.git" }
     defp deps() do
         [ 
-            {:cowboy, github: "extend/cowboy"},
-            {:httpotion, "0.2.2",[github: "myfreeweb/httpotion"]},
+            {:cowboy, github: "extend/cowboy", tag: "0.9.0"},
+            {:httpotion, github: "myfreeweb/httpotion", ref: "ee3cd8ad5630b20b236c0076c59e04fef973adbb"},
+            {:discount, [github: "asaaki/discount.ex", tag: "0.3.1"]},
             {:jsonex,"2.0",[github: "marcelog/jsonex", tag: "2.0"]},
-            {:mimetypes, github: "spawngrid/mimetypes", override: true },
             {:exlager, github: "khia/exlager"}
         ]
     end

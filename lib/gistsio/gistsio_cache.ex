@@ -4,11 +4,12 @@ defmodule GistsIO.Cache do
 
 	def get_gists(username, page, gister, filter // fn(_) -> true end) do
 		key = {:user, username, "gists"}
-		per_page = :application.get_env(:gistsio, :gists_per_page, 5)
+		per_page = :application.get_env(:gistsio, :gists_per_page, 50)
 		cache = Cacherl.lookup(key)
 		filtered_gists = case cache do
 			{:error, :not_found} ->
-				gists = do_fetch_gists(username, gister)
+				# gists = do_fetch_gists(username, gister)
+				{:ok, [{"entries", gists}, {"pager", nil}]} = Gist.fetch_gists(gister, username)
 				Cacherl.insert(key, gists)
 				gists
 			{:ok, gists} -> gists
@@ -52,7 +53,8 @@ defmodule GistsIO.Cache do
 					do_fetch_gists(username, gister, page+1, acc ++ gists)
 				end
 			{:error, _} ->
-				do_fetch_gists(username, gister, page+1, acc)
+				Lager.error "Error fetching gists for #{username}."
+				do_fetch_gists(username, gister, nil, acc)
 		end
 	end
 
@@ -109,6 +111,31 @@ defmodule GistsIO.Cache do
 		end
 	end
 
+	def update_gist(updated_gist) do
+		gist_id = updated_gist["id"]
+		username = updated_gist["user"]["login"]
+
+		gist_key = {:gist, gist_id, username}
+		Cacherl.delete(gist_key) # Remove the cache so we can reset the start and lease time
+		Cacherl.insert(gist_key, updated_gist)
+
+		gists_key = {:user, username, "gists"}
+		case Cacherl.lookup(gists_key) do
+			{:ok, cache} ->
+				idx = Enum.find_index(cache, &(&1["id"] === updated_gist["id"]))
+				new_cache = if (idx === nil) do
+					[updated_gist | cache]
+				else
+					changed_gist = Enum.at(cache, idx)
+								|> ListDict.put("description", updated_gist["description"])
+					List.replace_at(cache, idx, changed_gist)
+				end
+				Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
+				Cacherl.insert(gists_key, new_cache)
+			{:error, :not_found} -> :ok
+		end
+	end
+
 	@doc """
 	Update a cached gist.
 
@@ -123,7 +150,9 @@ defmodule GistsIO.Cache do
 	@arguments:
 	description = binary()
 	files = [file]
-	file = [{oldname, [{"filename", newname},{"content", content}]}]
+	file = [{oldname, [{"filename", newname},{"content", content}]}] |
+			[{oldname, "null"}] |
+			[{newname, [{"content", content}]}]
 	oldname = newname = content = binary()
 	"""
 	def update_gist(description, files // [], gist) do
@@ -161,18 +190,20 @@ defmodule GistsIO.Cache do
 		Cacherl.insert(gist_key, updated_gist)
 
 		gists_key = {:user, username, "gists"}
-		{:ok, cache} = Cacherl.lookup(gists_key)
-		idx = Enum.find_index(cache, &(&1["id"] === updated_gist["id"]))
-		new_cache = if (idx === nil) do
-			[updated_gist | cache]
-		else
-			changed_gist = Enum.at(cache, idx)
-						|> ListDict.put("description", updated_gist["description"])
-			List.replace_at(cache, idx, changed_gist)
+		case Cacherl.lookup(gists_key) do
+			{:ok, cache} ->
+				idx = Enum.find_index(cache, &(&1["id"] === updated_gist["id"]))
+				new_cache = if (idx === nil) do
+					[updated_gist | cache]
+				else
+					changed_gist = Enum.at(cache, idx)
+								|> ListDict.put("description", updated_gist["description"])
+					List.replace_at(cache, idx, changed_gist)
+				end
+				Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
+				Cacherl.insert(gists_key, new_cache)
+			{:error, :not_found} -> :ok
 		end
-
-		Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
-		Cacherl.insert(gists_key, new_cache)
 	end
 
 	def remove_gist(username, gist_id) do
@@ -184,10 +215,13 @@ defmodule GistsIO.Cache do
 		Cacherl.delete(comments_key)
 		# Remove it from gists list's cache.
 		gists_key = {:user, username, "gists"}
-		{:ok, cache} = Cacherl.lookup(gists_key)
-		new_cache = Enum.reject(cache, &(&1["id"] === gist_id))
-		Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
-		Cacherl.insert(gists_key, new_cache)
+		case Cacherl.lookup(gists_key) do
+			{:ok, cache} ->
+				new_cache = Enum.reject(cache, &(&1["id"] === gist_id))
+				Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
+				Cacherl.insert(gists_key, new_cache)
+			{:error, :not_found} -> :ok
+		end
 	end
 
 	def gist_last_updated(username, gist_id) do
@@ -246,14 +280,18 @@ defmodule GistsIO.Cache do
 		case cache do
 			{:error, :not_found} ->
 				Lager.debug "No cached html for markdown: `#{markdown}`. Calling service to render."
-				fetch = Gist.render gister, markdown
-				case fetch do
-					{:ok, html} ->
-						Cacherl.insert({:html, markdown}, html)
-						{:ok, html}
-					{:error, error} ->
-						Lager.error "Failed to render html for markdown: `#{markdown}` from service with error #{error}."
-						{:error, error}
+				try do
+					html = Discount.to_html markdown
+					html = Regex.replace(%r/&ldquo;/, html, "\"")
+					html = Regex.replace(%r/&rdquo;/, html, "\"")
+					html = Regex.replace(%r/&lt;/, html, "<")
+					html = Regex.replace(%r/&gt;/, html, ">")
+					Cacherl.insert({:html, markdown}, html)
+					{:ok, html}
+				rescue
+					error -> 
+						Lager.error "Failed to render html for markdown: `#{markdown}` with error #{error}."
+						{:error, "failed to parse"}
 				end
 			{:ok, html} ->
 				Lager.debug "Fetching rendered html for markdown: `#{markdown} from cache."

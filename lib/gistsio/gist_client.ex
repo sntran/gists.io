@@ -16,8 +16,8 @@ defmodule GistsIO.GistClient do
         :gen_server.call(client, ["gist", id])
     end
 
-    def create_gist(client, description, files, contents) do
-        :gen_server.call(client, ["gist", description, files, contents])
+    def create_gist(client, description, files) do
+        :gen_server.call(client, ["gist", description, files])
     end
 
     def edit_gist(client, gist_id, description, files) do
@@ -79,11 +79,16 @@ defmodule GistsIO.GistClient do
         {:reply, {stat, Jsonex.decode(data)}, state}
     end
 
-    def handle_call(["gist", description, files, contents], _from, state) do
+    def handle_call(["gist", "delete", gist_id], _from, state) do
+        url = url("gists/#{gist_id}", state)
+        {stat, data, _} = delete(url)
+        {:reply, {stat, Jsonex.decode(data)}, state}
+    end
+
+    def handle_call(["gist", description, files], _from, state) do
         url = url("gists", state)
-        fileList = List.zip([files,contents])
         body = Jsonex.encode([{"description", description}, {"public", true}, 
-            {"files", fileList}])
+            {"files", files}])
         {:reply, post(url, body), state}
     end
 
@@ -91,13 +96,8 @@ defmodule GistsIO.GistClient do
         url = url("gists/#{gist_id}", state)
         body = Jsonex.encode([{"description", description}, {"public", true},
             {"files", files}])
-        {:reply, patch(url,body), state}
-    end
-
-    def handle_call(["gist", "delete", gist_id], _from, state) do
-        url = url("gists/#{gist_id}", state)
-        {stat, data, _} = delete(url)
-        {:reply, {stat, Jsonex.decode(data)}, state}
+        {stat, response} = patch(url,body)
+        {:reply, {stat, Jsonex.decode(response)}, state}
     end
 
     def handle_call(["comments", id], _from, state) do
@@ -141,16 +141,21 @@ defmodule GistsIO.GistClient do
     end
 
     defp fetch(url, req_headers // []) do
-        case HTTPotion.get(url, req_headers) do
+        case HTTPotion.get(url, req_headers, [timeout: 80000]) do
             Response[body: body, status_code: status, headers: headers] when status in 200..299 ->
-                {:ok, body, headers}
+                status = Keyword.get(headers, :"Status")
+                if status !== "200 OK" do
+                    {:error, status, headers}
+                else
+                    {:ok, body, headers}
+                end
             Response[body: body, status_code: _status, headers: headers] ->
                 {:error, body, headers}
         end
     end
 
     defp post(url, body) do
-        case HTTPotion.post(url, body, [is_ssl: true]) do
+        case HTTPotion.post(url, body, [is_ssl: true, timeout: 80000]) do
             Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
                 {:ok, body}
             Response[body: body, status_code: _status, headers: _headers] ->
