@@ -105,13 +105,18 @@ defmodule GistsIO.GistHandler do
   	def gist_post(req, {[_, _,"comments"],gist}) do
   		client = Session.get("gist_client", req)
   		{:ok, body, req} = Req.body_qs(req)
-  		{:ok, response} = Gist.create_comment client, gist["id"], body["comment"]
-
-  		new_comment = Jsonex.decode(response)
-  		Cache.add_comment(new_comment, gist["id"])
-
-        prev_path = Session.get("previous_path", req)
-  		{{true,prev_path}, req, gist}
+  		comment_data = Jsonex.decode(body["comment"])
+  		case comment_data do
+  			[{"data", [[{"type", "markdown"}, {"data", comment_data}]]}] ->
+  				{:ok, response} = Gist.create_comment client, gist["id"], comment_data["text"]
+  				new_comment = Jsonex.decode(response)
+  				Cache.add_comment(new_comment, gist["id"])
+        		prev_path = Session.get("previous_path", req)
+  				{{true,prev_path}, req, gist}
+  			_ ->
+  				prev_path = Session.get("previous_path", req)
+  				{{true,prev_path}, req, gist}
+  		end
   	end
 
   	def gist_post(req, {path_parts,gist}) do

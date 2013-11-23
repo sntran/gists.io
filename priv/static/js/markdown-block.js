@@ -36,8 +36,6 @@ SirTrevor.Blocks.Markdown = (function(){
     type: "markdown",
     icon_name: 'text',
 
-    images: {}, // Image map between filename and its base64.
-
     editorHTML: function() {
       return md_template(this);
     },
@@ -89,8 +87,7 @@ SirTrevor.Blocks.Markdown = (function(){
 
     toData: function() {
       var block = this, dataObj = {}, 
-          text = this.$el.find(".gio-write").val();
-      // Convert regular image's filename source to base64.
+          text = block.$el.find(".gio-write").val();
 
       if(text != "")
         dataObj.text = text;
