@@ -26,10 +26,16 @@
 			end)
 
 			files = Enum.filter_map(entry["files"], fn({n, a}) -> n !== entry["name"] end, fn({n, a}) ->
-				if Enum.member?(embedded_files,n) do
-					{n, "```#{n}\n#{a["content"]}\n```"}
+				content = if GistsIO.Utils.is_image(n) do
+					"/#{is_loggedin}/#{entry["id"]}/files/#{n}"
 				else
-					{n, "```__#{n}__\n#{a["content"]}\n```"}
+					a["content"]
+				end
+
+				if Enum.member?(embedded_files,n) do
+					{n, "```#{n}\n#{content}\n```"}
+				else
+					{n, "```__#{n}__\n#{content}\n```"}
 				end
 			end)
 		%>
