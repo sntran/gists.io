@@ -87,7 +87,7 @@
 
 <script>
 function is_image(name, content) {
-	return /(?:\.jpg|jpeg|png|gif)/.test(name) && /data:image\/.+;base64.+/.test(content);
+	return /(?:\.jpg|jpeg|png|gif)/.test(name);
 }
 function to_blocks(markdown) {
 	var result = {}, blocks = markdown.split(/(?:[\r\n]*|<br\s?\/?>*)(```.+\n[\s\S]+?\n```|(?:\s-\s.+\n)+)(?:[\r\n]*|<br\s?\/?>*)/g);

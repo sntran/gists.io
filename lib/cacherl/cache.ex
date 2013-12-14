@@ -82,7 +82,7 @@ defmodule Cacherl.Cache do
 	end
 	
 	defp get_current_time do
-		:calendar.local_time() 
+		:calendar.universal_time() 
 		|> :calendar.datetime_to_gregorian_seconds()
 	end
 
