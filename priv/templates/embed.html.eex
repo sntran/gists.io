@@ -1,5 +1,5 @@
 <%= if GistsIO.Utils.is_image(name) do %>
-	<img src="<%= gist["files"][name]["content"] %>" alt="<%= name %>" />
+	<img src="/<%= gist["user"]["login"] %>/<%= gist["id"] %>/files/<%= name %>" alt="<%= name %>" />
 <%= else %>
 	<script src="https://gist.github.com/<%= gist["id"] %>.js?file=<%= name %>"></script>
 	<noscript>
