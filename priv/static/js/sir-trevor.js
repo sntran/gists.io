@@ -3122,7 +3122,7 @@ These will either be set on a per Editor instance, or set on a global scope.
     if (!formBound) {
       SirTrevor.submittable();
       form.bind('submit', this.onFormSubmit);
-      formBound = true;
+      // formBound = true;
     }
   };
 

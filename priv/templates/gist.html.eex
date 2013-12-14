@@ -1,12 +1,12 @@
-<h1><%= entry["title"] %></h1>
+<h1 class="post-title"><%= entry["title"] %></h1>
 
 <div class="post-tags">
-	Last updated <time class="timeago" datetime="<%= entry["updated_at"] %>"></time> in
-	<ul class="post-tags-list">
-		<%= lc {name, attrs} inlist entry["files"], attrs["language"] !== "Markdown" do %>
-		<li><a href="#"><%= attrs["language"] %></a></li>
-		<% end %>
-	</ul>
+	<%= if entry["id"] != :nil do %>
+		Last updated <time class="timeago" datetime="<%= entry["updated_at"] %>"></time>
+		<%= if is_loggedin == entry["user"]["login"] do %>
+			<span><a href=<%= "/#{entry["user"]["login"]}/#{entry["id"]}/delete" %>>Delete</a></span>
+		<%= end %>
+	<%= end %>	
 </div>
 
 <%= if is_loggedin == entry["user"]["login"] do %>

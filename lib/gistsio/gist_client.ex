@@ -177,7 +177,7 @@ defmodule GistsIO.GistClient do
 
     defp delete(url, headers // []) do
         req_headers = [{"User-Agent", "Gists.IO"}] ++ headers
-        case HTTPotion.delete(url, headers) do
+        case HTTPotion.delete(url, req_headers) do
             Response[body: body, status_code: status, headers: headers] when status in 200..299 ->
                 {:ok, body, headers}
             Response[body: body, status_code: status, headers: headers] ->

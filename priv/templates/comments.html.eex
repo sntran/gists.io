@@ -22,7 +22,6 @@
         $commentForm.each(function() {
             new SirTrevor.Editor({ 
                 el: $commentForm,
-                defaultType: "Markdown",
                 blockTypes: ["Markdown"],
                 blockLimit: 1
             });

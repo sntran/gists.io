@@ -94,14 +94,6 @@ defmodule GistsIO.GistHandler do
   		], req, state}
   	end
 
-  	def gist_post(req, {[_, _,"delete"], gist}) do
-  		client = Session.get("gist_client", req)
-  		Gist.delete_gist client, gist["id"]
-  		username = gist["user"]["login"]
-  		Cache.remove_gist(username, gist["id"])
-  		{{true, "/#{username}"}, req, gist}
-  	end
-
   	def gist_post(req, {[_, _,"comments"],gist}) do
   		client = Session.get("gist_client", req)
   		{:ok, body, req} = Req.body_qs(req)
@@ -145,6 +137,16 @@ defmodule GistsIO.GistHandler do
 			end
 		end
   		{{true,"/#{username}/#{gist_id}"}, req, gist}
+  	end
+
+  	def gist_html(req, {[_, _,"delete"], gist}) do
+  		client = Session.get("gist_client", req)
+  		Gist.delete_gist client, gist["id"]
+  		username = gist["user"]["login"]
+  		Cache.remove_gist(username, gist["id"])
+  		req = Req.set_resp_header("Location","/#{username}",req)
+  		{:ok, req} = Req.reply(302, [], "", req)
+  		{:halt, req, gist}
   	end
 
 	def gist_html(req, {path_parts,gist}) do
