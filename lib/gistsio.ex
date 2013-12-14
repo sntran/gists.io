@@ -47,7 +47,10 @@ defmodule GistsIO do
         req = Session.new(req)
         previous_path = Session.get("current_path", req)
         {current, req} = Req.path(req)
-        if previous_path != current and :binary.match(current,"/s/") == :nomatch and :binary.match(current,"/favicon.ico") == :nomatch do
+        if previous_path != current 
+        and :binary.match(current,"/s/") == :nomatch 
+        and :binary.match(current,"/files/") == :nomatch 
+        and :binary.match(current,"/favicon.ico") == :nomatch do
             Session.set("current_path", current, req)
             Session.set("previous_path", previous_path, req)
         end
