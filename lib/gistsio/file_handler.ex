@@ -12,23 +12,22 @@ defmodule GistsIO.FileHandler do
 	end
 
 	def content_types_provided(req, state) do
-		{[
-			{content_type(req), :get_image}
-		], req, state}
-	end
-
-	defp content_type(req) do
 		{filename, req} = Req.binding :filename, req
 		case filename do
-			:undefined -> {"application", "octet-stream", []}
-			_ -> case :filename.extension(filename) do
-				"" -> {"application", "octet-stream", []}
-				".gif" -> {"image", "gif", []}
-				".png" -> {"image", "png", []}
-				".jpeg" -> {"image", "jpeg", []}
-				".jpg" -> {"image", "jpeg", []}
-				".svg" -> {"image", "svg+xml", []}
-			end
+			:undefined -> {:halt, req, state}
+			filename -> {[handle_type(filename)], req, state}
+		end
+	end
+
+	defp handle_type(filename) do
+		case :filename.extension(filename) do
+			"" -> {{"application", "octet-stream", []}, :get_binary}
+			".gif" -> {{"image", "gif", []}, :get_image}
+			".png" -> {{"image", "png", []}, :get_image}
+			".jpeg" -> {{"image", "jpeg", []}, :get_image}
+			".jpg" -> {{"image", "jpeg", []}, :get_image}
+			".svg" -> {{"image", "svg+xml", []}, :get_image}
+			_other -> {{"text", "plain", []}, :get_text}
 		end
 	end
 
@@ -51,7 +50,7 @@ defmodule GistsIO.FileHandler do
 
 	defp maybe_get_file(req, gist) do
 		gist_id = gist["id"]
-		username = username = gist["user"]["login"]
+		username = gist["user"]["login"]
 		case Req.binding :filename, req do
 			{:undefined, req} ->
 				{:false, req, {:redirect, "/#{username}/#{gist_id}"}}
@@ -84,10 +83,17 @@ defmodule GistsIO.FileHandler do
 	end
 
 	def get_image(req, {file, timestamp}) do
-		content = file["content"]
-		content = Regex.replace(%r/^data:image\/[^;]*;base64,/, content, "")
-					|> :base64.mime_decode
+		content = Regex.replace(%r/^data:image\/[^;]*;base64,/, file["content"], "")
+			|> :base64.mime_decode
 		{content, req, {file, timestamp}}
+	end
+
+	def get_text(req, {file, timestamp}) do
+		{file["content"], req, {file, timestamp}}
+	end
+	
+	def get_binary(req, {file, timestamp}) do
+		{file["content"], req, {file, timestamp}}
 	end
 
 	# def expires(req, state) do
