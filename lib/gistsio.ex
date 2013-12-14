@@ -19,6 +19,7 @@ defmodule GistsIO do
                 {"/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:username/:gist/comments", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:username/:gist/delete", [{:gist, :int}], GistsIO.GistHandler, []},
+                {"/:username/:gist/files/:filename", [{:gist, :int}], GistsIO.FileHandler, []},
                 {"/:username", GistsIO.GistsHandler, []},
                 {"/:username/:gist", [{:gist, :int}], GistsIO.GistHandler, []},
                 {"/:username/:gist", GistsIO.GistHandler, []},
