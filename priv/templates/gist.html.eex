@@ -3,18 +3,18 @@
 <div class="post-tags">
 	<%= if entry["id"] != :nil do %>
 		Last updated <time class="timeago" datetime="<%= entry["updated_at"] %>"></time>
-		<%= if is_loggedin == entry["user"]["login"] do %>
-			<span><a href=<%= "/#{entry["user"]["login"]}/#{entry["id"]}/delete" %>>Delete</a></span>
+		<%= if is_loggedin == entry["owner"]["login"] do %>
+			<span><a href=<%= "/#{entry["owner"]["login"]}/#{entry["id"]}/delete" %>>Delete</a></span>
 		<%= end %>
 	<%= end %>	
 </div>
 
-<%= if is_loggedin == entry["user"]["login"] do %>
+<%= if is_loggedin == entry["owner"]["login"] do %>
 	<form action=<%= if entry["id"] == :nil do "/gists" else "/#{is_loggedin}/#{entry["id"]}" end%> method="post">
 		<label for="title">Title:</label>
 		<input type="test" class="form-control" name="title" value="<%= entry["title"] %>" required/>
 		<% 
-			embedded_files = Regex.scan(%r/\<\%= files\[\"(.*)\"\] \%\>/,entry["content"])
+			embedded_files = Regex.scan(~r/\<\%= files\[\"(.*)\"\] \%\>/,entry["content"])
 							|> Enum.map(fn([_,file]) -> file end)
 							
 			modified_content = Enum.reduce(entry["files"], entry["content"], fn({n,_}, acc) ->

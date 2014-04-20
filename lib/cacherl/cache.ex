@@ -7,7 +7,7 @@ defmodule Cacherl.Cache do
 		:gen_server.start_link(__MODULE__, [value, lease_time], [])
 	end
 
-	def create(value, lease_time // :infinity) do
+	def create(value, lease_time \\ :infinity) do
 		Cacherl.Manager.start_child(value, lease_time)
 	end
 	

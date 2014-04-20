@@ -4,7 +4,7 @@ defmodule GistsIO.Utils do
 	end
 
 	def is_image(name) do
-		Regex.match?(%r/.\.(?:png|jpg|jpeg|gif)$/, name)
+		Regex.match?(~r/.\.(?:png|jpg|jpeg|gif)$/, name)
 	end
 
 	def prep_gist(gist) do
@@ -19,7 +19,7 @@ defmodule GistsIO.Utils do
 		{_name, entry} = Enum.at gist["files"], 0
 		description = gist["description"]
 		{title, teaser} = if description !== :null do
-			[title] = Regex.run %r/.*$/m, description
+			[title] = Regex.run ~r/.*$/m, description
 			size = Kernel.byte_size(title)
 			<<title :: [size(size), binary], teaser :: binary>> = description
 			# Trim the new line character at the beginning of teaser
@@ -77,7 +77,7 @@ defmodule GistsIO.Utils do
 	def compose_gist([], files, content, teaser) do
 		{teaser, content, files}
 	end
-	def compose_gist([field|rest], files, content, teaser // "") do
+	def compose_gist([field|rest], files, content, teaser \\ "") do
 		case field do
 			# Markdown will only include the content if the data contains
 			# specifically text

@@ -50,7 +50,7 @@ defmodule GistsIO.FileHandler do
 
 	defp maybe_get_file(req, gist) do
 		gist_id = gist["id"]
-		username = gist["user"]["login"]
+		username = gist["owner"]["login"]
 		case Req.binding :filename, req do
 			{:undefined, req} ->
 				{:false, req, {:redirect, "/#{username}/#{gist_id}"}}
@@ -74,7 +74,7 @@ defmodule GistsIO.FileHandler do
 	end
 
 	def generate_etag(req, state) do
-		{{:strong, :base64.encode(:crypto.md5(term_to_binary(state)))}, req, state}
+		{{:strong, :base64.encode(:crypto.md5(:erlang.term_to_binary(state)))}, req, state}
 	end
 	
 	def last_modified(req, {file, timestamp}) do
@@ -83,7 +83,7 @@ defmodule GistsIO.FileHandler do
 	end
 
 	def get_image(req, {file, timestamp}) do
-		content = Regex.replace(%r/^data:image\/[^;]*;base64,/, file["content"], "")
+		content = Regex.replace(~r/^data:image\/[^;]*;base64,/, file["content"], "")
 			|> :base64.mime_decode
 		{content, req, {file, timestamp}}
 	end

@@ -2,7 +2,7 @@ defmodule GistsIO.Cache do
 	alias GistsIO.GistClient, as: Gist
 	require Lager
 
-	def get_gists(username, page, gister, filter // fn(_) -> true end) do
+	def get_gists(username, page, gister, filter \\ fn(_) -> true end) do
 		key = {:user, username, "gists"}
 		per_page = :application.get_env(:gistsio, :gists_per_page, 50)
 		cache = Cacherl.lookup(key)
@@ -100,7 +100,7 @@ defmodule GistsIO.Cache do
 				fetch = Gist.fetch_gist(gister, gist_id)
 				case fetch do
 					{:ok, gist} ->
-						username = gist["user"]["login"]
+						username = gist["owner"]["login"]
 						key = {:gist, gist_id, username}
 						Cacherl.insert(key, gist)
 						{:ok, gist}
@@ -113,7 +113,7 @@ defmodule GistsIO.Cache do
 
 	def update_gist(updated_gist) do
 		gist_id = updated_gist["id"]
-		username = updated_gist["user"]["login"]
+		username = updated_gist["owner"]["login"]
 
 		gist_key = {:gist, gist_id, username}
 		Cacherl.delete(gist_key) # Remove the cache so we can reset the start and lease time
@@ -122,7 +122,7 @@ defmodule GistsIO.Cache do
 		gists_key = {:user, username, "gists"}
 		case Cacherl.lookup(gists_key) do
 			{:ok, cache} ->
-				idx = Enum.find_index(cache, &(&1["id"] === updated_gist["id"]))
+				idx = Enum.find_index(cache, fn(x)-> x["id"] == updated_gist["id"] end)
 				new_cache = if (idx === nil) do
 					[updated_gist | cache]
 				else
@@ -155,9 +155,9 @@ defmodule GistsIO.Cache do
 			[{newname, [{"content", content}]}]
 	oldname = newname = content = binary()
 	"""
-	def update_gist(description, files // [], gist) do
+	def update_gist(description, files \\ [], gist) do
 		gist_id = gist["id"]
-		username = gist["user"]["login"]
+		username = gist["owner"]["login"]
 		updated_gist = ListDict.put(gist, "description", description)
 		current_files = gist["files"]
 		updated_gist = if files !== [] do
@@ -192,7 +192,7 @@ defmodule GistsIO.Cache do
 		gists_key = {:user, username, "gists"}
 		case Cacherl.lookup(gists_key) do
 			{:ok, cache} ->
-				idx = Enum.find_index(cache, &(&1["id"] === updated_gist["id"]))
+				idx = Enum.find_index(cache, fn(x)-> x["id"] == updated_gist["id"] end)
 				new_cache = if (idx === nil) do
 					[updated_gist | cache]
 				else
@@ -217,7 +217,7 @@ defmodule GistsIO.Cache do
 		gists_key = {:user, username, "gists"}
 		case Cacherl.lookup(gists_key) do
 			{:ok, cache} ->
-				new_cache = Enum.reject(cache, &(&1["id"] === gist_id))
+				new_cache = Enum.reject(cache, fn(x)-> x["id"] == gist_id end)
 				Cacherl.delete(gists_key) # Remove the cache so we can reset the start and lease time
 				Cacherl.insert(gists_key, new_cache)
 			{:error, :not_found} -> :ok
@@ -282,10 +282,10 @@ defmodule GistsIO.Cache do
 				Lager.debug "No cached html for markdown: `#{markdown}`. Calling service to render."
 				try do
 					html = Discount.to_html markdown
-					html = Regex.replace(%r/&ldquo;/, html, "\"")
-					html = Regex.replace(%r/&rdquo;/, html, "\"")
-					html = Regex.replace(%r/&lt;/, html, "<")
-					html = Regex.replace(%r/&gt;/, html, ">")
+					html = Regex.replace(~r/&ldquo;/, html, "\"")
+					html = Regex.replace(~r/&rdquo;/, html, "\"")
+					html = Regex.replace(~r/&lt;/, html, "<")
+					html = Regex.replace(~r/&gt;/, html, ">")
 					Cacherl.insert({:html, markdown}, html)
 					{:ok, html}
 				rescue
@@ -307,7 +307,7 @@ defmodule GistsIO.Cache do
     #  <h.../?page=2; rel=\"prev\""
     # split it by the comma, and try to get the page query string and the
     # rel to indicate the type.
-	defp map_pager(binary_pager, prefix // "") when is_binary(binary_pager) do
+	defp map_pager(binary_pager, prefix \\ "") when is_binary(binary_pager) do
 		map_pager(:binary.split(binary_pager, ", "), prefix)
 	end
     defp map_pager(nil, _) do [] end

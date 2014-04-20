@@ -1,10 +1,10 @@
 <div class="gists-list">
 	<%= lc entry inlist entries do %>
 	<div class="gist-item">
-		<h3><a href="/<%= entry["user"]["login"] %>/<%= entry["id"] %>"><%= entry["title"] %></a></h3>
+		<h3><a href="/<%= entry["owner"]["login"] %>/<%= entry["id"] %>"><%= entry["title"] %></a></h3>
 		<div><%= entry["teaser"] %></div>
 		<time class="published timeago" datetime="<%= entry["created_at"] %>"></time>
-		<!-- <p><a href="/<%= entry["user"]["login"] %>/<%= entry["id"] %>">
+		<!-- <p><a href="/<%= entry["owner"]["login"] %>/<%= entry["id"] %>">
 		Read more</a></p> -->
 	</div>
 	<% end %>

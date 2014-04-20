@@ -58,7 +58,6 @@ defmodule GistsIO.GistsHandler do
 			# will be redirected with no action taken.
 			if !Enum.empty?(files) or content != "" do
 	        	files = files ++ [{filename, [{"content", content}]}]
-	        	IO.inspect files
 	  			description = "#{title}\n#{teaser}"
 	  			{:ok, response} = Gist.create_gist client, description, files
 	  			gist = Jsonex.decode(response)

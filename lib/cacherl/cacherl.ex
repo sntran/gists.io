@@ -13,7 +13,7 @@ defmodule Cacherl do
 	if set. If the cache exists, update it; otherwise, create a
 	new cache, and keep track of its pid in the store.
 	"""
-	def insert(key, value, lease_time // @default_lease_time) do
+	def insert(key, value, lease_time \\ @default_lease_time) do
 		case Store.lookup(key) do
 			{:ok, pid} ->
 				Cache.replace(pid, value)

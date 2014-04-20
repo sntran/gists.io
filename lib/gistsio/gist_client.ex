@@ -8,7 +8,7 @@ defmodule GistsIO.GistClient do
     end
 
     # APIs
-    def fetch_gists(client, user, params // []) when is_binary(user) do
+    def fetch_gists(client, user, params \\ []) when is_binary(user) do
         :gen_server.call(client, ["gists", user | params])
     end
     
@@ -140,7 +140,7 @@ defmodule GistsIO.GistClient do
         {:noreply, state}
     end
 
-    defp fetch(url, req_headers // []) do
+    defp fetch(url, req_headers \\ []) do
         req_headers = [{"User-Agent", "Gists.IO"}] ++ req_headers
         case HTTPotion.get(url, req_headers, [timeout: 80000]) do
             Response[body: body, status_code: status, headers: headers] when status in 200..299 ->
@@ -175,7 +175,7 @@ defmodule GistsIO.GistClient do
         end
     end
 
-    defp delete(url, headers // []) do
+    defp delete(url, headers \\ []) do
         req_headers = [{"User-Agent", "Gists.IO"}] ++ headers
         case HTTPotion.delete(url, req_headers) do
             Response[body: body, status_code: status, headers: headers] when status in 200..299 ->

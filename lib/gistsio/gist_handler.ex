@@ -38,7 +38,7 @@ defmodule GistsIO.GistHandler do
 				# Only for the rightful owner
 				faux_gist = Utils.empty_gist(username)
 				{path,req} = Req.path(req)
-				[""|path_parts] = Regex.split(%r/\//, path)
+				[""|path_parts] = Regex.split(~r/\//, path)
 				{:true, req, {path_parts,faux_gist}}
 			:undefined ->
 				# Not logged in at all
@@ -62,13 +62,13 @@ defmodule GistsIO.GistHandler do
 		gist_id = gist["id"]
 		case Req.binding :username, req do
 			{:undefined, req} ->
-				username = gist["user"]["login"]
+				username = gist["owner"]["login"]
 				{:false, req, {:redirect, "/#{username}/#{gist_id}"}}
 			{username, req} ->
 				files = gist["files"]
 				if files !== nil and Enum.any?(files, &Utils.is_markdown/1) do
 					{path,req} = Req.path(req)
-					[""|path_parts] = Regex.split(%r/\//, path)
+					[""|path_parts] = Regex.split(~r/\//, path)
 					{:true, req, {path_parts,gist}}
 				else
 					{:false, req, gist}
@@ -114,7 +114,7 @@ defmodule GistsIO.GistHandler do
   	def gist_post(req, {path_parts,gist}) do
   		client = Session.get("gist_client", req)
   		gist_id = gist["id"]
-  		username = gist["user"]["login"]
+  		username = gist["owner"]["login"]
   		max_body_length = :application.get_env(:gistsio, :max_body_length, 8000000)
   		{:ok, body, req} = Req.body_qs(max_body_length, req)
   		[_, {"entry", data}] = body
@@ -142,7 +142,7 @@ defmodule GistsIO.GistHandler do
   	def gist_html(req, {[_, _,"delete"], gist}) do
   		client = Session.get("gist_client", req)
   		Gist.delete_gist client, gist["id"]
-  		username = gist["user"]["login"]
+  		username = gist["owner"]["login"]
   		Cache.remove_gist(username, gist["id"])
   		req = Req.set_resp_header("Location","/#{username}",req)
   		{:ok, req} = Req.reply(302, [], "", req)
@@ -164,7 +164,7 @@ defmodule GistsIO.GistHandler do
 	end
 
 	defp maybe_render_template(gist, loggedin?, client) do
-		username = gist["user"]["login"]
+		username = gist["owner"]["login"]
 		gist_id = gist["id"]
 		{dir, html_path} = html_path(username, gist_id)
 		# Check the time the cache is created
@@ -242,7 +242,7 @@ defmodule GistsIO.GistHandler do
 				|> EEx.eval_file [entry: gist, comments: comments_html, is_loggedin: loggedin?]
 
 		# Render author's info on the sidebar
-		{:ok, user} = Cache.get_user gist["user"]["login"], client
+		{:ok, user} = Cache.get_user gist["owner"]["login"], client
 		sidebar_html = [:code.priv_dir(:gistsio), "templates", "sidebar.html.eex"]
 				|> Path.join
 				|> EEx.eval_file [user: user]

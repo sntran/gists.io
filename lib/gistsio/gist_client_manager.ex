@@ -5,7 +5,7 @@ defmodule GistsIO.GistClientManager do
         :supervisor.start_link({:local, __MODULE__}, __MODULE__, [client_id, client_secret])
     end
 
-    def start_client(args // []) do
+    def start_client(args \\ []) do
         :supervisor.start_child(__MODULE__, args)
     end
 
