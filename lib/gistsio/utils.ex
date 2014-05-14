@@ -135,7 +135,7 @@ defmodule GistsIO.Utils do
 	end
 
 	defp parse_images(text) do
-		re = %r/<img src=\"(data:image\/.+;base64.+)\" alt=\"(.+)\"\s?\/>/
+		re = ~r/<img src=\"(data:image\/.+;base64.+)\" alt=\"(.+)\"\s?\/>/
 		matches = Regex.scan(re, text)
 		images = Enum.map(matches, fn([_, base64, filename]) ->
 			{filename, [{"content",base64}]}

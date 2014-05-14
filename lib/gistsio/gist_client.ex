@@ -143,14 +143,14 @@ defmodule GistsIO.GistClient do
     defp fetch(url, req_headers \\ []) do
         req_headers = [{"User-Agent", "Gists.IO"}] ++ req_headers
         case HTTPotion.get(url, req_headers, [timeout: 80000]) do
-            Response[body: body, status_code: status, headers: headers] when status in 200..299 ->
+            %Response{body: body, status_code: status, headers: headers} when status in 200..299 ->
                 status = Keyword.get(headers, :"Status")
                 if status !== "200 OK" do
                     {:error, status, headers}
                 else
                     {:ok, body, headers}
                 end
-            Response[body: body, status_code: _status, headers: headers] ->
+            %Response{body: body, status_code: _status, headers: headers} ->
                 {:error, body, headers}
         end
     end
@@ -158,9 +158,9 @@ defmodule GistsIO.GistClient do
     defp post(url, body) do
         req_headers = [{"User-Agent", "Gists.IO"}, {:is_ssl, true}, {:timeout, 8000}]
         case HTTPotion.post(url, body, req_headers) do
-            Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
+            %Response{body: body, status_code: status, headers: _headers} when status in 200..299 ->
                 {:ok, body}
-            Response[body: body, status_code: _status, headers: _headers] ->
+            %Response{body: body, status_code: _status, headers: _headers} ->
                 {:error, body}
         end
     end
@@ -168,9 +168,9 @@ defmodule GistsIO.GistClient do
     defp patch(url, body) do
         req_headers = [{"User-Agent", "Gists.IO"}, {:is_ssl, true}, {:timeout, 8000}]
         case HTTPotion.patch(url, body, req_headers) do
-            Response[body: body, status_code: status, headers: _headers] when status in 200..299 ->
+            %Response{body: body, status_code: status, headers: _headers} when status in 200..299 ->
                 {:ok, body}
-            Response[body: body, status_code: status, headers: _headers] ->
+            %Response{body: body, status_code: status, headers: _headers} ->
                 {:error, body}
         end
     end
@@ -178,9 +178,9 @@ defmodule GistsIO.GistClient do
     defp delete(url, headers \\ []) do
         req_headers = [{"User-Agent", "Gists.IO"}] ++ headers
         case HTTPotion.delete(url, req_headers) do
-            Response[body: body, status_code: status, headers: headers] when status in 200..299 ->
+            %Response{body: body, status_code: status, headers: headers} when status in 200..299 ->
                 {:ok, body, headers}
-            Response[body: body, status_code: status, headers: headers] ->
+            %Response{body: body, status_code: status, headers: headers} ->
                 {:error, body, headers}
         end
     end

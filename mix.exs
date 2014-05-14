@@ -5,7 +5,7 @@ defmodule GistsIO.Mixfile do
         [ 
             app: :gistsio,
             version: "0.3.0",
-            elixir: "~> 0.12.5",
+            elixir: "~> 0.13.1",
             deps: deps,
             elixirc_options: options(Mix.env)
         ]
@@ -32,10 +32,10 @@ defmodule GistsIO.Mixfile do
     defp deps() do
         [ 
             {:cowboy, github: "extend/cowboy", tag: "0.9.0"},
-            {:httpotion, github: "myfreeweb/httpotion", ref: "94b0fdb7bb1f5322791e3a309f2e06d0b8ab9ef3"},
+            {:httpotion, github: "myfreeweb/httpotion", ref: "346d9c775c628dbd21657bd232a28b7cf718e6e5"},
             {:discount, [github: "asaaki/discount.ex", tag: "0.3.1"]},
             {:jsonex, github: "marcelog/jsonex", ref: "82e6c416eed5e791073427bf3079d7ab7b85a1e1"},
-            {:exlager, github: "khia/exlager", ref: "2a4b002dfe34abf1b03c9d26a3ebe2e101437f51"}
+            {:exlager, github: "khia/exlager", ref: "99eb3fb763ae546edfe2ac3dd181987a4872dfcc"}
         ]
     end
     

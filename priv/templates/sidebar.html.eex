@@ -20,7 +20,7 @@
 				<dd><%= user["public_repos"] %></dd>
 				<dt title="Followers">Followers</dt>
 				<dd><%= user["followers"] %></dd>
-				<dt tilte="Following">Following</dt>
+				<dt title="Following">Following</dt>
 				<dd><%= user["following"] %></dd>
 			</dl>
 		</div>
